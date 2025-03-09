@@ -1,0 +1,14 @@
+
+
+let do_something: void = set() {
+
+    output "Hello There";
+
+}
+
+
+let main: i8 = set() {
+
+
+}
+
