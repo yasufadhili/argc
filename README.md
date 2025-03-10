@@ -1,4 +1,4 @@
-# Argon - A Hobby Programming Language
+# Argon - Programming Language for x86_64 Linux Systems
 
 Argon is a **simple and minimalistic programming language** that compiles directly to **x86_64 Assembly** for Linux systems. 
 
