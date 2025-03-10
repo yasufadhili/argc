@@ -4,7 +4,7 @@ project(Argon)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(argon 
-    main.cxx
+    src/main.cxx
     src/ast.hxx
     src/token.hxx
     src/parser.hxx
