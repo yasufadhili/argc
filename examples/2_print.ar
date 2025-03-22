@@ -1,0 +1,10 @@
+module main;
+
+import std;
+
+func main() -> i32 {
+
+  std::out(23);
+
+  ret 0;
+}

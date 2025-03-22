@@ -1,0 +1,18 @@
+
+module main;
+
+function add() -> i32 {
+  return 20;
+}
+
+function subtract() -> i32 {
+  return 10;
+}
+
+function main() -> i32 {
+
+  return 0;
+}
+
+
+
