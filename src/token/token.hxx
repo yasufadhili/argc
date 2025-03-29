@@ -17,12 +17,15 @@ namespace token {
 
     COLON, SEMICOLON, COMMA,
 
-    PLUS, MINUS,
-    GREATER, LESS,
+    PLUS, MINUS, TIMES, DIVIDE,
+    TILDE, QUESTION,
+    GT, LT, EQ, NEQ, GTEQ, LTEQ,
+
+    L_AND, L_OR,
 
     LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, LEFT_PAREN, RIGHT_PAREN,
 
-    RETURN, FUNCTION, MODULE, IMPORT,
+    RET, DEF, MODULE, IMPORT,
 
     END_OF_LINE, END_OF_FILE,
   };
@@ -46,8 +49,16 @@ namespace token {
 
     {TokenType::PLUS, "PLUS"},
     {TokenType::MINUS, "MINUS"},
-    {TokenType::GREATER, "GREATER"},
-    {TokenType::LESS, "LESS"},
+    {TokenType::TILDE, "TILDE"},
+    {TokenType::GT, "GT"},
+    {TokenType::LT, "LT"},
+    {TokenType::EQ, "EQ"},
+{TokenType::NEQ, "NEQ"},
+    {TokenType::GTEQ, "GTEQ"},
+    {TokenType::LTEQ, "LTEQ"},
+    {TokenType::L_AND, "L_AND"},
+    {TokenType::L_OR, "L_OR"},
+{TokenType::QUESTION, "QUESTION"},
 
     {TokenType::LEFT_BRACKET, "LEFT_BRACKET"},
     {TokenType::RIGHT_BRACKET, "RIGHT_BRACKET"},
@@ -56,8 +67,8 @@ namespace token {
     {TokenType::LEFT_PAREN, "LEFT_PAREN"},
     {TokenType::RIGHT_PAREN, "RIGHT_PAREN"},
 
-    {TokenType::RETURN, "RETURN"},
-    {TokenType::FUNCTION, "FUNCTION"},
+    {TokenType::RET, "RET"},
+    {TokenType::DEF, "DEF"},
     {TokenType::MODULE, "MODULE"},
     {TokenType::IMPORT, "IMPORT"},
 

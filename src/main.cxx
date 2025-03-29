@@ -81,7 +81,6 @@ auto main(const int argc, const char* argv[]) -> int {
   }
 
   lexer::Lexer lxr ("", content);
-  //std::vector<token::Token> tokens { lxr.tokenise() };
 
   parser::Parser psr("", lxr.tokenise());
   std::shared_ptr<ast::prog::Program> program_ast = psr.parse();

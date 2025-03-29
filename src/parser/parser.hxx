@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "../ast/ast.hxx"
@@ -30,6 +31,8 @@ namespace parser {
     [[nodiscard]] auto match(const std::vector<TokenType> &) -> bool;
     //[[nodiscard]] auto match(const std::string &) -> bool;
 
+    auto skip_newlines() -> void;
+
     auto parse_program() -> std::shared_ptr<prog::Program>;
     auto parse_module() -> std::shared_ptr<module::Module>;
     auto parse_function() -> std::shared_ptr<func::Function>;
@@ -41,11 +44,21 @@ namespace parser {
     auto parse_return_stmt() -> std::shared_ptr<stmt::Return>;
 
     // Expr
+    auto parse_ternary_expr() -> std::shared_ptr<expr::Expression>;
+    //auto parse_binary_expr() -> std::shared_ptr<expr::Binary>;
+    auto parse_unary_expr() -> std::shared_ptr<expr::Expression>;
+    auto parse_term() -> std::shared_ptr<expr::Expression>;
+    auto parse_factor() -> std::shared_ptr<expr::Expression>;
+    auto parse_primary() -> std::shared_ptr<expr::Expression>;
     auto parse_literal_expr() -> std::shared_ptr<expr::Literal>;
+    auto parse_comparison() -> std::shared_ptr<expr::Expression>;
+    auto parse_equality() -> std::shared_ptr<expr::Expression>;
+    auto parse_logicalAnd() -> std::shared_ptr<expr::Expression>;
+    auto parse_logicalOr() -> std::shared_ptr<expr::Expression>;
 
   public:
 
-    Parser(const std::string &file, const std::vector<Token> &tokens) : file_(file), tokens_(tokens) {}
+    Parser(std::string file, const std::vector<Token> &tokens) : file_(std::move(file)), tokens_(tokens) {}
 
     auto parse() -> std::shared_ptr<prog::Program>;
 

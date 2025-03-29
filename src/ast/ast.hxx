@@ -4,7 +4,10 @@
 #include <optional>
 #include <string>
 #include <sstream>
+#include <utility>
 #include <vector>
+
+#include "../token/token.hxx"
 
 namespace ast {
 
@@ -30,6 +33,36 @@ namespace ast {
       void accept(Visitor &v) override = 0;
 
       ~Expression() override = default;
+    };
+
+    struct Unary final : Expression {
+      token::Token op;
+      std::shared_ptr<Expression> operand;
+      void accept(Visitor &) override;
+      Unary(token::Token op, std::shared_ptr<Expression> operand) : op(std::move(op)), operand(std::move(operand)) {}
+      ~Unary() override = default;
+    };
+
+    struct Binary final : Expression {
+      token::Token op;
+      std::shared_ptr<Expression> lhs, rhs;
+      void accept(Visitor &v) override;
+      Binary(token::Token op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs) : op(std::move(op)), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+      ~Binary() override = default;
+    };
+
+    struct Ternary final : Expression {
+      std::shared_ptr<Expression> condition, lhs, rhs;
+      void accept(Visitor &v) override;
+      Ternary(std::shared_ptr<Expression> condition, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs) : condition(std::move(condition)), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+      ~Ternary() override = default;
+    };
+
+    struct Grouping final : Expression {
+      std::shared_ptr<Expression> expr;
+      void accept(Visitor &v) override;
+      explicit Grouping(std::shared_ptr<Expression> expr) : expr(std::move(expr)) {}
+      ~Grouping() override = default;
     };
 
     struct Literal final : Expression {
@@ -125,6 +158,10 @@ namespace ast {
     virtual void visit(const func::Function&);
     virtual void visit(const stmt::Statement&);
     virtual void visit(const expr::Expression&);
+    virtual void visit(const expr::Unary&);
+    virtual void visit(const expr::Binary&);
+    virtual void visit(const expr::Ternary&);
+    virtual void visit(const expr::Grouping&);
     virtual void visit(const stmt::Block&);
     virtual void visit(const stmt::Return&);
     virtual void visit(const expr::Literal&);
@@ -139,6 +176,11 @@ namespace ast {
   inline void stmt::Block::accept(Visitor &v) { v.visit(*this); }
   inline void stmt::Return::accept(Visitor &v) { v.visit(*this); }
   inline void expr::Literal::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Unary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Binary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Ternary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Grouping::accept(Visitor &v) { v.visit(*this); }
+
 
 
 }

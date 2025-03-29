@@ -65,6 +65,31 @@ namespace ast {
     }
   }
 
+  void Visitor::visit(const expr::Unary &u) {
+    emit("Unary");
+    u.operand->accept(*this);
+  }
+
+  void Visitor::visit(const expr::Binary &b) {
+    emit("Binary");
+    b.lhs->accept(*this);
+    b.rhs->accept(*this);
+  }
+
+  void Visitor::visit(const expr::Ternary &t) {
+    emit("Ternary");
+    t.condition->accept(*this);
+    t.lhs->accept(*this);
+    t.rhs->accept(*this);
+  }
+
+  void Visitor::visit(const expr::Grouping &g) {
+    emit("Grouping");
+    g.expr->accept(*this);
+  }
+
+
+
 
 
 

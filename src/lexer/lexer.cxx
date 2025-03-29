@@ -24,13 +24,14 @@ namespace lexer {
     {',', TokenType::COMMA},
     {'+', TokenType::PLUS},
     {'-', TokenType::MINUS},
-    {'>', TokenType::GREATER},
-    {'<', TokenType::LESS}
+    {'>', TokenType::GT},
+    {'<', TokenType::LT},
+    {'?', TokenType::QUESTION},
   };
 
   inline std::unordered_map<std::string, TokenType> keywords_map{
-    {"function", TokenType::FUNCTION},
-    {"return", TokenType::RETURN},
+    {"def", TokenType::DEF},
+    {"ret", TokenType::RET},
     {"module", TokenType::MODULE},
     {"import", TokenType::IMPORT}
   };
@@ -91,7 +92,7 @@ namespace lexer {
       switch (const char c = peek()) {
         case '\n':
           //add_token(TokenType::END_OF_LINE, "\\n");
-            advance();
+          advance();
         break;
         case '/':
           if (peek(1) == '/') {

@@ -5,7 +5,7 @@ namespace parser {
 
 
   auto Parser::create_error(const std::string &msg) const -> void {
-    fprintf(stderr, "%s at line %d:%d",
+    fprintf(stderr, "%s at %d:%d",
             msg.c_str(),
             static_cast<int>(tokens_.at(index_).line),
             static_cast<int>(tokens_.at(index_).column)
@@ -15,7 +15,7 @@ namespace parser {
   }
 
   auto Parser::create_error(const std::string &msg, const std::string &lexeme) const -> void {
-    fprintf(stderr, "%s '%s' at line %d:%d",
+    fprintf(stderr, "%s '%s' at %d:%d",
             msg.c_str(),
             lexeme.c_str(),
             static_cast<int>(tokens_.at(index_).line),
@@ -57,22 +57,155 @@ namespace parser {
     return false;
   }
 
+  auto Parser::skip_newlines() -> void {
+    while (peek().type == TokenType::SEMICOLON) advance();
+  }
+
+  auto Parser::parse_ternary_expr() -> std::shared_ptr<expr::Expression> {
+    auto condition = parse_logicalOr();
+
+    if (match(TokenType::QUESTION)) {
+      advance(); // Consume '?'
+      auto true_branch = parse_expression();
+
+      if (!match(TokenType::COLON)) {
+        create_error("Expected ':' in ternary expression");
+      }
+      advance(); // Consume ':'
+
+      auto false_branch = parse_ternary_expr();
+      return std::make_shared<expr::Ternary>(condition, true_branch, false_branch);
+    }
+
+    return condition;
+  }
+
+  auto Parser::parse_logicalOr() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_logicalAnd();
+
+    while (match(TokenType::L_OR)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_logicalAnd();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+
+  auto Parser::parse_logicalAnd() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_equality();
+
+    while (match(TokenType::L_AND)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_equality();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_equality() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_comparison();
+
+    while (match({TokenType::EQ, TokenType::NEQ})) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_comparison();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_comparison() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_term();
+
+    while (match({TokenType::LT, TokenType::GT, TokenType::LTEQ, TokenType::GTEQ})) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_term();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_term() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_factor();
+
+    while (match({TokenType::PLUS, TokenType::MINUS})) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_factor();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_factor() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_unary_expr();
+
+    while (match({TokenType::TIMES, TokenType::DIVIDE})) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_unary_expr();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_unary_expr() -> std::shared_ptr<expr::Expression> {
+    if (match(TokenType::TILDE)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_unary_expr();
+      return std::make_shared<expr::Unary>(op, right);
+    }
+
+    return parse_primary();
+  }
+
+
+  auto Parser::parse_primary() -> std::shared_ptr<expr::Expression> {
+    if (match(TokenType::INTEGER)) {
+      return parse_literal_expr();
+    }
+    else if (match(TokenType::LEFT_PAREN)) {
+      advance(); // Consume '('
+      auto expr = parse_expression();
+
+      if (!match(TokenType::RIGHT_PAREN)) {
+        create_error("Expected ')' after expression");
+      }
+      advance(); // Consume ')'
+
+      return std::make_shared<expr::Grouping>(expr);
+    }
+
+    create_error("Expected expression, got", peek().lexeme);
+    return nullptr; // Unreachable, but needed for compiler
+  }
+
   auto Parser::parse_literal_expr() -> std::shared_ptr<expr::Literal> {
-    if (peek().type != TokenType::INTEGER) {
+    if (!match(TokenType::INTEGER)) {
       create_error("Expected integer literal");
     }
-    std::string value {peek().lexeme};
-    advance();
+    std::string value{peek().lexeme};
+    advance(); // Consume the integer
     return std::make_shared<expr::Literal>(value);
   }
 
-
   auto Parser::parse_expression() -> std::shared_ptr<expr::Expression> {
-    return parse_literal_expr();
+    return parse_ternary_expr();
   }
 
   auto Parser::parse_return_stmt() -> std::shared_ptr<stmt::Return> {
-    if (peek().type != TokenType::RETURN) {
+    if (peek().type != TokenType::RET) {
       create_error("Expected a return statement.");
     }
     advance();
@@ -85,6 +218,7 @@ namespace parser {
   }
 
   auto Parser::parse_block_stmt() -> std::shared_ptr<stmt::Block> {
+
     if (peek().type != TokenType::LEFT_BRACE) {
       create_error("Expected a '{' to start statement block.");
     }
@@ -105,7 +239,8 @@ namespace parser {
   }
 
   auto Parser::parse_statement() -> std::shared_ptr<stmt::Statement> {
-    if (peek().type == TokenType::RETURN) {
+
+    if (peek().type == TokenType::RET) {
       return parse_return_stmt();
     }
     create_error("Expected a statement");
@@ -113,7 +248,7 @@ namespace parser {
   }
 
   auto Parser::parse_function() -> std::shared_ptr<func::Function> {
-    if (peek().type != TokenType::FUNCTION) {
+    if (peek().type != TokenType::DEF) {
       create_error("Expected function");
     }
     advance();
@@ -154,6 +289,7 @@ namespace parser {
   }
 
   auto Parser::parse_module() -> std::shared_ptr<module::Module> {
+    while (peek().type == TokenType::SEMICOLON) advance();
     if (peek().type != TokenType::MODULE) {
       create_error("Expected module.");
     }
@@ -166,7 +302,7 @@ namespace parser {
     advance();
 
     if (peek().type != TokenType::SEMICOLON) {
-      create_error("Expected ';'");
+      create_error("Expected ';' after module definition");
     }
     advance();
 
