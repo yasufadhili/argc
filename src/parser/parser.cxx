@@ -61,8 +61,12 @@ namespace parser {
     while (peek().type == TokenType::SEMICOLON) advance();
   }
 
+  auto Parser::parse_expression() -> std::shared_ptr<expr::Expression> {
+    return parse_ternary_expr();
+  }
+
   auto Parser::parse_ternary_expr() -> std::shared_ptr<expr::Expression> {
-    auto condition = parse_logicalOr();
+    auto condition = parse_logical_or();
 
     if (match(TokenType::QUESTION)) {
       advance(); // Consume '?'
@@ -80,24 +84,62 @@ namespace parser {
     return condition;
   }
 
-  auto Parser::parse_logicalOr() -> std::shared_ptr<expr::Expression> {
-    auto left = parse_logicalAnd();
+  auto Parser::parse_logical_or() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_logical_and();
 
     while (match(TokenType::L_OR)) {
       Token op = peek();
       advance(); // Consume the operator
-      auto right = parse_logicalAnd();
+      auto right = parse_logical_and();
       left = std::make_shared<expr::Binary>(op, left, right);
     }
 
     return left;
   }
 
-
-  auto Parser::parse_logicalAnd() -> std::shared_ptr<expr::Expression> {
-    auto left = parse_equality();
+  auto Parser::parse_logical_and() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_bitwise_or();
 
     while (match(TokenType::L_AND)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_bitwise_or();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_bitwise_or() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_bitwise_xor();
+
+    while (match(TokenType::B_OR)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_bitwise_xor();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_bitwise_xor() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_bitwise_and();
+
+    while (match(TokenType::B_XOR)) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_bitwise_and();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_bitwise_and() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_equality();
+
+    while (match(TokenType::B_AND)) {
       Token op = peek();
       advance(); // Consume the operator
       auto right = parse_equality();
@@ -121,9 +163,22 @@ namespace parser {
   }
 
   auto Parser::parse_comparison() -> std::shared_ptr<expr::Expression> {
-    auto left = parse_term();
+    auto left = parse_shift_expr();
 
     while (match({TokenType::LT, TokenType::GT, TokenType::LTEQ, TokenType::GTEQ})) {
+      Token op = peek();
+      advance(); // Consume the operator
+      auto right = parse_shift_expr();
+      left = std::make_shared<expr::Binary>(op, left, right);
+    }
+
+    return left;
+  }
+
+  auto Parser::parse_shift_expr() -> std::shared_ptr<expr::Expression> {
+    auto left = parse_term();
+
+    while (match({TokenType::SHL, TokenType::SHR})) {
       Token op = peek();
       advance(); // Consume the operator
       auto right = parse_term();
@@ -149,7 +204,7 @@ namespace parser {
   auto Parser::parse_factor() -> std::shared_ptr<expr::Expression> {
     auto left = parse_unary_expr();
 
-    while (match({TokenType::TIMES, TokenType::DIVIDE})) {
+    while (match({TokenType::TIMES, TokenType::DIVIDE, TokenType::MODULO})) {
       Token op = peek();
       advance(); // Consume the operator
       auto right = parse_unary_expr();
@@ -160,7 +215,7 @@ namespace parser {
   }
 
   auto Parser::parse_unary_expr() -> std::shared_ptr<expr::Expression> {
-    if (match(TokenType::TILDE)) {
+    if (match({TokenType::TILDE, TokenType::MINUS})) {
       Token op = peek();
       advance(); // Consume the operator
       auto right = parse_unary_expr();
@@ -169,7 +224,6 @@ namespace parser {
 
     return parse_primary();
   }
-
 
   auto Parser::parse_primary() -> std::shared_ptr<expr::Expression> {
     if (match(TokenType::INTEGER)) {
@@ -200,9 +254,6 @@ namespace parser {
     return std::make_shared<expr::Literal>(value);
   }
 
-  auto Parser::parse_expression() -> std::shared_ptr<expr::Expression> {
-    return parse_ternary_expr();
-  }
 
   auto Parser::parse_return_stmt() -> std::shared_ptr<stmt::Return> {
     if (peek().type != TokenType::RET) {

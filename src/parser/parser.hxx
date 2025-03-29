@@ -44,6 +44,20 @@ namespace parser {
     auto parse_return_stmt() -> std::shared_ptr<stmt::Return>;
 
     // Expr
+    // Expression -> TernaryExpr
+    // TernaryExpr -> LogicalOrExpr ["?" Expression ":" TernaryExpr]
+    // LogicalOrExpr -> LogicalAndExpr ("||" LogicalAndExpr)*
+    // LogicalAndExpr -> BitwiseOrExpr ("&&" BitwiseOrExpr)*
+    // BitwiseOrExpr -> BitwiseXorExpr ("|" BitwiseXorExpr)*
+    // BitwiseXorExpr -> BitwiseAndExpr ("^" BitwiseAndExpr)*
+    // BitwiseAndExpr -> EqualityExpr ("&" EqualityExpr)*
+    // EqualityExpr -> ComparisonExpr (("==" | "!=") ComparisonExpr)*
+    // ComparisonExpr -> ShiftExpr (("<" | ">" | "<=" | ">=") ShiftExpr)*
+    // ShiftExpr -> TermExpr (("<<" | ">>") TermExpr)*
+    // TermExpr -> FactorExpr (("+" | "-") FactorExpr)*
+    // FactorExpr -> UnaryExpr (("*" | "/") UnaryExpr)*
+    // UnaryExpr -> "~" UnaryExpr | PrimaryExpr
+    // PrimaryExpr -> INTEGER | "(" Expression ")"
     auto parse_ternary_expr() -> std::shared_ptr<expr::Expression>;
     //auto parse_binary_expr() -> std::shared_ptr<expr::Binary>;
     auto parse_unary_expr() -> std::shared_ptr<expr::Expression>;
@@ -53,8 +67,12 @@ namespace parser {
     auto parse_literal_expr() -> std::shared_ptr<expr::Literal>;
     auto parse_comparison() -> std::shared_ptr<expr::Expression>;
     auto parse_equality() -> std::shared_ptr<expr::Expression>;
-    auto parse_logicalAnd() -> std::shared_ptr<expr::Expression>;
-    auto parse_logicalOr() -> std::shared_ptr<expr::Expression>;
+    auto parse_logical_and() -> std::shared_ptr<expr::Expression>;
+    auto parse_logical_or() -> std::shared_ptr<expr::Expression>;
+    auto parse_shift_expr() -> std::shared_ptr<expr::Expression>;
+    auto parse_bitwise_xor() -> std::shared_ptr<expr::Expression>;
+    auto parse_bitwise_or() -> std::shared_ptr<expr::Expression>;
+    auto parse_bitwise_and() -> std::shared_ptr<expr::Expression>;
 
   public:
 

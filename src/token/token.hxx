@@ -17,11 +17,14 @@ namespace token {
 
     COLON, SEMICOLON, COMMA,
 
-    PLUS, MINUS, TIMES, DIVIDE,
+    PLUS, MINUS, TIMES, DIVIDE, MODULO,
     TILDE, QUESTION,
     GT, LT, EQ, NEQ, GTEQ, LTEQ,
 
     L_AND, L_OR,
+    B_AND, B_OR, B_XOR, B_NOT,
+
+    SHL, SHR,
 
     LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, LEFT_PAREN, RIGHT_PAREN,
 
@@ -49,6 +52,8 @@ namespace token {
 
     {TokenType::PLUS, "PLUS"},
     {TokenType::MINUS, "MINUS"},
+{TokenType::TIMES, "TIMES"},
+{TokenType::MODULO, "MODULO"},
     {TokenType::TILDE, "TILDE"},
     {TokenType::GT, "GT"},
     {TokenType::LT, "LT"},
@@ -59,6 +64,12 @@ namespace token {
     {TokenType::L_AND, "L_AND"},
     {TokenType::L_OR, "L_OR"},
 {TokenType::QUESTION, "QUESTION"},
+    {TokenType::B_AND, "B_AND"},
+    {TokenType::B_OR, "B_OR"},
+{TokenType::B_NOT, "B_NOT"},
+{TokenType::B_XOR, "B_XOR"},
+    {TokenType::SHL, "SHL"},
+    {TokenType::SHR, "SHR"},
 
     {TokenType::LEFT_BRACKET, "LEFT_BRACKET"},
     {TokenType::RIGHT_BRACKET, "RIGHT_BRACKET"},
