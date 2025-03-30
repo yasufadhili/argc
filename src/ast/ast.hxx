@@ -97,6 +97,15 @@ namespace ast {
       ~Return() override = default;
     };
 
+    struct Var final : Statement {
+      std::string name;
+      std::string type;
+      std::optional<std::shared_ptr<expr::Expression>> value;
+      void accept(Visitor &v) override;
+      Var(std::string name, std::string type, const std::optional<std::shared_ptr<expr::Expression>>& value) : name(std::move(name)), type(std::move(type)), value(value) {}
+      ~Var() override = default;
+    };
+
   }
 
   namespace func {
@@ -165,6 +174,7 @@ namespace ast {
     virtual void visit(const stmt::Block&);
     virtual void visit(const stmt::Return&);
     virtual void visit(const expr::Literal&);
+    virtual void visit(const stmt::Var&);
 
   };
 
@@ -180,6 +190,8 @@ namespace ast {
   inline void expr::Binary::accept(Visitor &v) { v.visit(*this); }
   inline void expr::Ternary::accept(Visitor &v) { v.visit(*this); }
   inline void expr::Grouping::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Var::accept(Visitor &v) { v.visit(*this); }
+
 
 
 

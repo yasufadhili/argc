@@ -88,7 +88,12 @@ namespace ast {
     g.expr->accept(*this);
   }
 
-
+  void Visitor::visit(const stmt::Var &v) {
+    emit("Variable Stmt");
+    if (v.value.has_value()) {
+      v.value.value()->accept(*this);
+    }
+  }
 
 
 
