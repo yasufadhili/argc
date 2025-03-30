@@ -33,7 +33,8 @@ namespace lexer {
     {"def", TokenType::DEF},
     {"ret", TokenType::RET},
     {"module", TokenType::MODULE},
-    {"import", TokenType::IMPORT}
+    {"import", TokenType::IMPORT},
+    {"var", TokenType::VAR}
   };
 
 
