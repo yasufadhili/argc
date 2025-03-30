@@ -66,7 +66,7 @@ auto read_file_to_string(const std::string& filename, std::string& content) -> R
 
 auto main(const int argc, const char* argv[]) -> int {
 
-  const std::string filename {"../../examples/3_var.ar"};
+  const std::string filename {"../../examples/1_ret.ar"};
   std::string outfile { "out" };
   std::string content;
 
@@ -82,6 +82,10 @@ auto main(const int argc, const char* argv[]) -> int {
 
   lexer::Lexer lxr ("", content);
 
+  //for (const auto& t : lxr.tokenise()) {
+  //  printf(t.to_string().c_str());
+  //  printf("\n");
+  //}
   parser::Parser psr("", lxr.tokenise());
   std::shared_ptr<ast::prog::Program> program_ast = psr.parse();
 

@@ -95,7 +95,7 @@ namespace lexer {
     while (true) {
       switch (const char c = peek()) {
         case '\n':
-          //add_token(TokenType::END_OF_LINE, "\\n");
+          add_token(TokenType::END_OF_LINE, "\\n");
           advance();
         break;
         case '/':

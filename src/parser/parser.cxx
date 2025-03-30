@@ -58,7 +58,7 @@ namespace parser {
   }
 
   auto Parser::skip_newlines() -> void {
-    while (peek().type == TokenType::SEMICOLON) advance();
+    while (peek().type == TokenType::END_OF_LINE && peek().type != TokenType::END_OF_FILE) advance();
   }
 
   auto Parser::parse_expression() -> std::shared_ptr<expr::Expression> {
@@ -256,13 +256,14 @@ namespace parser {
 
 
   auto Parser::parse_return_stmt() -> std::shared_ptr<stmt::Return> {
+    //skip_newlines();
     if (peek().type != TokenType::RET) {
       create_error("Expected a return statement.");
     }
     advance();
     std::shared_ptr<expr::Expression> expr {parse_expression()};
-    if (peek().type != TokenType::SEMICOLON) {
-      create_error("Expected ';' after return statement.");
+    if (peek().type != TokenType::END_OF_LINE) {
+      create_error("Expected newline after return statement.");
     }
     advance();
     return std::make_shared<stmt::Return>(expr);
@@ -280,30 +281,25 @@ namespace parser {
     std::string name {peek().lexeme};
     advance();
 
-    if (peek().type != TokenType::COLON) {
-      create_error("Expected ':'");
-    }
-    advance();
-
     if (peek().type != TokenType::TYPE_IDENTIFIER) {
       create_error("Expected type identifier");
     }
     std::string type {peek().lexeme};
     advance();
 
-    if (peek().type == TokenType::SEMICOLON) {
+    if (peek().type == TokenType::END_OF_LINE) {
       advance();
       return std::make_shared<stmt::Var>(name, type, std::nullopt);
     }
 
     if (peek().type != TokenType::EQ) {
-      create_error("Expected '=' or ';'");
+      create_error("Expected '=' or newline");
     }
     advance();
 
     std::shared_ptr<expr::Expression> exp {parse_expression()};
-    if (peek().type != TokenType::SEMICOLON) {
-      create_error("Expected ';'");
+    if (peek().type != TokenType::END_OF_LINE) {
+      create_error("Expected newline");
     }
     advance();
     return std::make_shared<stmt::Var>(name, type, exp);
@@ -311,12 +307,12 @@ namespace parser {
 
 
   auto Parser::parse_block_stmt() -> std::shared_ptr<stmt::Block> {
-
+    //skip_newlines();
     if (peek().type != TokenType::LEFT_BRACE) {
       create_error("Expected a '{' to start statement block.");
     }
     advance();
-
+    skip_newlines();
     std::vector<std::shared_ptr<stmt::Statement>> stmts;
 
     while (peek().type != TokenType::RIGHT_BRACE) {
@@ -328,11 +324,16 @@ namespace parser {
     }
     advance();
 
+    if (peek().type != TokenType::END_OF_LINE) {
+      create_error("Expected newline to end statement block.");
+    }
+    advance();
+
     return std::make_shared<stmt::Block>(stmts);
   }
 
   auto Parser::parse_statement() -> std::shared_ptr<stmt::Statement> {
-
+    //skip_newlines();
     if (peek().type == TokenType::RET) {
       return parse_return_stmt();
     }
@@ -346,6 +347,7 @@ namespace parser {
   }
 
   auto Parser::parse_function() -> std::shared_ptr<func::Function> {
+    skip_newlines();
     if (peek().type != TokenType::DEF) {
       create_error("Expected function");
     }
@@ -366,11 +368,6 @@ namespace parser {
     }
     advance();
 
-    if (peek().type != TokenType::RIGHT_ARROW) {
-      create_error("Expected '->");
-    }
-    advance();
-
     if (peek().type != TokenType::TYPE_IDENTIFIER) {
       create_error("Expected type identifier");
     }
@@ -383,11 +380,12 @@ namespace parser {
 
     std::shared_ptr<stmt::Block> body { parse_block_stmt() };
 
+    skip_newlines();
     return std::make_shared<func::Function>(name, rt, body);
   }
 
   auto Parser::parse_module() -> std::shared_ptr<module::Module> {
-
+    skip_newlines();
     if (peek().type != TokenType::MODULE) {
       create_error("Expected module.");
     }
@@ -399,8 +397,8 @@ namespace parser {
     std::string name { peek().lexeme };
     advance();
 
-    if (peek().type != TokenType::SEMICOLON) {
-      create_error("Expected ';' after module definition");
+    if (peek().type != TokenType::END_OF_LINE) {
+      create_error("Expected newline after module definition");
     }
     advance();
 
@@ -420,6 +418,7 @@ namespace parser {
       exit(1);
     }
     while (peek().type != TokenType::END_OF_FILE) {
+      if (peek().type == TokenType::END_OF_LINE) advance();
       modules.emplace_back(parse_module());
     }
     return std::make_shared<prog::Program>(modules);

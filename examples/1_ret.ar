@@ -1,14 +1,10 @@
 
-module main;
+module main
 
-def ternary() -> i64 {
-  ret (0 > 2) ? 1 : 9;
+def ternary() i64 {
+  ret (0 > 2) ? 1 : 9
 }
 
-def main() -> i32 {
-
-  ret 0 + 2;
+def main() i32 {
+  var x i32
 }
-
-
-
