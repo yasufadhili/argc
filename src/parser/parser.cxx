@@ -268,6 +268,44 @@ namespace parser {
     return std::make_shared<stmt::Return>(expr);
   }
 
+  auto Parser::parse_var_stmt() -> std::shared_ptr<stmt::Var> {
+    if (peek().type != TokenType::VAR) {
+      create_error("Expected 'var' keyword");
+    }
+    advance();
+
+    if (peek().type != TokenType::IDENTIFIER) {
+      create_error("Expected identifier");
+    }
+    std::string name {peek().lexeme};
+    advance();
+
+    if (peek().type != TokenType::COLON) {
+      create_error("Expected ':'");
+    }
+    advance();
+
+    if (peek().type != TokenType::TYPE_IDENTIFIER) {
+      create_error("Expected type identifier");
+    }
+    std::string type {peek().lexeme};
+    advance();
+
+    if (peek().type == TokenType::SEMICOLON) {
+      return std::make_shared<stmt::Var>(name, type, nullptr);
+    }
+
+    if (peek().type != TokenType::EQ) {
+      create_error("Expected type identifier");
+    }
+    advance();
+
+    std::shared_ptr<expr::Expression> exp {parse_expression()};
+
+    return std::make_shared<stmt::Var>(name, type, exp);
+  }
+
+
   auto Parser::parse_block_stmt() -> std::shared_ptr<stmt::Block> {
 
     if (peek().type != TokenType::LEFT_BRACE) {
@@ -294,6 +332,11 @@ namespace parser {
     if (peek().type == TokenType::RET) {
       return parse_return_stmt();
     }
+
+    if (peek().type == TokenType::VAR) {
+      return parse_var_stmt();
+    }
+
     create_error("Expected a statement");
     return nullptr;
   }
@@ -340,7 +383,7 @@ namespace parser {
   }
 
   auto Parser::parse_module() -> std::shared_ptr<module::Module> {
-    while (peek().type == TokenType::SEMICOLON) advance();
+
     if (peek().type != TokenType::MODULE) {
       create_error("Expected module.");
     }
@@ -368,6 +411,10 @@ namespace parser {
 
   auto Parser::parse_program() -> std::shared_ptr<prog::Program> {
     std::vector<std::shared_ptr<module::Module>> modules;
+    if (peek().type == TokenType::END_OF_FILE) {
+      fprintf(stderr, "Empty source file");
+      exit(1);
+    }
     while (peek().type != TokenType::END_OF_FILE) {
       modules.emplace_back(parse_module());
     }

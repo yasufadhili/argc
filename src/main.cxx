@@ -66,7 +66,7 @@ auto read_file_to_string(const std::string& filename, std::string& content) -> R
 
 auto main(const int argc, const char* argv[]) -> int {
 
-  const std::string filename {"../../examples/1_ret.ar"};
+  const std::string filename {"../../examples/3_var.ar"};
   std::string outfile { "out" };
   std::string content;
 

@@ -42,6 +42,7 @@ namespace parser {
     // Stmts
     auto parse_block_stmt() -> std::shared_ptr<stmt::Block>;
     auto parse_return_stmt() -> std::shared_ptr<stmt::Return>;
+    auto parse_var_stmt() -> std::shared_ptr<stmt::Var>;
 
     // Expr
     // Expression -> TernaryExpr
