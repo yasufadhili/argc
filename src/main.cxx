@@ -88,7 +88,18 @@ auto main(const int argc, const char* argv[]) -> int {
   ast::Visitor visitor;
   program_ast->accept(visitor);
 
-  printf(visitor.get_output().c_str());
+  std::ofstream os("../../output");
+  if (!os.is_open()) {
+    fprintf(stderr, "Unable to open output file");
+    return 1;
+  }
+
+  os << visitor.get_output().c_str();
+
+  if (os.bad()) {
+    fprintf(stderr, "Failed to write to output file");
+    return 1;
+  }
 
   return 0;
 }
