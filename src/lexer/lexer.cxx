@@ -3,6 +3,7 @@
 
 #include "lexer.hxx"
 
+#include "../registry/registry.hxx"
 #include "../token/token.hxx"
 
 namespace lexer {
@@ -27,6 +28,8 @@ namespace lexer {
     {'>', TokenType::GT},
     {'<', TokenType::LT},
     {'?', TokenType::QUESTION},
+{'=', TokenType::EQ},
+{'*', TokenType::TIMES},
   };
 
   inline std::unordered_map<std::string, TokenType> keywords_map{
@@ -198,9 +201,9 @@ namespace lexer {
     if (const auto it = keywords_map.find(txt); it != keywords_map.end()) {
       type = it->second;
     }
-    //if (registry::DataTypeRegistry::get_instance().is_data_type_registered(txt)) {
-    //  type = TokenType::TYPE_IDENTIFIER;
-    //}
+    if (registry::TypeRegistry::get_instance().is_data_type_registered(txt)) {
+      type = TokenType::TYPE_IDENTIFIER;
+    }
     add_token(type, txt);
   }
 

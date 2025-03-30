@@ -3,3 +3,14 @@ Program
 Module - main 1 
 Function main 
 Block 
+Variable Stmt x i32 
+Variable Stmt y i64 
+Variable Stmt x i64 
+Binary 
+Binary 
+Literal 56 
+Literal 6 
+Grouping 
+Binary 
+Literal 5 
+Literal 5 

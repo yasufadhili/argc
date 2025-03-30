@@ -292,16 +292,20 @@ namespace parser {
     advance();
 
     if (peek().type == TokenType::SEMICOLON) {
-      return std::make_shared<stmt::Var>(name, type, nullptr);
+      advance();
+      return std::make_shared<stmt::Var>(name, type, std::nullopt);
     }
 
     if (peek().type != TokenType::EQ) {
-      create_error("Expected type identifier");
+      create_error("Expected '=' or ';'");
     }
     advance();
 
     std::shared_ptr<expr::Expression> exp {parse_expression()};
-
+    if (peek().type != TokenType::SEMICOLON) {
+      create_error("Expected ';'");
+    }
+    advance();
     return std::make_shared<stmt::Var>(name, type, exp);
   }
 
@@ -367,7 +371,7 @@ namespace parser {
     }
     advance();
 
-    if (peek().type != TokenType::IDENTIFIER) {
+    if (peek().type != TokenType::TYPE_IDENTIFIER) {
       create_error("Expected type identifier");
     }
     std::string rt {peek().lexeme};

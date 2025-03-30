@@ -5,6 +5,6 @@ def main() -> i32 {
   var x: i32;
   var y: i64;
 
-
+  var x: i64 = 56 * 6 + (5 -5);
 
 }
