@@ -28,7 +28,7 @@ namespace token {
 
     LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, LEFT_PAREN, RIGHT_PAREN,
 
-    RET, DEF, MODULE, IMPORT,
+    RET, DEF, MODULE, IMPORT, VAR,
 
     END_OF_LINE, END_OF_FILE,
   };
@@ -82,6 +82,7 @@ namespace token {
     {TokenType::DEF, "DEF"},
     {TokenType::MODULE, "MODULE"},
     {TokenType::IMPORT, "IMPORT"},
+{TokenType::VAR, "VAR"},
 
     {TokenType::END_OF_LINE, "END_OF_LINE"},
     {TokenType::END_OF_FILE, "END_OF_FILE"},
