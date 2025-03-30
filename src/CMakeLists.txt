@@ -7,4 +7,5 @@ add_executable(argon main.cxx
     ast/ast.hxx
     ast/visitor.cxx
     parser/parser.cxx
-    parser/parser.hxx)
+    parser/parser.hxx
+    registry/registry.hxx)
