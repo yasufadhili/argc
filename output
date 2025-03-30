@@ -14,3 +14,15 @@ Literal 9
 Function main 
 Block 
 Variable Stmt x i32 
+Variable Stmt y i64 
+Variable Stmt z i64 
+Binary 
+Binary 
+Literal 56 
+Literal 6 
+Grouping 
+Binary 
+Literal 5 
+Literal 5 
+Variable Stmt tty i8 
+Literal 67 

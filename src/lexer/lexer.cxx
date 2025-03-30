@@ -337,6 +337,7 @@ namespace lexer {
       exit(1);
     }
 
+    tokens_.emplace_back(TokenType::END_OF_LINE, "\n", line_, col_, index_);
     tokens_.emplace_back(TokenType::END_OF_FILE, "", line_, col_, index_);
 
     return tokens_;

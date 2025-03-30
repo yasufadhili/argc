@@ -302,12 +302,13 @@ namespace parser {
       create_error("Expected newline");
     }
     advance();
+    skip_newlines();
     return std::make_shared<stmt::Var>(name, type, exp);
   }
 
 
   auto Parser::parse_block_stmt() -> std::shared_ptr<stmt::Block> {
-    //skip_newlines();
+    skip_newlines();
     if (peek().type != TokenType::LEFT_BRACE) {
       create_error("Expected a '{' to start statement block.");
     }
@@ -324,16 +325,17 @@ namespace parser {
     }
     advance();
 
-    if (peek().type != TokenType::END_OF_LINE) {
+    if (!match(TokenType::END_OF_LINE)) {
       create_error("Expected newline to end statement block.");
     }
     advance();
 
+    skip_newlines();
     return std::make_shared<stmt::Block>(stmts);
   }
 
   auto Parser::parse_statement() -> std::shared_ptr<stmt::Statement> {
-    //skip_newlines();
+    skip_newlines();
     if (peek().type == TokenType::RET) {
       return parse_return_stmt();
     }

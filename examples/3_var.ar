@@ -1,10 +1,20 @@
-module main;
 
-def main() -> i32 {
+module main
 
-  var x: i32;
-  var y: i64;
+def ternary() i64 {
+  ret (0 > 2) ? 1 : 9
+}
 
-  var z: i64 = 56 * 6 + (5 -5);
+def main() i32 {
+
+  var x i32
+  var y i64
+
+  var z i64 = 56 * 6 + (5 -5)
+
+
+
+
+  var tty i8 = 67
 
 }
