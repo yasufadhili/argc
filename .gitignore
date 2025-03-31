@@ -39,3 +39,5 @@ build
 
 .vscode
 output
+build
+.cache

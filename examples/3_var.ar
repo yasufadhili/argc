@@ -12,9 +12,6 @@ def main() i32 {
 
   var z i64 = 56 * 6 + (5 -5)
 
-
-
-
   var tty i8 = 67
 
 }

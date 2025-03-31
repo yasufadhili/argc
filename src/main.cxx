@@ -65,9 +65,21 @@ auto read_file_to_string(const std::string& filename, std::string& content) -> R
 }
 
 auto main(const int argc, const char* argv[]) -> int {
-
-  const std::string filename {"../../examples/3_var.ar"};
-  std::string outfile { "out" };
+  // Process command line arguments
+  std::string filename;
+  std::string outfile = "output";
+  
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s <input_file.ar> [output_file]\n", argv[0]);
+    return 1;
+  }
+  
+  filename = argv[1];
+  
+  if (argc >= 3) {
+    outfile = argv[2];
+  }
+  
   std::string content;
 
   if (get_file_extension(filename) != ".ar") {
@@ -92,9 +104,9 @@ auto main(const int argc, const char* argv[]) -> int {
   ast::Visitor visitor;
   program_ast->accept(visitor);
 
-  std::ofstream os("../../output");
+  std::ofstream os(outfile);
   if (!os.is_open()) {
-    fprintf(stderr, "Unable to open output file");
+    fprintf(stderr, "Unable to open output file: %s\n", outfile.c_str());
     return 1;
   }
 

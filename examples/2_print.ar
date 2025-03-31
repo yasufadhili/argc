@@ -1,10 +1,10 @@
-module main;
+module main
 
-import std;
+import std
 
-def main() -> i32 {
+def main() i32 {
 
-  std::out(23);
+  call std::out(23)
 
-  ret 0;
+  ret 0
 }
