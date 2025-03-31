@@ -1,10 +1,10 @@
 
-#include <fstream>
-#include <filesystem>
 #include <string>
 
 #include "lexer/lexer.hxx"
 #include "parser/parser.hxx"
+#include "utils/reader.hxx"
+#include "utils/writer.hxx"
 
 
 enum class ErrorCode {
@@ -39,24 +39,13 @@ auto get_file_extension(const std::string& filename) -> std::string {
 }
 
 auto read_file_to_string(const std::string& filename, std::string& content) -> Result {
-  if (!std::filesystem::exists(filename)) {
-    return Result::error(ErrorCode::FILE_NOT_FOUND, "File not found: " + filename);
-  }
-
-  std::ifstream file(filename, std::ios::binary);
-  if (!file.is_open()) {
-    return Result::error(ErrorCode::ACCESS_DENIED, "Cannot access file: " + filename);
-  }
-
   try {
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    content = buffer.str();
-
-    if (file.bad()) {
-      return Result::error(ErrorCode::IO_ERROR, "I/O error while reading file: " + filename);
+    if (!utils::reader::file_exists(filename)) {
+      return Result::error(ErrorCode::FILE_NOT_FOUND, "File not found: " + filename);
     }
 
+    utils::reader::FileReader reader(filename);
+    content = reader.read_all();
     return Result::ok();
   }
   catch (const std::exception& e) {
@@ -65,7 +54,6 @@ auto read_file_to_string(const std::string& filename, std::string& content) -> R
 }
 
 auto main(const int argc, const char* argv[]) -> int {
-  // Process command line arguments
   std::string filename;
   std::string outfile = "output";
   
@@ -104,16 +92,15 @@ auto main(const int argc, const char* argv[]) -> int {
   ast::Visitor visitor;
   program_ast->accept(visitor);
 
-  std::ofstream os(outfile);
-  if (!os.is_open()) {
-    fprintf(stderr, "Unable to open output file: %s\n", outfile.c_str());
-    return 1;
+  try {
+    utils::writer::FileWriter writer(outfile);
+    if (!writer.write(visitor.get_output())) {
+      fprintf(stderr, "Failed to write to output file: %s\n", outfile.c_str());
+      return 1;
+    }
   }
-
-  os << visitor.get_output().c_str();
-
-  if (os.bad()) {
-    fprintf(stderr, "Failed to write to output file");
+  catch (const std::exception& e) {
+    fprintf(stderr, "Error writing to output file: %s\n", e.what());
     return 1;
   }
 
