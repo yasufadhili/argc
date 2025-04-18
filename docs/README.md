@@ -1,11 +1,12 @@
-
 # 📚 Argon Documentation
 
-Welcome to the **Argon Documentation** directory! This is where all the knowledge about Argon comes together, neatly organized and beautifully presented using [MKDocs](https://www.mkdocs.org/). If you’re looking for guides, tutorials, or detailed references, you’re in the right place. 🌟
+Welcome to the **Argon Documentation** directory! This is where all the knowledge about Argon comes together, neatly organised and beautifully presented using [MKDocs](https://www.mkdocs.org/). If you’re looking for guides, tutorials, or detailed references, you’re in the right place. 🌟
 
 ## 🌐 What is This?
 
 This directory contains the source files for the Argon documentation, which is converted into a sleek and user-friendly website using MKDocs. The website is your go-to resource for everything Argon, from getting started to diving deep into the language’s internals.
+
+> **Note**: Argon is still in development! 🚧 While the documentation aims to provide a comprehensive guide, some features and details may change as the language evolves. Expect updates and improvements as the project progresses.
 
 You can view the live documentation here: [Argon Docs Website](https://yasufadhili.github.io/argon/docs/) 🌐✨
 
@@ -59,14 +60,17 @@ We’re always looking to improve the Argon documentation! Here’s how you can 
 3. Test your changes locally using `mkdocs serve`.  
 4. Submit a pull request with a clear description of your updates.  
 
+> **Reminder**: Since Argon is still in development, contributions are especially valuable to help shape the language and its documentation.
+
 ## 🌟 Why MKDocs?
 
 I chose MKDocs because it’s:
 
 - **Simple**: Easy to write and maintain documentation using Markdown.  
-  
-- **Beautiful**: Comes with great themes like [Material for MKDocs](https://squidfunk.github.io/mkdocs-material/). 
-   
+
+
+- **Beautiful**: Comes with great themes like [Material for MKDocs](https://squidfunk.github.io/mkdocs-material/).  
+
 - **Fast**: Quickly serves and builds static sites.  
 
 ## 🛠️ Customising the Docs
@@ -79,8 +83,8 @@ The configuration for the documentation site is in the `mkdocs.yml` file. You ca
 
 ## 🌈 Join the Community
 
-If you have questions, suggestions, or just want to say hi, feel free to reach out! The Argon community (just me) is always happy to help.
+If you have questions, suggestions, or just want to say hi, feel free to reach out! The Argon community (just me, for now) is always happy to help.
 
 ---
 
-**Argon Docs: Because every great language deserves great documentation.** 📚✨
+**Argon Docs: Because every great language deserves great documentation—even in its early days.** 📚✨
