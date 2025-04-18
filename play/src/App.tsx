@@ -10,18 +10,18 @@ export const AppEventBus = {
   runCode: new EventTarget(),
   saveProject: new EventTarget(),
   clearConsole: new EventTarget(),
-  // Add more events as needed
+  // Will add more events later
 };
 
 const App: React.FC = () => {
   const { compileAndRun } = useCompiler();
-  const { currentFileId, nodes } = useFileSystemStore();
+  const { currentFileId } = useFileSystemStore();
   const consoleMethods = useRef<{
     addMessage?: (content: string, type: MessageType) => void;
     clearConsole?: () => void;
   }>({});
   
-  // Listen for run code events
+
   useEffect(() => {
     const handleRunCode = async () => {
       if (!currentFileId) {
@@ -62,7 +62,7 @@ const App: React.FC = () => {
   // Handle save project events
   useEffect(() => {
     const handleSaveProject = () => {
-      // Implement project saving logic here
+      // Implement project saving logic here later
       consoleMethods.current.addMessage?.('Project saved successfully', 'info');
     };
 

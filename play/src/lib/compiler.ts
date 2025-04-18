@@ -1,7 +1,7 @@
 import { CompilationResult } from '../types/compiler.types';
 
 // For the MVP, we'll implement a mock compiler service
-// In a real implementation, this would use a WebAssembly-based Argon compiler
+// In the real implementation, this would use the WebAssembly-based Argon compiler or API to a remote server running argon
 export class ArgonCompiler {
   private static instance: ArgonCompiler;
   
@@ -16,7 +16,7 @@ export class ArgonCompiler {
   
   public async compile(code: string): Promise<CompilationResult> {
     // This is a mock implementation for the MVP
-    // In a real implementation, this would compile the code to WASM
+    // In a future implementation, this would compile the code to WASM or request to Argon server
     
     // Check for simple syntax errors
     const hasOpeningBrace = code.includes('{');

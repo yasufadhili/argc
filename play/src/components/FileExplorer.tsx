@@ -1,3 +1,13 @@
+
+/** FUTURE
+ * Export project - Each project has a UUID for better export, Exported in ZIP file as project name
+ * View directoies as is in the local file system
+ * Create accounts to save projects
+ * Better Top Section, Console, and FileExplorer
+ * Think of adding a top tab bar
+ * Switch the Console section to tabs for console output, assembly output, memory view
+ */
+
 import React, { useState, useRef, useCallback } from 'react';
 import { useFileSystemStore } from '../stores/fileSystemStore';
 import { FileType } from '../types/filesystem.types';
@@ -323,11 +333,3 @@ export const FileExplorer: React.FC = () => {
   );
 }; 
 
-/** FUTURE
- * Export project - Each project has a UUID for better export, Exported in ZIP file as project name
- * View directoies as is in the local file system
- * Create accounts to save projects
- * Better Top Section, Console, and FileExplorer
- * Think of adding a top tab bar
- * Switch the COnsole section to tabs for console output, assembly output, memory view
- */

@@ -313,7 +313,7 @@ export const useFileSystemStore = create<FileSystemState>()(
       },
       
       isValidFileName: (name, parentId) => {
-        // Basic validation
+        // Basic validation - Needs improvement
         if (!name || name.trim() === '') return false;
         if (name.includes('/') || name.includes('\\')) return false;
         

@@ -4,7 +4,7 @@ import { useFileSystemStore } from '../stores/fileSystemStore';
 import { AppEventBus } from '../App';
 import { languages } from 'monaco-editor';
 
-// Define Argon language configuration
+
 const argonLanguageConfig: languages.LanguageConfiguration = {
   comments: {
     lineComment: '//',
@@ -32,11 +32,12 @@ const argonLanguageConfig: languages.LanguageConfiguration = {
 };
 
 // Define Argon syntax highlighting rules
+// Syntax Specification is currently still progressing. Subject to change
 const argonMonarchTokens: languages.IMonarchLanguage = {
   defaultToken: 'invalid',
   tokenPostfix: '.argon',
   keywords: [
-    'fn', 'let', 'mut', 'return', 'if', 'else', 'while', 'for', 'in',
+    'def', 'var', 'mut', 'return', 'if', 'else', 'while', 'for', 'in',
     'break', 'continue', 'struct', 'enum', 'impl', 'trait', 'pub',
     'unsafe', 'where', 'match', 'type', 'const', 'static', 'use',
     'mod', 'as', 'true', 'false', 'self', 'super', 'i8', 'i16',
