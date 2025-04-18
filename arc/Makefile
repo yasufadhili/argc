@@ -10,7 +10,7 @@ TARGET = arc
 FLEX_SRC = lexer.l
 FLEX_CPP = lexer.cc
 MAIN_SRC = main.cc
-OBJECTS = $(FLEX_CPP:.cpp=.o) $(MAIN_SRC:.cc=.o)
+OBJECTS = $(FLEX_CPP:.cc=.o) $(MAIN_SRC:.cc=.o)
 
 
 all: $(TARGET)
