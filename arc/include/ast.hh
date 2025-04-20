@@ -39,6 +39,12 @@ namespace ast {
       void print(int level = 0) override;
     };
 
+    class Constant : public Expression {
+    public:
+      ~Constant() override = default;
+      void print(int level = 0) override;
+    };
+
     namespace arith {
 
       class Arithmetic : public Binary {

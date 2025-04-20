@@ -374,23 +374,28 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // I16
+      char dummy1[sizeof (int16_t)];
+
+      // I32
+      char dummy2[sizeof (int32_t)];
+
+      // I64
+      char dummy3[sizeof (int64_t)];
+
+      // I8
+      char dummy4[sizeof (int8_t)];
+
       // NUMBER
+      char dummy5[sizeof (std::shared_ptr<ast::expr::Constant>)];
+
       // expression
       // term
       // factor
-      char dummy1[sizeof (double)];
+      char dummy6[sizeof (std::shared_ptr<ast::expr::Expression>)];
 
-      // I16
-      char dummy2[sizeof (int16_t)];
-
-      // I32
-      char dummy3[sizeof (int32_t)];
-
-      // I64
-      char dummy4[sizeof (int64_t)];
-
-      // I8
-      char dummy5[sizeof (int8_t)];
+      // program
+      char dummy7[sizeof (std::shared_ptr<ast::prog::Program>)];
     };
 
     /// The size of the largest semantic type.
@@ -479,9 +484,10 @@ namespace yy {
         S_I64 = 13,                              // I64
         S_YYACCEPT = 14,                         // $accept
         S_program = 15,                          // program
-        S_expression = 16,                       // expression
-        S_term = 17,                             // term
-        S_factor = 18                            // factor
+        S_16_expression_list = 16,               // expression-list
+        S_expression = 17,                       // expression
+        S_term = 18,                             // term
+        S_factor = 19                            // factor
       };
     };
 
@@ -516,13 +522,6 @@ namespace yy {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< double > (std::move (that.value));
-        break;
-
       case symbol_kind::S_I16: // I16
         value.move< int16_t > (std::move (that.value));
         break;
@@ -537,6 +536,20 @@ namespace yy {
 
       case symbol_kind::S_I8: // I8
         value.move< int8_t > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.move< std::shared_ptr<ast::expr::Constant> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.move< std::shared_ptr<ast::expr::Expression> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_program: // program
+        value.move< std::shared_ptr<ast::prog::Program> > (std::move (that.value));
         break;
 
       default:
@@ -557,18 +570,6 @@ namespace yy {
 #else
       basic_symbol (typename Base::kind_type t)
         : Base (t)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, double&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const double& v)
-        : Base (t)
-        , value (v)
       {}
 #endif
 
@@ -620,6 +621,42 @@ namespace yy {
       {}
 #endif
 
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<ast::expr::Constant>&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<ast::expr::Constant>& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<ast::expr::Expression>&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<ast::expr::Expression>& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<ast::prog::Program>&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<ast::prog::Program>& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
       /// Destroy the symbol.
       ~basic_symbol ()
       {
@@ -644,13 +681,6 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.template destroy< double > ();
-        break;
-
       case symbol_kind::S_I16: // I16
         value.template destroy< int16_t > ();
         break;
@@ -665,6 +695,20 @@ switch (yykind)
 
       case symbol_kind::S_I8: // I8
         value.template destroy< int8_t > ();
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.template destroy< std::shared_ptr<ast::expr::Constant> > ();
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.template destroy< std::shared_ptr<ast::expr::Expression> > ();
+        break;
+
+      case symbol_kind::S_program: // program
+        value.template destroy< std::shared_ptr<ast::prog::Program> > ();
         break;
 
       default:
@@ -761,14 +805,6 @@ switch (yykind)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, double v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const double& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, int16_t v)
         : super_type (token_kind_type (tok), std::move (v))
 #else
@@ -797,6 +833,14 @@ switch (yykind)
         : super_type (token_kind_type (tok), std::move (v))
 #else
       symbol_type (int tok, const int8_t& v)
+        : super_type (token_kind_type (tok), v)
+#endif
+      {}
+#if 201103L <= YY_CPLUSPLUS
+      symbol_type (int tok, std::shared_ptr<ast::expr::Constant> v)
+        : super_type (token_kind_type (tok), std::move (v))
+#else
+      symbol_type (int tok, const std::shared_ptr<ast::expr::Constant>& v)
         : super_type (token_kind_type (tok), v)
 #endif
       {}
@@ -985,14 +1029,14 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_NUMBER (double v)
+      make_NUMBER (std::shared_ptr<ast::expr::Constant> v)
       {
         return symbol_type (token::NUMBER, std::move (v));
       }
 #else
       static
       symbol_type
-      make_NUMBER (const double& v)
+      make_NUMBER (const std::shared_ptr<ast::expr::Constant>& v)
       {
         return symbol_type (token::NUMBER, v);
       }
@@ -1385,9 +1429,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 17,     ///< Last index in yytable_.
-      yynnts_ = 5,  ///< Number of nonterminal symbols.
-      yyfinal_ = 8 ///< Termination state number.
+      yylast_ = 15,     ///< Last index in yytable_.
+      yynnts_ = 6,  ///< Number of nonterminal symbols.
+      yyfinal_ = 9 ///< Termination state number.
     };
 
 
@@ -1451,13 +1495,6 @@ switch (yykind)
   {
     switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.copy< double > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_I16: // I16
         value.copy< int16_t > (YY_MOVE (that.value));
         break;
@@ -1472,6 +1509,20 @@ switch (yykind)
 
       case symbol_kind::S_I8: // I8
         value.copy< int8_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.copy< std::shared_ptr<ast::expr::Constant> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.copy< std::shared_ptr<ast::expr::Expression> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_program: // program
+        value.copy< std::shared_ptr<ast::prog::Program> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -1505,13 +1556,6 @@ switch (yykind)
     super_type::move (s);
     switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< double > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_I16: // I16
         value.move< int16_t > (YY_MOVE (s.value));
         break;
@@ -1526,6 +1570,20 @@ switch (yykind)
 
       case symbol_kind::S_I8: // I8
         value.move< int8_t > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.move< std::shared_ptr<ast::expr::Constant> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.move< std::shared_ptr<ast::expr::Expression> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_program: // program
+        value.move< std::shared_ptr<ast::prog::Program> > (YY_MOVE (s.value));
         break;
 
       default:
@@ -1593,7 +1651,7 @@ switch (yykind)
 
 
 } // yy
-#line 1597 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 1655 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 

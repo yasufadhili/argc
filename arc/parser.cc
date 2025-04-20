@@ -43,18 +43,19 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <memory>
 
 #include "include/ast.hh"
 
 
-#line 51 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 52 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
 
 #include "parser.hh"
 
 
 // Unqualified %code blocks.
-#line 37 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 41 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
     namespace yy {
         auto yylex () -> parser::symbol_type {
@@ -62,7 +63,7 @@
         }
     }
 
-#line 66 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 67 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
 
 #ifndef YY_
@@ -135,7 +136,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 139 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 140 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
   /// Build a parser object.
   parser::parser ()
@@ -202,13 +203,6 @@ namespace yy {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_I16: // I16
         value.YY_MOVE_OR_COPY< int16_t > (YY_MOVE (that.value));
         break;
@@ -223,6 +217,20 @@ namespace yy {
 
       case symbol_kind::S_I8: // I8
         value.YY_MOVE_OR_COPY< int8_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.YY_MOVE_OR_COPY< std::shared_ptr<ast::expr::Constant> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.YY_MOVE_OR_COPY< std::shared_ptr<ast::expr::Expression> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_program: // program
+        value.YY_MOVE_OR_COPY< std::shared_ptr<ast::prog::Program> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -240,13 +248,6 @@ namespace yy {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< double > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_I16: // I16
         value.move< int16_t > (YY_MOVE (that.value));
         break;
@@ -261,6 +262,20 @@ namespace yy {
 
       case symbol_kind::S_I8: // I8
         value.move< int8_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.move< std::shared_ptr<ast::expr::Constant> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.move< std::shared_ptr<ast::expr::Expression> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_program: // program
+        value.move< std::shared_ptr<ast::prog::Program> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -278,13 +293,6 @@ namespace yy {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.copy< double > (that.value);
-        break;
-
       case symbol_kind::S_I16: // I16
         value.copy< int16_t > (that.value);
         break;
@@ -301,6 +309,20 @@ namespace yy {
         value.copy< int8_t > (that.value);
         break;
 
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.copy< std::shared_ptr<ast::expr::Constant> > (that.value);
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.copy< std::shared_ptr<ast::expr::Expression> > (that.value);
+        break;
+
+      case symbol_kind::S_program: // program
+        value.copy< std::shared_ptr<ast::prog::Program> > (that.value);
+        break;
+
       default:
         break;
     }
@@ -314,13 +336,6 @@ namespace yy {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< double > (that.value);
-        break;
-
       case symbol_kind::S_I16: // I16
         value.move< int16_t > (that.value);
         break;
@@ -335,6 +350,20 @@ namespace yy {
 
       case symbol_kind::S_I8: // I8
         value.move< int8_t > (that.value);
+        break;
+
+      case symbol_kind::S_NUMBER: // NUMBER
+        value.move< std::shared_ptr<ast::expr::Constant> > (that.value);
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.move< std::shared_ptr<ast::expr::Expression> > (that.value);
+        break;
+
+      case symbol_kind::S_program: // program
+        value.move< std::shared_ptr<ast::prog::Program> > (that.value);
         break;
 
       default:
@@ -591,13 +620,6 @@ namespace yy {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_NUMBER: // NUMBER
-      case symbol_kind::S_expression: // expression
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        yylhs.value.emplace< double > ();
-        break;
-
       case symbol_kind::S_I16: // I16
         yylhs.value.emplace< int16_t > ();
         break;
@@ -614,6 +636,20 @@ namespace yy {
         yylhs.value.emplace< int8_t > ();
         break;
 
+      case symbol_kind::S_NUMBER: // NUMBER
+        yylhs.value.emplace< std::shared_ptr<ast::expr::Constant> > ();
+        break;
+
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        yylhs.value.emplace< std::shared_ptr<ast::expr::Expression> > ();
+        break;
+
+      case symbol_kind::S_program: // program
+        yylhs.value.emplace< std::shared_ptr<ast::prog::Program> > ();
+        break;
+
       default:
         break;
     }
@@ -628,77 +664,92 @@ namespace yy {
         {
           switch (yyn)
             {
-  case 4: // expression: term
+  case 2: // program: expression-list
 #line 53 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
-                          {
-                            yylhs.value.as < double > () = yystack_[0].value.as < double > ();
-                          }
-#line 637 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
-    break;
-
-  case 5: // expression: expression PLUS term
-#line 56 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
-                          {
-                            yylhs.value.as < double > () = yystack_[2].value.as < double > () + yystack_[0].value.as < double > ();
-                          }
-#line 645 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
-    break;
-
-  case 6: // expression: expression MINUS term
-#line 59 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
-                          {
-                            yylhs.value.as < double > () = yystack_[2].value.as < double > () - yystack_[0].value.as < double > ();
-                          }
-#line 653 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
-    break;
-
-  case 7: // term: factor
-#line 65 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
-                                yylhs.value.as < double > () = yystack_[0].value.as < double > ();
+
                               }
-#line 661 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 673 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 8: // term: term TIMES factor
-#line 69 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 4: // expression-list: expression
+#line 60 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {}
+#line 679 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 5: // expression-list: expression-list
+#line 61 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {}
+#line 685 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 6: // expression: term
+#line 64 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
-                                yylhs.value.as < double > () = yystack_[2].value.as < double > () * yystack_[0].value.as < double > ();
+                            
                               }
-#line 669 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 693 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 9: // term: term DIVIDE factor
-#line 73 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 7: // expression: expression PLUS term
+#line 67 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
-                                if(yystack_[0].value.as < double > () == 0){
-                                  error("Error: Division by zero");
-                                  yylhs.value.as < double > () = 0;
-                                } else {
-                                  yylhs.value.as < double > () = yystack_[2].value.as < double > () / yystack_[0].value.as < double > ();
-                                }
+                            
                               }
-#line 682 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 701 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 10: // factor: NUMBER
+  case 8: // expression: expression MINUS term
+#line 70 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {
+                            
+                              }
+#line 709 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 9: // term: factor
+#line 76 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {
+                                
+                              }
+#line 717 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 10: // term: term TIMES factor
+#line 80 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {
+                                
+                              }
+#line 725 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 11: // term: term DIVIDE factor
 #line 84 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
-                                yylhs.value.as < double > () = yystack_[0].value.as < double > ();
+                                
                               }
-#line 690 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 733 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 11: // factor: LPAREN expression RPAREN
-#line 87 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 12: // factor: NUMBER
+#line 90 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
-                                yylhs.value.as < double > () = yystack_[1].value.as < double > ();
+                                return std::make_unique<ast::expr::Constant>();
                               }
-#line 698 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 741 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+    break;
+
+  case 13: // factor: LPAREN expression RPAREN
+#line 93 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                              {
+                                
+                              }
+#line 749 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
 
-#line 702 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 753 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
             default:
               break;
@@ -1053,62 +1104,62 @@ namespace yy {
   const signed char
   parser::yypact_[] =
   {
-      -3,    -3,    -4,     1,     2,     3,    -4,    -2,    -4,    -3,
-      -3,    -3,    -3,    -4,     3,     3,    -4,    -4
+      -3,    -3,    -4,     1,    -4,     2,     3,    -4,    -2,    -4,
+      -3,    -3,    -3,    -3,    -4,     3,     3,    -4,    -4
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       3,     0,    10,     0,     2,     4,     7,     0,     1,     0,
-       0,     0,     0,    11,     5,     6,     8,     9
+       3,     0,    12,     0,     2,     4,     6,     9,     0,     1,
+       0,     0,     0,     0,    13,     7,     8,    10,    11
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-      -4,    -4,     8,     4,     5
+      -4,    -4,    -4,     8,     4,     0
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     3,     4,     5,     6
+       0,     3,     4,     5,     6,     7
   };
 
   const signed char
   parser::yytable_[] =
   {
-       1,     8,    13,     9,    10,     0,     2,     9,    10,     7,
-      11,    12,     0,    14,    15,     0,    16,    17
+       1,     9,    14,    10,    11,     0,     2,    10,    11,     8,
+      12,    13,    17,    18,    15,    16
   };
 
   const signed char
   parser::yycheck_[] =
   {
        3,     0,     4,     5,     6,    -1,     9,     5,     6,     1,
-       7,     8,    -1,     9,    10,    -1,    11,    12
+       7,     8,    12,    13,    10,    11
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,     3,     9,    15,    16,    17,    18,    16,     0,     5,
-       6,     7,     8,     4,    17,    17,    18,    18
+       0,     3,     9,    15,    16,    17,    18,    19,    17,     0,
+       5,     6,     7,     8,     4,    18,    18,    19,    19
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    14,    15,    15,    16,    16,    16,    17,    17,    17,
-      18,    18
+       0,    14,    15,    15,    16,    16,    17,    17,    17,    18,
+      18,    18,    19,    19
   };
 
   const signed char
   parser::yyr2_[] =
   {
-       0,     2,     1,     0,     1,     3,     3,     1,     3,     3,
-       1,     3
+       0,     2,     1,     0,     1,     1,     1,     3,     3,     1,
+       3,     3,     1,     3
   };
 
 
@@ -1120,7 +1171,7 @@ namespace yy {
   {
   "\"end of file\"", "error", "\"invalid token\"", "LPAREN", "RPAREN",
   "PLUS", "MINUS", "TIMES", "DIVIDE", "NUMBER", "I8", "I16", "I32", "I64",
-  "$accept", "program", "expression", "term", "factor", YY_NULLPTR
+  "$accept", "program", "expression-list", "expression", "term", "factor", YY_NULLPTR
   };
 #endif
 
@@ -1129,8 +1180,8 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    48,    48,    49,    53,    56,    59,    65,    69,    73,
-      84,    87
+       0,    53,    53,    56,    60,    61,    64,    67,    70,    76,
+      80,    84,    90,    93
   };
 
   void
@@ -1162,9 +1213,9 @@ namespace yy {
 
 
 } // yy
-#line 1166 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 1217 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
-#line 92 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 98 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
 
 namespace yy

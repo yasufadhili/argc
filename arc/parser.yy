@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <memory>
 
 #include "include/ast.hh"
 
@@ -22,7 +23,7 @@
 %token PLUS MINUS
 %token TIMES DIVIDE
 
-%token <double> NUMBER;
+%token <std::shared_ptr<ast::expr::Constant>> NUMBER;
 %token <int8_t> I8;
 %token <int16_t> I16;
 %token <int32_t> I32;
@@ -32,7 +33,10 @@
 %left PLUS MINUS
 %left TIMES DIVIDE
 
-%type <double> expression term factor
+%type <std::shared_ptr<ast::prog::Program>> program
+%type <std::shared_ptr<ast::expr::Expression>> expression
+%type <std::shared_ptr<ast::expr::Expression>> term
+%type <std::shared_ptr<ast::expr::Expression>> factor
 
 %code {
     namespace yy {
@@ -44,48 +48,50 @@
 
 %%
 
+
 program
-   : expression
+   : expression-list          {
+
+                              }
    | /** Empty**/
 ;
 
+expression-list
+  : expression                {}
+  | expression-list           {}
+
 expression
-  : term                  {
-                            $$ = $1;
-                          }
-  | expression PLUS term  {
-                            $$ = $1 + $3;
-                          }
-  | expression MINUS term {
-                            $$ = $1 - $3;
-                          }
+  : term                      {
+                            
+                              }
+  | expression PLUS term      {
+                            
+                              }
+  | expression MINUS term     {
+                            
+                              }
 ;
 
 term
   : factor                    {
-                                $$ = $1;
+                                
                               }
                             
   | term TIMES factor         {
-                                $$ = $1 * $3;
+                                
                               }
 
   | term DIVIDE factor        {
-                                if($3 == 0){
-                                  error("Error: Division by zero");
-                                  $$ = 0;
-                                } else {
-                                  $$ = $1 / $3;
-                                }
+                                
                               }
 ;
 
 factor
   : NUMBER                    {
-                                $$ = $1;
+                                return std::make_unique<ast::expr::Constant>();
                               }
   | LPAREN expression RPAREN  {
-                                $$ = $2;
+                                
                               }
 ;
 
