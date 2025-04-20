@@ -1,17 +1,19 @@
 
-#include <iostream>
 
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <istream>
+#include "FlexLexer.h"
+#include "include/ast.hh"
+#include "lexer.hh"
 #include "parser.hh"
 
-auto main() -> int {
+extern FILE *yyin;
 
-  yy::parser parser;
+auto main(int argc, char **argv) -> int {
 
-  std::cout << "Argon Compiler" << std::endl;
-
-  auto res { parser.parse() };
-
-  std::cout << res << std::endl;
+  
 
   return 0;
 }
