@@ -1,0 +1,13 @@
+
+
+%{
+
+#include <iostream>
+
+%}
+
+%option noyywrap
+%%
+
+
+%%
