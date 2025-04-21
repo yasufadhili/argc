@@ -5,26 +5,18 @@
 
 namespace ast::prog {
 
-
-  Program::Program(std::vector<module::Module *> modules) : modules(std::move(modules)) {
+  Program::Program(std::vector<std::shared_ptr<expr::Expression>> exps) : expressions(std::move(exps)) {
+    
   }
 
-  Program::~Program() {
-    for (const auto module : modules) {
-      delete module;
-    }
-  }
-
-
-
-  void Program::print(int level) {
+  void Program::print(const int level) {
     Node::print_indent(level);
     std::cout << "Program\n";
     
     Node::print_indent(level + 1);
-    std::cout << "Modules:\n";
-    for (const auto module : modules) {
-      if (module) module->print(level + 2);
+    std::cout << "Expressions:\n";
+    for (const auto& exp : expressions) {
+      if (exp) exp->print(level + 2);
     }
   }
 

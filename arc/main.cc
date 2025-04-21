@@ -1,18 +1,34 @@
 
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #include "lexer.hh"
 #include "parser.hh"
 
 
-auto main() -> int {
+auto main(const int argc, char* argv[]) -> int {
+  std::fstream input("input.txt");
+  if (!input.is_open()) {
+    std::cerr << "Unable to open file" << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
-  yy::Lexer lexer{std::cin, std::cout};
+  yy::Lexer lexer{input, std::cerr};
   lexer.set_debug(false);
 
-  yy::Parser parser{lexer};
+  std::shared_ptr<ast::prog::Program> program;
+
+  yy::Parser parser{lexer, program};
   parser.set_debug_level(0);
 
-  std::cout << "> ";
-  return parser();
+  if (parser.parse() != 0) {
+    std::cerr << "Parsing failed" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  program->print();
+
+  return 0;
 }

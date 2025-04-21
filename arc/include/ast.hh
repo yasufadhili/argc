@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <variant>
 #include <vector>
 #include <iostream>
@@ -41,62 +42,30 @@ namespace ast {
       void print(int level = 0) override;
     };
 
-    class Constant : public Expression {
+    class Constant final : public Expression {
+      using  const_variant = std::variant<
+        int, double
+      >;
+      const_variant value;
     public:
+      explicit Constant(const_variant);
       ~Constant() override = default;
       void print(int level = 0) override;
     };
 
     namespace arith {
 
-      class Arithmetic : public Binary {
+      enum struct ArithmeticType {
+        ADD, SUB, DIV, MUL, MOD
+      };
+
+      class Arithmetic final : public Binary {
+        ArithmeticType type;
+        std::shared_ptr<Expression> lhs;
+        std::shared_ptr<Expression> rhs;
       public:
+        Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
         ~Arithmetic() override = default;
-        void print(int level = 0) override;
-      };
-
-      class Add final : public Arithmetic {
-        Arithmetic* lhs;
-        Arithmetic* rhs;
-      public:
-        Add(Arithmetic* lhs, Arithmetic* rhs);
-        ~Add() override;
-        void print(int level = 0) override;
-      };
-
-      class Sub final : public Arithmetic {
-        Arithmetic* lhs;
-        Arithmetic* rhs;
-      public:
-        Sub(Arithmetic* lhs, Arithmetic* rhs);
-        ~Sub() override;
-        void print(int level = 0) override;
-      };
-
-      class Mul final : public Arithmetic {
-        Arithmetic* lhs;
-        Arithmetic* rhs;
-      public:
-        Mul(Arithmetic* lhs, Arithmetic* rhs);
-        ~Mul() override;
-        void print(int level = 0) override;
-      };
-
-      class Div final : public Arithmetic {
-        Arithmetic* lhs;
-        Arithmetic* rhs;
-      public:
-        Div(Arithmetic* lhs, Arithmetic* rhs);
-        ~Div() override;
-        void print(int level = 0) override;
-      };
-
-      class Mod final : public Arithmetic {
-        Arithmetic* lhs;
-        Arithmetic* rhs;
-      public:
-        Mod(Arithmetic* lhs, Arithmetic* rhs);
-        ~Mod() override;
         void print(int level = 0) override;
       };
 
@@ -140,45 +109,13 @@ namespace ast {
 
     namespace rel {
 
-      class Relational : public Binary {
+      enum struct RelationalType {
+        EQ, NE, GE, LE, GT, LT, LEQ, GEQ
+      };
+
+      class Relational final : public Binary {
       public:
         ~Relational() override = default;
-        void print(int level = 0) override;
-      };
-
-      class Equal final : public Relational {
-      public:
-        ~Equal() override = default;
-        void print(int level = 0) override;
-      };
-
-      class NotEqual final : public Relational {
-      public:
-        ~NotEqual() override = default;
-        void print(int level = 0) override;
-      };
-
-      class GreaterThan final : public Relational {
-      public:
-        ~GreaterThan() override = default;
-        void print(int level = 0) override;
-      };
-
-      class LessThan final : public Relational {
-      public:
-        ~LessThan() override = default;
-        void print(int level = 0) override;
-      };
-
-      class GreaterThanOrEqual final : public Relational {
-      public:
-        ~GreaterThanOrEqual() override = default;
-        void print(int level = 0) override;
-      };
-
-      class LessThanOrEqual final : public Relational {
-      public:
-        ~LessThanOrEqual() override = default;
         void print(int level = 0) override;
       };
 
@@ -285,10 +222,19 @@ namespace ast {
 
     class Program final: public Node {
       std::vector<module::Module*> modules;
+      std::vector<
+        std::shared_ptr<expr::Expression>
+      > expressions;
     public:
-      explicit Program(std::vector<module::Module*> modules);
-      ~Program() override;
+      //explicit Program(std::vector<module::Module*> modules);
+      Program() = default;
+      explicit Program(std::vector<std::shared_ptr<expr::Expression>> exps);
+      ~Program() override = default;
       void print(int level = 0) override;
+
+      auto add_expression(std::shared_ptr<expr::Expression> e) {
+        expressions.emplace_back(e);
+      }
     };
 
   }
