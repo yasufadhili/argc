@@ -1,114 +1,57 @@
-
-
-/**
-
-Match this parser to the AST with proper returns setup
-
-**/
-
-
 %require "3.2"
 %language "c++"
-%define parse.error verbose
-
-%{
-
-#include <iostream>
-#include <string>
-#include <cstdint>
-
-%}
-
 
 %define api.token.constructor
 %define api.value.type variant
+%define parse.assert
 
+%code requires {
+    #include <string>
+    class Lexer;
+}
 
-%token LPAREN RPAREN LBRACE RBRACE
+%lex-param { Lexer& lexer }
+%parse-param { Lexer& lexer }
 
-%token PLUS MINUS
-%token TIMES DIVIDE
-
-%token <double> NUMBER;
-
-%left PLUS MINUS
-%left TIMES DIVIDE
-
-%type <double> expression term factor
-
+%locations
 
 %code {
-    namespace yy {
-        auto yylex () -> parser::symbol_type {
-            return parser::make_YYEOF ();
-        }
-    }
+    #include "lexer.hh"
+    #define yylex() lexer.yylex()
 }
+
+
+%token TYPE_INT TYPE_FLOAT TYPE_CHAR TYPE_STRING TYPE_VOID
+%token IF ELSE WHILE FOR RETURN BREAK CONTINUE
+%token PLUS MINUS MUL DIV MOD
+%token EQ NE LT LE GT GE
+%token AND OR NOT
+%token ASSIGN
+%token LBRACE RBRACE LPAREN RPAREN LBRACKET RBRACKET
+%token SEMICOLON COMMA
+%token ERROR
+%token <std::string> IDENTIFIER
+%token <int> INT_LITERAL
+%token <double> FLOAT_LITERAL
+%token <std::string> STRING_LITERAL
+%token <char> CHAR_LITERAL
+
 
 %%
 
-program
-   : expression-list
-   | /** Empty**/
-;
+program: statement_list
+       ;
 
-expression-list
-  : expression
-  | expression-list expression
-;
+statement_list: statement
+              | statement_list statement
+              ;
 
-expression
-  : term                  {
-                            $$ = $1;
-                          }
-  | expression PLUS term  {
-                            $$ = $1 + $3;
-                          }
-  | expression MINUS term {
-                            $$ = $1 - $3;
-                          }
-;
-
-term
-  : factor                    {
-                                $$ = $1;
-                              }
-                            
-  | term TIMES factor         {
-                                $$ = $1 * $3;
-                              }
-
-  | term DIVIDE factor        {
-                                if($3 == 0){
-                                  error("Error: Division by zero");
-                                  $$ = 0;
-                                } else {
-                                  $$ = $1 / $3;
-                                }
-                              }
-;
-
-factor
-  : NUMBER                  {
-                                $$ = $1;
-                              }
-  | LPAREN expression RPAREN  {
-                                $$ = $2;
-                              }
-;
-
-constant
-  : NUMBER
-;
+statement: /* Future grammar rules here */
+         ;
 
 %%
 
-namespace yy
-{
-  // Report an error to the user.
-  auto parser::error (const std::string& msg) -> void
-  {
-    std::cerr << msg << '\n';
-  }
+void yy::parser::error(const location_type& loc, const std::string& msg) {
+  std::cerr << loc.begin.filename << ":" << loc.begin.line << ":" 
+            << loc.begin.column << ": " << msg << std::endl;
 }
-

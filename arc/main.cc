@@ -1,12 +1,16 @@
 
 #include <iostream>
+#include <memory>
+
+
 #include "FlexLexer.h"
 
+#include "lexer.hh"
 #include "include/reader.hh"
+#include "parser.hh"
 
-extern int yylex();
 
-auto main(int argc, char **argv) -> int {
+int main(int argc, char **argv) {
     std::unique_ptr<utils::Reader> reader;
     std::istream* input = nullptr;
     try {
@@ -21,11 +25,8 @@ auto main(int argc, char **argv) -> int {
         return 1;
     }
 
-    
-    yyFlexLexer lexer(input);
-    int token;
-    while ((token = lexer.yylex()) != 0) {
-        std::cout << "Token: " << token << std::endl;
-    }
+    Lexer lexer(input);
+    yy::parser parser(lexer);
+    parser.parse();
     return 0;
 }
