@@ -1,6 +1,2 @@
 
-include "two.txt"
-
-print
-hello45
-__ten
+40 + 23 + 2344

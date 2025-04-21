@@ -42,7 +42,7 @@ COMMENT         \/\/[^\n]*
 %}
 
 \n              { loc.lines(1); loc.step(); 
-                  //return yy::Parser::make_EOL(loc);
+                  /** Nothing after **/
                 }
 
 {WHITESPACE}+   { loc.step(); }
@@ -58,11 +58,12 @@ include[ \t]*[\"<]            {
 <INCL_FILE>.|\n                 { 
                                   std::cout << "{:4} bad include line" << lineno() << '\n'; 
                                   //yyterminate(); 
+                                  return yy::Parser::make_END(loc);
                                 }
 
 
 {INTEGER}       {
-                  std::cout << "INTEGER: " << YYText() << std::endl;
+                  return yy::Parser::make_INTEGER(std::atof(YYText()), loc);
                 }
 
 {FLOAT}         {
@@ -113,9 +114,13 @@ include[ \t]*[\"<]            {
                   std::cout << "CHAR: " << c << std::endl;
                 }
 
+"+"             {
+                  return yy::Parser::make_PLUS(loc);
+                }
+
 <<EOF>>         { 
                   if(!exit_file()) { 
-                    return yy::Parser::make_YYEOF(loc);
+                    return yy::Parser::make_END(loc);
                   } 
                 }
 
