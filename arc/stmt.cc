@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 
-#include "ast.hh"
+#include "include/ast.hh"
 
 namespace ast::stmt {
 
@@ -85,7 +85,7 @@ namespace ast::stmt {
     return symbol;
   }
 
-  RegisterAssign::RegisterAssign(std::string reg_name, expr::Expression *exp) : expression(exp) {
+  RegisterAssign::RegisterAssign(expr::Expression *exp) : expression(exp) {
   }
 
   RegisterAssign::~RegisterAssign() {

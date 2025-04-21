@@ -1,6 +1,8 @@
 #include <utility>
+#include <unordered_map>
+#include <iostream>
 
-#include "symbols.hh"
+#include "include/symbols.hh"
 
 namespace sym {
   Type::Type(const TypeKind kind, std::string name) : kind(kind), name(std::move(name)) {
@@ -56,7 +58,7 @@ namespace sym {
   auto Scope::add_symbol(const std::shared_ptr<Symbol>& symbol) -> bool {
     const std::string& name { symbol->get_name() };
 
-    if (symbols.contains(name)) {
+    if (symbols.find(name) != symbols.end()) {
       return false; // Symbol Already defined in this scope
     }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+#include <variant>
 #include <vector>
 #include <iostream>
 
@@ -9,7 +11,7 @@ namespace ast {
 
   class Node {
   protected:
-    static void print_indent(const int level) {
+    static void print_indent(int level) {
       for (int i = 0; i < level; ++i) {
         std::cout << "  ";
       }
@@ -39,10 +41,8 @@ namespace ast {
       void print(int level = 0) override;
     };
 
-    class Constant final : public Expression {
-      std::string value;
+    class Constant : public Expression {
     public:
-      explicit Constant(std::string val);
       ~Constant() override = default;
       void print(int level = 0) override;
     };
@@ -56,10 +56,10 @@ namespace ast {
       };
 
       class Add final : public Arithmetic {
-        Expression* lhs;
-        Expression* rhs;
+        Arithmetic* lhs;
+        Arithmetic* rhs;
       public:
-        Add(Expression* lhs, Expression* rhs);
+        Add(Arithmetic* lhs, Arithmetic* rhs);
         ~Add() override;
         void print(int level = 0) override;
       };
@@ -238,10 +238,9 @@ namespace ast {
     };
 
     class RegisterAssign final : public Statement {
-      std::string reg_name;
       expr::Expression* expression;
     public:
-      explicit RegisterAssign(std::string, expr::Expression* exp);
+      explicit RegisterAssign(expr::Expression* exp);
       ~RegisterAssign() override;
       void print(int level = 0) override;
     };
@@ -266,6 +265,14 @@ namespace ast {
     class Module final: public Node {
       std::vector<stmt::Statement *> statements;
       std::vector<func::Function *> functions;
+
+      std::vector<
+        std::variant<
+          std::shared_ptr<stmt::Statement>,
+          std::shared_ptr<func::Function>
+        >
+      > children ;
+
     public:
       explicit Module(std::vector<stmt::Statement *> stmts, std::vector<func::Function *> fns);
       ~Module() override;

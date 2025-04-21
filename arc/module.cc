@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 
-#include "ast.hh"
+#include "include/ast.hh"
 
 namespace ast::module {
 
@@ -20,7 +20,7 @@ namespace ast::module {
     }
   }
 
-  void Module::print(const int level) {
+  void Module::print(int level) {
     Node::print_indent(level);
     std::cout << "Module\n";
     

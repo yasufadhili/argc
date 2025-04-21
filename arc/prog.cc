@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 
-#include "ast.hh"
+#include "include/ast.hh"
 
 namespace ast::prog {
 
@@ -17,7 +17,7 @@ namespace ast::prog {
 
 
 
-  void Program::print(const int level) {
+  void Program::print(int level) {
     Node::print_indent(level);
     std::cout << "Program\n";
     

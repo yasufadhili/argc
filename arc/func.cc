@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "ast.hh"
+#include "include/ast.hh"
 
 
 namespace ast::func {

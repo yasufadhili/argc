@@ -1,41 +1,34 @@
 #include <iostream>
 
-#include "ast.hh"
+#include "include/ast.hh"
 
 
 namespace ast::expr {
 
 
-void Expression::print(const int level) {
+void Expression::print(int level) {
   Node::print_indent(level);
   std::cout << "Expression\n";
 }
 
-void Binary::print(const int level) {
+void Binary::print(int level) {
   Node::print_indent(level);
   std::cout << "Binary\n";
 }
 
-void Unary::print(const int level) {
+void Unary::print(int level) {
   Node::print_indent(level);
   std::cout << "Unary\n";
 }
 
-Constant::Constant(std::string val) : value(std::move(val)) {}
-
-void Constant::print(const int level) {
-  print_indent(level);
-  std::cout << "Constant (" << value << ") \n";
-}
-
 
 namespace arith {
-  void Arithmetic::print(const int level) {
+  void Arithmetic::print(int level) {
     Node::print_indent(level);
     std::cout << "Arithmetic\n";
   }
 
-  Add::Add(Expression *lhs, Expression *rhs) : lhs(lhs), rhs(rhs) {
+  Add::Add(Arithmetic *lhs, Arithmetic *rhs) : lhs(lhs), rhs(rhs) {
   }
 
   Add::~Add() {
@@ -43,7 +36,7 @@ namespace arith {
     delete rhs;
   }
 
-  void Add::print(const int level) {
+  void Add::print(int level) {
     Node::print_indent(level);
     std::cout << "Add\n";
     if (lhs) lhs->print(level + 1);
@@ -58,7 +51,7 @@ namespace arith {
     delete rhs;
   }
 
-  void Sub::print(const int level) {
+  void Sub::print(int level) {
     Node::print_indent(level);
     std::cout << "Sub\n";
     if (lhs) lhs->print(level + 1);
@@ -73,7 +66,7 @@ namespace arith {
     delete rhs;
   }
 
-  void Mul::print(const int level) {
+  void Mul::print(int level) {
     Node::print_indent(level);
     std::cout << "Mul\n";
     if (lhs) lhs->print(level + 1);
@@ -88,7 +81,7 @@ namespace arith {
     delete rhs;
   }
 
-  void Div::print(const int level) {
+  void Div::print(int level) {
     Node::print_indent(level);
     std::cout << "Div\n";
     if (lhs) lhs->print(level + 1);
@@ -103,73 +96,73 @@ namespace arith {
     delete rhs;
   }
 
-  void Mod::print(const int level) {
+  void Mod::print(int level) {
     Node::print_indent(level);
     std::cout << "Mod\n";
     if (lhs) lhs->print(level + 1);
     if (rhs) rhs->print(level + 1);
   }
 
-  void Neg::print(const int level) {
+  void Neg::print(int level) {
     Node::print_indent(level);
     std::cout << "Neg\n";
   }
 
-  void Not::print(const int level) {
+  void Not::print(int level) {
     Node::print_indent(level);
     std::cout << "Not\n";
   }
 }
 
 namespace boolean {
-  void Boolean::print(const int level) {
+  void Boolean::print(int level) {
     Node::print_indent(level);
     std::cout << "Boolean\n";
   }
 
-  void True::print(const int level) {
+  void True::print(int level) {
     Node::print_indent(level);
     std::cout << "True\n";
   }
 
-  void False::print(const int level) {
+  void False::print(int level) {
     Node::print_indent(level);
     std::cout << "False\n";
   }
 }
 
 namespace rel {
-  void Relational::print(const int level) {
+  void Relational::print(int level) {
     Node::print_indent(level);
     std::cout << "Relational\n";
   }
 
-  void Equal::print(const int level) {
+  void Equal::print(int level) {
     Node::print_indent(level);
     std::cout << "Equal\n";
   }
 
-  void NotEqual::print(const int level) {
+  void NotEqual::print(int level) {
     Node::print_indent(level);
     std::cout << "NotEqual\n";
   }
 
-  void GreaterThan::print(const int level) {
+  void GreaterThan::print(int level) {
     Node::print_indent(level);
     std::cout << "GreaterThan\n";
   }
 
-  void GreaterThanOrEqual::print(const int level) {
+  void GreaterThanOrEqual::print(int level) {
     Node::print_indent(level);
     std::cout << "GreaterThanOrEqual\n";
   }
 
-  void LessThan::print(const int level) {
+  void LessThan::print(int level) {
     Node::print_indent(level);
     std::cout << "LessThan\n";
   }
 
-  void LessThanOrEqual::print(const int level) {
+  void LessThanOrEqual::print(int level) {
     Node::print_indent(level);
     std::cout << "LessThanOrEqual\n";
   }

@@ -1,71 +1,106 @@
+###############################################################################
+# Makefile for Argon Compiler
+###############################################################################
 
+ROOT_DIR = $(shell pwd)
+
+# Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23
-LDFLAGS = -lfl
+CXXFLAGS = -Wall -Wextra -std=c++17 -I$(ROOT_DIR)
 
+# Flex and Bison
+FLEX = flex
+BISON = bison
 
-TARGET = arc
+# Directories
+SRC_DIR = $(ROOT_DIR)
+INCLUDE_DIR = include
+BUILD_DIR = build
+OBJ_DIR = $(BUILD_DIR)/obj
+BIN_DIR = $(BUILD_DIR)/bin
 
+# Make sure build directories exist
+$(shell mkdir -p $(OBJ_DIR) $(BIN_DIR))
 
-FLEX_SRC = lexer.l
-FLEX_CPP = lexer.cc
-MAIN_SRC = main.cc
-OBJECTS = $(FLEX_CPP:.cc=.o) $(MAIN_SRC:.cc=.o)
+TARGET = $(BIN_DIR)/argc
 
+# Source files
+BISON_SRC = $(SRC_DIR)/parser.yy
+FLEX_SRC = $(SRC_DIR)/lexer.ll
+BISON_CC = $(SRC_DIR)/parser.cc
+BISON_HH = $(INCLUDE_DIR)/parser.hh
+FLEX_CC = $(SRC_DIR)/lexer.cc
 
+# Find all C++ source files (excluding generated files)
+CC_SRC = $(filter-out $(BISON_CC) $(FLEX_CC), $(wildcard $(SRC_DIR)/*.cc))
+
+# Object files
+BISON_OBJ = $(OBJ_DIR)/parser.o
+FLEX_OBJ = $(OBJ_DIR)/lexer.o
+CC_OBJ = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(CC_SRC))
+
+# All object files
+OBJ_FILES = $(BISON_OBJ) $(FLEX_OBJ) $(CC_OBJ)
+
+# Default target
 all: $(TARGET)
 
-# Generate lexer.cc from lexer.l using Flex
-$(FLEX_CPP): $(FLEX_SRC)
-	flex++ $(FLEX_SRC)
+# Linking
+$(TARGET): $(OBJ_FILES)
+	@echo "Linking $(TARGET)"
+	@$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Compile lexer.cc
-$(FLEX_CPP:.cc=.o): $(FLEX_CPP)
-	$(CXX) $(CXXFLAGS) -c $(FLEX_CPP) -o $@
+# Bison rules
+$(BISON_CC) $(BISON_HH): $(BISON_SRC)
+	@echo "Generating parser with Bison"
+#@$(BISON) -d --defines=$(BISON_HH) -o $(BISON_CC) $<
+	@$(BISON) -d -o $(BISON_CC) $<
 
-# Compile main.cc
-$(MAIN_SRC:.cc=.o): $(MAIN_SRC)
-	$(CXX) $(CXXFLAGS) -c $(MAIN_SRC) -o $@
+# Flex rules (depends on Bison output)
+$(FLEX_CC): $(FLEX_SRC) $(BISON_HH)
+	@echo "Generating lexer with Flex"
+	@$(FLEX) --outfile=$@ $<
 
-# Link object files into the final executable
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+# Compile Bison output
+$(BISON_OBJ): $(BISON_CC)
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-# Test the compiler (requires a test file)
-test: $(TARGET)
-	@echo "Running compiler on test.c..."
-	@./$(TARGET) test.c
+# Compile Flex output
+$(FLEX_OBJ): $(FLEX_CC)
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-# Create a sample test file if it doesn't exist
-test.c:
-	@echo "Creating sample test file..."
-	@echo '// Sample test code\n' > test.c
-	@echo 'int main() {\n' >> test.c
-	@echo '    float x = 3.14;\n' >> test.c
-	@echo '    int count = 42;\n' >> test.c
-	@echo '    /* This is a multi-line\n' >> test.c
-	@echo '       comment block */\n' >> test.c
-	@echo '    string message = "Hello, world!";\n' >> test.c
-	@echo '    return 0;\n' >> test.c
-	@echo '}\n' >> test.c
+# Compile regular C++ files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-# Clean up generated files
+# Clean target
 clean:
-	rm -f $(TARGET) $(OBJECTS) $(FLEX_CPP) test.c
+	@echo "Cleaning build artifacts"
+	@rm -f $(TARGET) $(OBJ_FILES) $(BISON_CC) $(BISON_HH) $(FLEX_CC)
 
-# Clean everything and rebuild
+# Very clean target - remove all build directories
+distclean: clean
+	@echo "Removing build directories"
+	@rm -rf $(BUILD_DIR)
+
+# Rebuild target
 rebuild: clean all
 
-# Show help
-help:
-	@echo "Makefile for argon compiler project"
-	@echo ""
-	@echo "Available targets:"
-	@echo "  all       - Build the compiler (default)"
-	@echo "  clean     - Remove generated files"
-	@echo "  rebuild   - Clean and rebuild everything"
-	@echo "  test      - Run the compiler on test.c"
-	@echo "  test.c    - Generate a sample test file"
-	@echo "  help      - Show this help message"
+# Generate dependencies
+depend: $(BISON_CC) $(FLEX_CC) $(CC_SRC)
+	@echo "Generating dependencies"
+	@$(CXX) $(CXXFLAGS) -MM $^ > .depend
 
-.PHONY: all clean rebuild test help
+# Include dependency file if it exists
+-include .depend
+
+# Run the compiler
+run: $(TARGET)
+	@echo "Running $(TARGET)"
+	@$(TARGET)
+
+# Phony targets
+.PHONY: all clean distclean rebuild depend run
