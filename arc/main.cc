@@ -21,7 +21,7 @@ auto main(int argc, char **argv) -> int {
         return 1;
     }
 
-    // Create the Flex C++ lexer and set its input stream
+    
     yyFlexLexer lexer(input);
     int token;
     while ((token = lexer.yylex()) != 0) {
