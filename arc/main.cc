@@ -1,33 +1,18 @@
-#include <stack>
-#include <iostream>
-#include <memory>
 
+#include <cstdlib>
 
-#include "FlexLexer.h"
-
-
-#include "include/reader.hh"
-#include "parser.hh"
 #include "lexer.hh"
+#include "parser.hh"
 
 
-int main(int argc, char **argv) {
-  std::unique_ptr<utils::Reader> reader;
-  std::istream* input = nullptr;
-  try {
-    if (argc > 1) {
-      reader = std::make_unique<utils::Reader>(argv[1]);
-    } else {
-      reader = std::make_unique<utils::Reader>("");
-    }
-    input = &reader->stream();
-  } catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  }
+auto main() -> int {
 
-  Lexer lexer(input);
-  yy::parser parser(lexer);
-  parser.parse();
-  return 0;
+  yy::Lexer lexer{std::cin, std::cout};
+  lexer.set_debug(false);
+
+  yy::Parser parser{lexer};
+  parser.set_debug_level(0);
+
+  std::cout << "> ";
+  return parser();
 }

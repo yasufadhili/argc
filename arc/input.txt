@@ -1,0 +1,6 @@
+
+include "two.txt"
+
+print
+hello45
+__ten

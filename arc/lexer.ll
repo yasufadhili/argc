@@ -1,34 +1,30 @@
 %option c++
-%option noyywrap
-%option debug
+%option yyclass="Lexer"
+%option warn debug batch yylineno
+%option noyywrap nounput noinput nodefault
 
 %{
+
+
 #include <iostream>
+#include <fstream>
 #include <stack>
-#include <memory>
-#include <string>
-#include <vector>
-#include "parser.hh"
-#include "include/reader.hh"
 
-// Track locations for better error reporting
-#define YY_USER_ACTION \
-  yylloc->first_line = yylloc->last_line; \
-  yylloc->first_column = yylloc->last_column; \
-  for(int i = 0; i < yyleng; ++i) { \
-    if(yytext[i] == '\n') { \
-      yylloc->last_line++; \
-      yylloc->last_column = 0; \
-    } else { \
-      yylloc->last_column++; \
-    } \
-  }
+#include "lexer.hh"
 
-#define YYLEXER Lexer
+using namespace yy;
+
+// Code run each time a pattern is matched.
+#define YY_USER_ACTION  loc.columns(YYLeng());
+
 %}
 
+%x INCL_FILE
 
-WHITESPACE      [ \t\r\n\f]
+
+
+
+WHITESPACE      ([ \t\r\f]*)
 DIGIT           [0-9]
 LETTER          [a-zA-Z]
 IDENTIFIER      [a-zA-Z_][a-zA-Z0-9_]*
@@ -38,138 +34,145 @@ STRING          \"([^\"\n\\]|\\[\"\\'nt])*\"
 CHAR            \'([^'\n\\]|\\[\"\\'nt])\'
 COMMENT         \/\/[^\n]*
 
+
 %%
 
 %{
-  // Code to execute at the beginning of yylex
-  col_num = yylloc->first_column;
-  line_num = yylloc->first_line;
+    loc.step();
 %}
 
-{WHITESPACE}+   { /* Skip whitespace */ }
+\n              { loc.lines(1); loc.step(); 
+                  //return yy::Parser::make_EOL(loc);
+                }
+
+{WHITESPACE}+   { loc.step(); }
 {COMMENT}       { /* Skip comments */ }
 
-include[ ]+\"([^\"]+)\" {
-  std::string fname(yytext + 8, yyleng - 9); // Extract filename
-  this->include_file(fname);
-  // No token returned for include
-}
 
-"int"           { return yy::parser::token::TYPE_INT; }
-"float"         { return yy::parser::token::TYPE_FLOAT; }
-"char"          { return yy::parser::token::TYPE_CHAR; }
-"string"        { return yy::parser::token::TYPE_STRING; }
-"void"          { return yy::parser::token::TYPE_VOID; }
+include[ \t]*[\"<]            {
+                            BEGIN(INCL_FILE);
+                        }
 
-"if"            { return yy::parser::token::IF; }
-"else"          { return yy::parser::token::ELSE; }
-"while"         { return yy::parser::token::WHILE; }
-"for"           { return yy::parser::token::FOR; }
-"return"        { return yy::parser::token::RETURN; }
-"break"         { return yy::parser::token::BREAK; }
-"continue"      { return yy::parser::token::CONTINUE; }
+<INCL_FILE>[^ \t\n\">]+          { handle_inc_file(); }
 
-"+"             { return yy::parser::token::PLUS; }
-"-"             { return yy::parser::token::MINUS; }
-"*"             { return yy::parser::token::MUL; }
-"/"             { return yy::parser::token::DIV; }
-"%"             { return yy::parser::token::MOD; }
+<INCL_FILE>.|\n                 { 
+                                  std::cout << "{:4} bad include line" << lineno() << '\n'; 
+                                  //yyterminate(); 
+                                }
 
-"=="            { return yy::parser::token::EQ; }
-"!="            { return yy::parser::token::NE; }
-"<"             { return yy::parser::token::LT; }
-"<="            { return yy::parser::token::LE; }
-">"             { return yy::parser::token::GT; }
-">="            { return yy::parser::token::GE; }
 
-"&&"            { return yy::parser::token::AND; }
-"||"            { return yy::parser::token::OR; }
-"!"             { return yy::parser::token::NOT; }
+{INTEGER}       {
+                  std::cout << "INTEGER: " << YYText() << std::endl;
+                }
 
-"="             { return yy::parser::token::ASSIGN; }
+{FLOAT}         {
+                  std::cout << "FLOAT: " << YYText() << std::endl;
+                }
 
-"{"             { return yy::parser::token::LBRACE; }
-"}"             { return yy::parser::token::RBRACE; }
-"("             { return yy::parser::token::LPAREN; }
-")"             { return yy::parser::token::RPAREN; }
-"["             { return yy::parser::token::LBRACKET; }
-"]"             { return yy::parser::token::RBRACKET; }
-";"             { return yy::parser::token::SEMICOLON; }
-","             { return yy::parser::token::COMMA; }
-
-{IDENTIFIER}    { 
-  yylval->emplace<std::string>(yytext, yyleng);
-  return yy::parser::token::IDENTIFIER; 
-}
-
-{INTEGER}       { 
-  yylval->emplace<int>(std::stoi(std::string(yytext, yyleng)));
-  return yy::parser::token::INT_LITERAL; 
-}
-
-{FLOAT}         { 
-  yylval->emplace<double>(std::stod(std::string(yytext, yyleng)));
-  return yy::parser::token::FLOAT_LITERAL; 
-}
 
 {STRING}        { 
-  // Remove quotes and handle escape sequences
-  std::string str(yytext + 1, yyleng - 2);
-  std::string processed;
-  for (size_t i = 0; i < str.length(); ++i) {
-    if (str[i] == '\\' && i + 1 < str.length()) {
-      ++i;
-      switch (str[i]) {
-        case 'n': processed += '\n'; break;
-        case 't': processed += '\t'; break;
-        case '\\': processed += '\\'; break;
-        case '\"': processed += '\"'; break;
-        case '\'': processed += '\''; break;
-        default: processed += str[i]; break;
-      }
-    } else {
-      processed += str[i];
-    }
-  }
-  yylval->emplace<std::string>(std::move(processed));
-  return yy::parser::token::STRING_LITERAL; 
-}
+                  // Remove quotes and handle escape sequences
+                  std::string str(yytext + 1, yyleng - 2);
+                  std::string processed;
+                  for (size_t i = 0; i < str.length(); ++i) {
+                    if (str[i] == '\\' && i + 1 < str.length()) {
+                      ++i;
+                      switch (str[i]) {
+                        case 'n': processed += '\n'; break;
+                        case 't': processed += '\t'; break;
+                        case '\\': processed += '\\'; break;
+                        case '\"': processed += '\"'; break;
+                        case '\'': processed += '\''; break;
+                        default: processed += str[i]; break;
+                      }
+                    } else {
+                      processed += str[i];
+                    }
+                  }
+                  std::cout << "STRING: " << processed << std::endl;
+                }
+
+
+{IDENTIFIER}    {
+                  std::cout << "IDENT: " << YYText() << std::endl;
+                }
+
 
 {CHAR}          { 
-  char c = yytext[1];
-  if (c == '\\' && yyleng > 3) {
-    switch (yytext[2]) {
-      case 'n': c = '\n'; break;
-      case 't': c = '\t'; break;
-      case '\\': c = '\\'; break;
-      case '\"': c = '\"'; break;
-      case '\'': c = '\''; break;
-      default: c = yytext[2]; break;
-    }
-  }
-  yylval->emplace<char>(c);
-  return yy::parser::token::CHAR_LITERAL; 
-}
+                  char c = yytext[1];
+                  if (c == '\\' && yyleng > 3) {
+                    switch (yytext[2]) {
+                      case 'n': c = '\n'; break;
+                      case 't': c = '\t'; break;
+                      case '\\': c = '\\'; break;
+                      case '\"': c = '\"'; break;
+                      case '\'': c = '\''; break;
+                      default: c = yytext[2]; break;
+                    }
+                  }
+                  std::cout << "CHAR: " << c << std::endl;
+                }
 
-<<EOF>> {
-  if (this->pop_include()) {
-      // Continue lexing previous file
-      return yylex(yylval, yylloc);
-  }
-  return 0; // End of all input
-}
+<<EOF>>         { 
+                  if(!exit_file()) { 
+                    return yy::Parser::make_YYEOF(loc);
+                  } 
+                }
 
-. { 
-    std::cerr << get_position_info() << ": Unrecognised character: " << yytext << std::endl; 
-    return yy::parser::token::ERROR;
-}
+.               { 
+                  std::cerr<< ": Unrecognised character: " << YYText() << std::endl; 
+                  return yy::Parser::make_YYUNDEF(loc);
+                }
 
 %%
 
-// Implementation of Lexer constructor if needed outside of the definitions above
-//Lexer::Lexer(std::istream* in) : yyFlexLexer(in), line_num(1), col_num(1) {}
 
-#include "parser.hh"
-yy::parser::symbol_type yylex(Lexer& lexer) {
-    return lexer.yylex();
+void yy::Lexer::handle_inc_file()
+{
+    int c{};
+    while ((c = yyinput()) && c != '\n')
+        ;
+    enter_file(YYText());
+    BEGIN(INITIAL);
 }
+
+bool yy::Lexer::enter_file(std::string_view filename)
+{
+    //std::println("enter file: {}", filename);
+    std::cout << "Enter file: " << filename << std::endl;
+
+    std::ifstream file{filename.data()};
+    if (file.fail())
+    {
+        //std::println(stderr, "open file {} failed", filename);
+        std::cout << "Open file: " << filename << "failed" << std::endl;
+        return false;
+    }
+
+    files.push(std::move(file));
+    auto bs = yy_create_buffer(files.top(), YY_BUF_SIZE);
+
+    yypush_buffer_state(bs);
+    
+    return true;
+}
+
+bool yy::Lexer::exit_file()
+{
+    if (files.empty())
+    {
+        return false;
+    }
+    std::cout << "Exit file: " << std::endl;
+    yypop_buffer_state();
+    files.pop();
+
+    if (files.empty())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//yy::Lexer::~Lexer() = default;
