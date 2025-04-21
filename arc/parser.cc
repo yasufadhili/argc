@@ -37,7 +37,7 @@
 
 
 // First part of user prologue.
-#line 5 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 14 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
 
 #include <iostream>
@@ -52,7 +52,7 @@
 
 
 // Unqualified %code blocks.
-#line 35 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 40 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
     namespace yy {
         auto yylex () -> parser::symbol_type {
@@ -207,22 +207,6 @@ namespace yy {
         value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_I16: // I16
-        value.YY_MOVE_OR_COPY< int16_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.YY_MOVE_OR_COPY< int32_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.YY_MOVE_OR_COPY< int64_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.YY_MOVE_OR_COPY< int8_t > (YY_MOVE (that.value));
-        break;
-
       default:
         break;
     }
@@ -243,22 +227,6 @@ namespace yy {
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< double > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I16: // I16
-        value.move< int16_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.move< int32_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.move< int64_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.move< int8_t > (YY_MOVE (that.value));
         break;
 
       default:
@@ -283,22 +251,6 @@ namespace yy {
         value.copy< double > (that.value);
         break;
 
-      case symbol_kind::S_I16: // I16
-        value.copy< int16_t > (that.value);
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.copy< int32_t > (that.value);
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.copy< int64_t > (that.value);
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.copy< int8_t > (that.value);
-        break;
-
       default:
         break;
     }
@@ -317,22 +269,6 @@ namespace yy {
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< double > (that.value);
-        break;
-
-      case symbol_kind::S_I16: // I16
-        value.move< int16_t > (that.value);
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.move< int32_t > (that.value);
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.move< int64_t > (that.value);
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.move< int8_t > (that.value);
         break;
 
       default:
@@ -596,22 +532,6 @@ namespace yy {
         yylhs.value.emplace< double > ();
         break;
 
-      case symbol_kind::S_I16: // I16
-        yylhs.value.emplace< int16_t > ();
-        break;
-
-      case symbol_kind::S_I32: // I32
-        yylhs.value.emplace< int32_t > ();
-        break;
-
-      case symbol_kind::S_I64: // I64
-        yylhs.value.emplace< int64_t > ();
-        break;
-
-      case symbol_kind::S_I8: // I8
-        yylhs.value.emplace< int8_t > ();
-        break;
-
       default:
         break;
     }
@@ -626,48 +546,48 @@ namespace yy {
         {
           switch (yyn)
             {
-  case 4: // expression: term
-#line 51 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 6: // expression: term
+#line 61 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                           {
                             yylhs.value.as < double > () = yystack_[0].value.as < double > ();
                           }
-#line 635 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 555 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 5: // expression: expression PLUS term
-#line 54 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 7: // expression: expression PLUS term
+#line 64 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                           {
                             yylhs.value.as < double > () = yystack_[2].value.as < double > () + yystack_[0].value.as < double > ();
                           }
-#line 643 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 563 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 6: // expression: expression MINUS term
-#line 57 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 8: // expression: expression MINUS term
+#line 67 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                           {
                             yylhs.value.as < double > () = yystack_[2].value.as < double > () - yystack_[0].value.as < double > ();
                           }
-#line 651 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 571 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 7: // term: factor
-#line 63 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 9: // term: factor
+#line 73 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
                                 yylhs.value.as < double > () = yystack_[0].value.as < double > ();
                               }
-#line 659 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 579 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 8: // term: term TIMES factor
-#line 67 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 10: // term: term TIMES factor
+#line 77 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
                                 yylhs.value.as < double > () = yystack_[2].value.as < double > () * yystack_[0].value.as < double > ();
                               }
-#line 667 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 587 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 9: // term: term DIVIDE factor
-#line 71 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 11: // term: term DIVIDE factor
+#line 81 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
                                 if(yystack_[0].value.as < double > () == 0){
                                   error("Error: Division by zero");
@@ -676,27 +596,27 @@ namespace yy {
                                   yylhs.value.as < double > () = yystack_[2].value.as < double > () / yystack_[0].value.as < double > ();
                                 }
                               }
-#line 680 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 600 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 10: // factor: NUMBER
-#line 82 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
-                              {
+  case 12: // factor: NUMBER
+#line 92 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+                            {
                                 yylhs.value.as < double > () = yystack_[0].value.as < double > ();
                               }
-#line 688 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 608 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
-  case 11: // factor: LPAREN expression RPAREN
-#line 85 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+  case 13: // factor: LPAREN expression RPAREN
+#line 95 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
                               {
                                 yylhs.value.as < double > () = yystack_[1].value.as < double > ();
                               }
-#line 696 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 616 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
     break;
 
 
-#line 700 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 620 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
             default:
               break;
@@ -1051,62 +971,62 @@ namespace yy {
   const signed char
   parser::yypact_[] =
   {
-      -3,    -3,    -4,     1,     2,     3,    -4,    -2,    -4,    -3,
-      -3,    -3,    -3,    -4,     3,     3,    -4,    -4
+      -3,    -3,    -4,     7,    -3,     2,     3,    -4,    -2,    -4,
+       2,    -3,    -3,    -3,    -3,    -4,     3,     3,    -4,    -4
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       3,     0,    10,     0,     2,     4,     7,     0,     1,     0,
-       0,     0,     0,    11,     5,     6,     8,     9
+       3,     0,    12,     0,     2,     4,     6,     9,     0,     1,
+       5,     0,     0,     0,     0,    13,     7,     8,    10,    11
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-      -4,    -4,     8,     4,     5
+      -4,    -4,    -4,     0,     4,     5
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     3,     4,     5,     6
+       0,     3,     4,     5,     6,     7
   };
 
   const signed char
   parser::yytable_[] =
   {
-       1,     8,    13,     9,    10,     0,     2,     9,    10,     7,
-      11,    12,     0,    14,    15,     0,    16,    17
+       1,     8,    15,     0,    10,    11,    12,     9,     2,    11,
+      12,     0,    13,    14,     0,    16,    17,     0,    18,    19
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       3,     0,     4,     5,     6,    -1,     9,     5,     6,     1,
-       7,     8,    -1,     9,    10,    -1,    11,    12
+       3,     1,     4,    -1,     4,     7,     8,     0,    11,     7,
+       8,    -1,     9,    10,    -1,    11,    12,    -1,    13,    14
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,     3,     9,    15,    16,    17,    18,    16,     0,     5,
-       6,     7,     8,     4,    17,    17,    18,    18
+       0,     3,    11,    13,    14,    15,    16,    17,    15,     0,
+      15,     7,     8,     9,    10,     4,    16,    16,    17,    17
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    14,    15,    15,    16,    16,    16,    17,    17,    17,
-      18,    18
+       0,    12,    13,    13,    14,    14,    15,    15,    15,    16,
+      16,    16,    17,    17
   };
 
   const signed char
   parser::yyr2_[] =
   {
-       0,     2,     1,     0,     1,     3,     3,     1,     3,     3,
-       1,     3
+       0,     2,     1,     0,     1,     2,     1,     3,     3,     1,
+       3,     3,     1,     3
   };
 
 
@@ -1117,8 +1037,8 @@ namespace yy {
   const parser::yytname_[] =
   {
   "\"end of file\"", "error", "\"invalid token\"", "LPAREN", "RPAREN",
-  "PLUS", "MINUS", "TIMES", "DIVIDE", "NUMBER", "I8", "I16", "I32", "I64",
-  "$accept", "program", "expression", "term", "factor", YY_NULLPTR
+  "LBRACE", "RBRACE", "PLUS", "MINUS", "TIMES", "DIVIDE", "NUMBER",
+  "$accept", "program", "expression-list", "expression", "term", "factor", YY_NULLPTR
   };
 #endif
 
@@ -1127,8 +1047,8 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    46,    46,    47,    51,    54,    57,    63,    67,    71,
-      82,    85
+       0,    51,    51,    52,    56,    57,    61,    64,    67,    73,
+      77,    81,    92,    95
   };
 
   void
@@ -1160,9 +1080,9 @@ namespace yy {
 
 
 } // yy
-#line 1164 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 1084 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
-#line 90 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 104 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
 
 namespace yy

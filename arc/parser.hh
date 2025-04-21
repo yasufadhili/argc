@@ -379,18 +379,6 @@ namespace yy {
       // term
       // factor
       char dummy1[sizeof (double)];
-
-      // I16
-      char dummy2[sizeof (int16_t)];
-
-      // I32
-      char dummy3[sizeof (int32_t)];
-
-      // I64
-      char dummy4[sizeof (int64_t)];
-
-      // I8
-      char dummy5[sizeof (int8_t)];
     };
 
     /// The size of the largest semantic type.
@@ -436,15 +424,13 @@ namespace yy {
     YYUNDEF = 257,                 // "invalid token"
     LPAREN = 258,                  // LPAREN
     RPAREN = 259,                  // RPAREN
-    PLUS = 260,                    // PLUS
-    MINUS = 261,                   // MINUS
-    TIMES = 262,                   // TIMES
-    DIVIDE = 263,                  // DIVIDE
-    NUMBER = 264,                  // NUMBER
-    I8 = 265,                      // I8
-    I16 = 266,                     // I16
-    I32 = 267,                     // I32
-    I64 = 268                      // I64
+    LBRACE = 260,                  // LBRACE
+    RBRACE = 261,                  // RBRACE
+    PLUS = 262,                    // PLUS
+    MINUS = 263,                   // MINUS
+    TIMES = 264,                   // TIMES
+    DIVIDE = 265,                  // DIVIDE
+    NUMBER = 266                   // NUMBER
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -461,27 +447,26 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 14, ///< Number of tokens.
+        YYNTOKENS = 12, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
         S_LPAREN = 3,                            // LPAREN
         S_RPAREN = 4,                            // RPAREN
-        S_PLUS = 5,                              // PLUS
-        S_MINUS = 6,                             // MINUS
-        S_TIMES = 7,                             // TIMES
-        S_DIVIDE = 8,                            // DIVIDE
-        S_NUMBER = 9,                            // NUMBER
-        S_I8 = 10,                               // I8
-        S_I16 = 11,                              // I16
-        S_I32 = 12,                              // I32
-        S_I64 = 13,                              // I64
-        S_YYACCEPT = 14,                         // $accept
-        S_program = 15,                          // program
-        S_expression = 16,                       // expression
-        S_term = 17,                             // term
-        S_factor = 18                            // factor
+        S_LBRACE = 5,                            // LBRACE
+        S_RBRACE = 6,                            // RBRACE
+        S_PLUS = 7,                              // PLUS
+        S_MINUS = 8,                             // MINUS
+        S_TIMES = 9,                             // TIMES
+        S_DIVIDE = 10,                           // DIVIDE
+        S_NUMBER = 11,                           // NUMBER
+        S_YYACCEPT = 12,                         // $accept
+        S_program = 13,                          // program
+        S_14_expression_list = 14,               // expression-list
+        S_expression = 15,                       // expression
+        S_term = 16,                             // term
+        S_factor = 17                            // factor
       };
     };
 
@@ -523,22 +508,6 @@ namespace yy {
         value.move< double > (std::move (that.value));
         break;
 
-      case symbol_kind::S_I16: // I16
-        value.move< int16_t > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.move< int32_t > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.move< int64_t > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.move< int8_t > (std::move (that.value));
-        break;
-
       default:
         break;
     }
@@ -567,54 +536,6 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const double& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int16_t&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const int16_t& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int32_t&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const int32_t& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int64_t&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const int64_t& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int8_t&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const int8_t& v)
         : Base (t)
         , value (v)
       {}
@@ -649,22 +570,6 @@ switch (yykind)
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.template destroy< double > ();
-        break;
-
-      case symbol_kind::S_I16: // I16
-        value.template destroy< int16_t > ();
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.template destroy< int32_t > ();
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.template destroy< int64_t > ();
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.template destroy< int8_t > ();
         break;
 
       default:
@@ -765,38 +670,6 @@ switch (yykind)
         : super_type (token_kind_type (tok), std::move (v))
 #else
       symbol_type (int tok, const double& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int16_t v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const int16_t& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int32_t v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const int32_t& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int64_t v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const int64_t& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int8_t v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const int8_t& v)
         : super_type (token_kind_type (tok), v)
 #endif
       {}
@@ -925,6 +798,36 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_LBRACE ()
+      {
+        return symbol_type (token::LBRACE);
+      }
+#else
+      static
+      symbol_type
+      make_LBRACE ()
+      {
+        return symbol_type (token::LBRACE);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_RBRACE ()
+      {
+        return symbol_type (token::RBRACE);
+      }
+#else
+      static
+      symbol_type
+      make_RBRACE ()
+      {
+        return symbol_type (token::RBRACE);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_PLUS ()
       {
         return symbol_type (token::PLUS);
@@ -995,66 +898,6 @@ switch (yykind)
       make_NUMBER (const double& v)
       {
         return symbol_type (token::NUMBER, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_I8 (int8_t v)
-      {
-        return symbol_type (token::I8, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_I8 (const int8_t& v)
-      {
-        return symbol_type (token::I8, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_I16 (int16_t v)
-      {
-        return symbol_type (token::I16, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_I16 (const int16_t& v)
-      {
-        return symbol_type (token::I16, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_I32 (int32_t v)
-      {
-        return symbol_type (token::I32, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_I32 (const int32_t& v)
-      {
-        return symbol_type (token::I32, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_I64 (int64_t v)
-      {
-        return symbol_type (token::I64, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_I64 (const int64_t& v)
-      {
-        return symbol_type (token::I64, v);
       }
 #endif
 
@@ -1385,9 +1228,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 17,     ///< Last index in yytable_.
-      yynnts_ = 5,  ///< Number of nonterminal symbols.
-      yyfinal_ = 8 ///< Termination state number.
+      yylast_ = 19,     ///< Last index in yytable_.
+      yynnts_ = 6,  ///< Number of nonterminal symbols.
+      yyfinal_ = 9 ///< Termination state number.
     };
 
 
@@ -1430,10 +1273,10 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13
+       5,     6,     7,     8,     9,    10,    11
     };
     // Last valid token kind.
-    const int code_max = 268;
+    const int code_max = 266;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1456,22 +1299,6 @@ switch (yykind)
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.copy< double > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I16: // I16
-        value.copy< int16_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.copy< int32_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.copy< int64_t > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.copy< int8_t > (YY_MOVE (that.value));
         break;
 
       default:
@@ -1510,22 +1337,6 @@ switch (yykind)
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< double > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_I16: // I16
-        value.move< int16_t > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_I32: // I32
-        value.move< int32_t > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_I64: // I64
-        value.move< int64_t > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_I8: // I8
-        value.move< int8_t > (YY_MOVE (s.value));
         break;
 
       default:
@@ -1593,7 +1404,7 @@ switch (yykind)
 
 
 } // yy
-#line 1597 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 1408 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 

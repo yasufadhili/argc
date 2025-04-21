@@ -1,25 +1,15 @@
-
-
-%{
-
-#include <iostream>
-
-#include "parser.hh"
-
-%}
-
+%option c++
 %option noyywrap
 
+%{
+#include <iostream>
+#include "parser.hh"
+%}
 
 %%
 
-"+"             {
-                  return yy::parser::token::PLUS;
-                }
+"+"             { return yy::parser::token::PLUS; }
 
-.               {
-                  std::cerr << "Unrecognised character: " << yytext << '\n';
-                }
+.               { std::cerr << "Unrecognised character: " << yytext << '\n'; }
 
 %%
-

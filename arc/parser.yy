@@ -89,7 +89,7 @@ term
 ;
 
 factor
-  : constant                  {
+  : NUMBER                  {
                                 $$ = $1;
                               }
   | LPAREN expression RPAREN  {
