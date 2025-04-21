@@ -48,8 +48,9 @@
 #line 8 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
     #include <string>
+    #include "lexer.hh"
 
-#line 53 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 54 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -189,7 +190,7 @@
 #endif
 
 namespace yy {
-#line 193 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 194 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 
@@ -2121,7 +2122,7 @@ switch (yykind)
 
 
 } // yy
-#line 2125 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 2126 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 

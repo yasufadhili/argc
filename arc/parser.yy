@@ -7,6 +7,12 @@
 
 %code requires {
     #include <string>
+    #include "lexer.hh"
+}
+
+%code {
+    // Forward declaration for C++ Bison
+    static yy::parser::symbol_type yylex(Lexer& lexer);
 }
 
 %locations

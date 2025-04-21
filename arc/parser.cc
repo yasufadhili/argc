@@ -41,6 +41,13 @@
 #include "parser.hh"
 
 
+// Unqualified %code blocks.
+#line 13 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+
+    // Forward declaration for C++ Bison
+    static yy::parser::symbol_type yylex(Lexer& lexer);
+
+#line 51 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
 
 #ifndef YY_
@@ -132,7 +139,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 136 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 143 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
   /// Build a parser object.
   parser::parser ()
@@ -608,7 +615,7 @@ namespace yy {
           switch (yyn)
             {
 
-#line 612 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 619 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
             default:
               break;
@@ -882,7 +889,7 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    33,    33,    36,    37,    40
+       0,    39,    39,    42,    43,    46
   };
 
   void
@@ -914,9 +921,9 @@ namespace yy {
 
 
 } // yy
-#line 918 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 925 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
-#line 43 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 49 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
 
 void yy::parser::error(const location_type& loc, const std::string& msg) {

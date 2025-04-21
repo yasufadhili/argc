@@ -170,3 +170,8 @@ include[ ]+\"([^\"]+)\" {
 
 // Implementation of Lexer constructor if needed outside of the definitions above
 //Lexer::Lexer(std::istream* in) : yyFlexLexer(in), line_num(1), col_num(1) {}
+
+#include "parser.hh"
+yy::parser::symbol_type yylex(Lexer& lexer) {
+    return lexer.yylex();
+}
