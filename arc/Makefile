@@ -85,6 +85,7 @@ clean:
 distclean: clean
 	@echo "Removing build directories"
 	@rm -rf $(BUILD_DIR)
+	@rm -f parser.cc parser.hh location.hh
 
 # Rebuild target
 rebuild: clean all
