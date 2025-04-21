@@ -7,18 +7,9 @@
 
 %code requires {
     #include <string>
-    class Lexer;
 }
-
-%lex-param { Lexer& lexer }
-%parse-param { Lexer& lexer }
 
 %locations
-
-%code {
-    #include "lexer.hh"
-    #define yylex() lexer.yylex()
-}
 
 
 %token TYPE_INT TYPE_FLOAT TYPE_CHAR TYPE_STRING TYPE_VOID

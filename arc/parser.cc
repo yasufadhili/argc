@@ -41,13 +41,6 @@
 #include "parser.hh"
 
 
-// Unqualified %code blocks.
-#line 18 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
-
-    #include "lexer.hh"
-    #define yylex() lexer.yylex()
-
-#line 51 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
 
 #ifndef YY_
@@ -139,17 +132,16 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 143 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 136 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
   /// Build a parser object.
-  parser::parser (Lexer& lexer_yyarg)
+  parser::parser ()
 #if YYDEBUG
     : yydebug_ (false),
-      yycdebug_ (&std::cerr),
+      yycdebug_ (&std::cerr)
 #else
-    :
+
 #endif
-      lexer (lexer_yyarg)
   {}
 
   parser::~parser ()
@@ -504,7 +496,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            symbol_type yylookahead (yylex (lexer));
+            symbol_type yylookahead (yylex ());
             yyla.move (yylookahead);
           }
 #if YY_EXCEPTIONS
@@ -616,7 +608,7 @@ namespace yy {
           switch (yyn)
             {
 
-#line 620 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 612 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
             default:
               break;
@@ -890,7 +882,7 @@ namespace yy {
   const signed char
   parser::yyrline_[] =
   {
-       0,    42,    42,    45,    46,    49
+       0,    33,    33,    36,    37,    40
   };
 
   void
@@ -922,9 +914,9 @@ namespace yy {
 
 
 } // yy
-#line 926 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
+#line 918 "/home/yasufadhili/Dev/Argon/argon/arc/parser.cc"
 
-#line 52 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
+#line 43 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
 
 void yy::parser::error(const location_type& loc, const std::string& msg) {

@@ -48,9 +48,8 @@
 #line 8 "/home/yasufadhili/Dev/Argon/argon/arc/parser.yy"
 
     #include <string>
-    class Lexer;
 
-#line 54 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 53 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -190,7 +189,7 @@
 #endif
 
 namespace yy {
-#line 194 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 193 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 
@@ -909,7 +908,7 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    parser (Lexer& lexer_yyarg);
+    parser ();
     virtual ~parser ();
 
 #if 201103L <= YY_CPLUSPLUS
@@ -1927,8 +1926,6 @@ switch (yykind)
     };
 
 
-    // User arguments.
-    Lexer& lexer;
 
   };
 
@@ -2124,7 +2121,7 @@ switch (yykind)
 
 
 } // yy
-#line 2128 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
+#line 2125 "/home/yasufadhili/Dev/Argon/argon/arc/parser.hh"
 
 
 
