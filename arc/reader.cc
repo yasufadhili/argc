@@ -17,11 +17,11 @@ Reader::Reader(const std::string& filename) : file_stream_(nullptr), stream_(nul
     }
 }
 
-std::istream& Reader::stream() {
+auto Reader::stream() -> std::istream& {
     return *stream_;
 }
 
-bool Reader::is_open() const {
+auto Reader::is_open() const -> bool {
     return stream_ != nullptr && (stream_ == &(std::cin) || (file_stream_ && file_stream_->is_open()));
 }
 
