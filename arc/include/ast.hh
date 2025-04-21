@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+#include <variant>
 #include <vector>
 #include <iostream>
 
@@ -263,6 +265,14 @@ namespace ast {
     class Module final: public Node {
       std::vector<stmt::Statement *> statements;
       std::vector<func::Function *> functions;
+
+      std::vector<
+        std::variant<
+          std::shared_ptr<stmt::Statement>,
+          std::shared_ptr<func::Function>
+        >
+      > children ;
+
     public:
       explicit Module(std::vector<stmt::Statement *> stmts, std::vector<func::Function *> fns);
       ~Module() override;

@@ -1,3 +1,12 @@
+
+
+/**
+
+Match this parser to the AST with proper returns setup
+
+**/
+
+
 %require "3.2"
 %language "c++"
 %define parse.error verbose
@@ -7,9 +16,6 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
-#include <memory>
-
-#include "include/ast.hh"
 
 %}
 
@@ -18,25 +24,18 @@
 %define api.value.type variant
 
 
-%token LPAREN RPAREN
+%token LPAREN RPAREN LBRACE RBRACE
 
 %token PLUS MINUS
 %token TIMES DIVIDE
 
-%token <std::shared_ptr<ast::expr::Constant>> NUMBER;
-%token <int8_t> I8;
-%token <int16_t> I16;
-%token <int32_t> I32;
-%token <int64_t> I64;
-
+%token <double> NUMBER;
 
 %left PLUS MINUS
 %left TIMES DIVIDE
 
-%type <std::shared_ptr<ast::prog::Program>> program
-%type <std::shared_ptr<ast::expr::Expression>> expression
-%type <std::shared_ptr<ast::expr::Expression>> term
-%type <std::shared_ptr<ast::expr::Expression>> factor
+%type <double> expression term factor
+
 
 %code {
     namespace yy {
@@ -48,51 +47,58 @@
 
 %%
 
-
 program
-   : expression-list          {
-
-                              }
+   : expression-list
    | /** Empty**/
 ;
 
 expression-list
-  : expression                {}
-  | expression-list           {}
+  : expression
+  | expression-list expression
+;
 
 expression
-  : term                      {
-                            
-                              }
-  | expression PLUS term      {
-                            
-                              }
-  | expression MINUS term     {
-                            
-                              }
+  : term                  {
+                            $$ = $1;
+                          }
+  | expression PLUS term  {
+                            $$ = $1 + $3;
+                          }
+  | expression MINUS term {
+                            $$ = $1 - $3;
+                          }
 ;
 
 term
   : factor                    {
-                                
+                                $$ = $1;
                               }
                             
   | term TIMES factor         {
-                                
+                                $$ = $1 * $3;
                               }
 
   | term DIVIDE factor        {
-                                
+                                if($3 == 0){
+                                  error("Error: Division by zero");
+                                  $$ = 0;
+                                } else {
+                                  $$ = $1 / $3;
+                                }
                               }
 ;
 
 factor
-  : NUMBER                    {
-                                return std::make_unique<ast::expr::Constant>();
+  : constant                  {
+                                $$ = $1;
                               }
   | LPAREN expression RPAREN  {
-                                
+                                $$ = $2;
                               }
+;
+
+constant
+  : NUMBER
 ;
 
 %%
