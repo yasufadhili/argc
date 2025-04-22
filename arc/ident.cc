@@ -11,7 +11,8 @@ TypeIdentifier::TypeIdentifier(const std::string &n) : name_(n) {};
 TypeIdentifier::~TypeIdentifier() = default;
 
 void Identifier::print(const int level) {
-  std::cout << "Identifier " << '\n';
+  print_indent(level);
+  std::cout << "Identifier " << name_ <<'\n';
 }
 
 void TypeIdentifier::print(int level) {

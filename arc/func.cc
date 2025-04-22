@@ -11,6 +11,8 @@ Function::~Function() = default;
 
 void Function::print(const int level) {
   print_indent(level);
+  std::cout << "Function \n";
+  identifier_->print(level + 1);
 }
 
 

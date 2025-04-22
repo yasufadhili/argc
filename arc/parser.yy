@@ -98,14 +98,22 @@ namespace yy {
 
 
 program
-  : %empty {
-     $$ = std::make_shared<ast::prog::Program>();
-  }
-  | function_definition {
-
+  : function_definition_list {
+    result = std::make_shared<ast::prog::Program>($1);
+    $$ = result;
   }
 ;
 
+
+function_definition_list
+  : function_definition {
+    $$ = std::vector<std::shared_ptr<ast::func::Function>> { $1 } ;
+  }
+  | function_definition_list function_definition {
+    $$ = $1;
+    $$.emplace_back($2);
+  }
+;
 
 
 function_definition

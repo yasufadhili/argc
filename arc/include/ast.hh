@@ -17,7 +17,7 @@ class Node {
 protected:
   static void print_indent(const int level) {
     for (int i = 0; i < level; ++i) {
-      std::cout.put(1);
+      std::cout << " ";
     }
   }
 public:
@@ -67,7 +67,7 @@ namespace ast::func {
 class Function final : public Node {
   std::shared_ptr<ident::Identifier> identifier_;
 public:
-  Function(std::shared_ptr<ident::Identifier>);
+  explicit Function(std::shared_ptr<ident::Identifier>);
   ~Function() override;
   void print(int level) override;
 };
@@ -78,8 +78,9 @@ public:
 namespace ast::prog {
 
 class Program final: public Node {
+  std::vector<std::shared_ptr<func::Function>> functions_;
 public:
-  Program();
+  explicit Program(std::vector<std::shared_ptr<func::Function>>);
   ~Program() override = default;
 
   void print(int level) override;
