@@ -117,6 +117,23 @@ expression
                                       }
 ;
 
+
+boolean_expression
+  : TRUE                            { 
+                                      $$ = std::make_shared<ast::expr::boolean::Boolean>
+                                      (
+                                        ast::expr::boolean::BooleanType::TRUE
+                                      ); 
+                                    }
+  | FALSE                           { 
+                                      $$ = std::make_shared<ast::expr::boolean::Boolean>
+                                      (
+                                        ast::expr::boolean::BooleanType::FALSE
+                                      ); 
+                                    }
+;
+
+
 arithmetic_expression
   : term                              { $$ = $1; }
   | arithmetic_expression PLUS term   {
