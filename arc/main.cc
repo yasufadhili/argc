@@ -21,14 +21,14 @@ auto main(const int argc, char* argv[]) -> int {
   std::shared_ptr<ast::prog::Program> program;
 
   yy::Parser parser{lexer, program};
-  parser.set_debug_level(0);
+  parser.set_debug_level(1);
 
   if (parser.parse() != 0) {
     std::cerr << "Parsing failed" << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  program->print();
+  program->print(0);
 
   return 0;
 }

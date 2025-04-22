@@ -14,7 +14,11 @@
 
 %locations
 
+
+
 %param {yy::Lexer &lexer}
+
+
 
 %code requires {
 
@@ -25,10 +29,14 @@
 
 #include "include/ast.hh"
 
+
+
 namespace yy {
   class Lexer;
 }
 }
+
+
 
 %code {
   #include "lexer.hh"
@@ -37,6 +45,8 @@ namespace yy {
       return lexer.lex();
   }
 }
+
+
 
 %token RPAREN LPAREN
 %token LBRACE RBRACE
@@ -58,6 +68,8 @@ namespace yy {
 %token <std::string> STRING
 %token <char> CHAR
 
+
+
 %precedence ASSIGN
 %left EQ NEQ
 %left GT LT GEQ LEQ
@@ -65,11 +77,20 @@ namespace yy {
 %left TIMES DIVIDE
 %right NOT
 
+
+
 %type <std::shared_ptr<ast::prog::Program>> program;
+%type <std::shared_ptr<ast::ident::Identifier>> identifier;
+
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
 
+
+
 %start program
+
+
+
 
 %%
 
@@ -77,8 +98,16 @@ program
   : %empty {
      $$ = std::make_shared<ast::prog::Program>();
   }
+  | identifier {
+
+  }
 ;
 
+identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
+  }
+;
 
 
 

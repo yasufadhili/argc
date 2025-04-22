@@ -53,7 +53,6 @@ $(TARGET): $(OBJ_FILES)
 # Bison rules
 $(BISON_CC) $(BISON_HH): $(BISON_SRC)
 	@echo "Generating parser with Bison"
-#@$(BISON) -d --defines=$(BISON_HH) -o $(BISON_CC) $<
 	@$(BISON) -Wcounterexamples -d -o $(BISON_CC) $<
 
 # Flex rules (depends on Bison output)
