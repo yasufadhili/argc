@@ -134,6 +134,55 @@ boolean_expression
 ;
 
 
+unary_expression
+  : NOT expression                  { 
+      $$ = std::make_shared<ast::expr::Unary>(
+        ast::expr::Unary::UnaryOp::NOT, $2
+      ); 
+    }
+  | MINUS expression %prec NOT      { 
+      $$ = std::make_shared<ast::expr::Unary>(
+        ast::expr::Unary::UnaryOp::NEG, $2
+      ); 
+    }
+;
+
+
+relational_expression
+  : expression EQ expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::EQ, $1, $3
+      ); 
+    }
+  | expression NE expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::NE, $1, $3
+      ); 
+    }
+  | expression GT expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::GT, $1, $3
+      ); 
+    }
+  | expression LT expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::LT, $1, $3
+      ); 
+    }
+  | expression GE expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::GE, $1, $3
+      ); 
+    }
+  | expression LE expression        { 
+      $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::LE, $1, $3
+      ); 
+    }
+;
+
+
+
 arithmetic_expression
   : term                              { $$ = $1; }
   | arithmetic_expression PLUS term   {
