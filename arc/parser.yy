@@ -83,6 +83,7 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
+%type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
@@ -129,6 +130,12 @@ identifier
   }
 ;
 
+
+type_identifier
+  : TYPE_IDENT {
+    $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
+  }
+;
 
 
 %%
