@@ -40,7 +40,8 @@ namespace yy {
 
 %token RPAREN LPAREN
 %token LBRACE RBRACE
-%token PLUS MINUS TIMES DIVIDE
+%token PLUS MINUS
+%token TIMES DIVIDE
 %token <int> INTEGER
 %token <double> FLOAT
 %token END 0
