@@ -60,7 +60,7 @@ void Arithmetic::print(const int level) {
 }
 
 
-}
+}// namesapce arith
 
 namespace boolean {
 
@@ -82,5 +82,6 @@ namespace rel {
   }
 
 }
+
 }
 
