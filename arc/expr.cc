@@ -85,14 +85,42 @@ namespace boolean {
 
 namespace rel {
 
-Relational::Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> ){
+Relational::Relational(const RelationalType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
+  : type(t), lhs(std::move(l)), rhs(std::move(r))
+  {
   
-}
-
-  void Relational::print(int level) {
-    Node::print_indent(level);
-    std::cout << "Relational\n";
   }
+
+void Relational::print(const int level) {
+  Node::print_indent(level);
+  std::string op;
+  switch (type) {
+    case RelationalType::EQ:
+      op = "==";
+      break;
+    case RelationalType::NEQ:
+      op = "!=";
+      break;
+    case RelationalType::LT:
+      op = "<";
+      break;
+    case RelationalType::GT:
+      op = ">";
+      break;
+    case RelationalType::GEQ:
+      op = ">=";
+      break;
+    case RelationalType::LEQ:
+      op = "<=";
+      break;
+    default:
+      op = "Unknown";
+      break;
+  }
+  std::cout << "Relational Expression: " << op << '\n';
+  lhs->print(level + 1);
+  rhs->print(level + 1);
+}
 
 }
 

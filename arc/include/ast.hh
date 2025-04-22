@@ -133,10 +133,13 @@ namespace ast {
     namespace rel {
 
       enum struct RelationalType {
-        EQ, NE, GE, LE, GT, LT, LEQ, GEQ
+        EQ, NEQ, GEQ, LEQ, GT, LT
       };
 
       class Relational final : public Binary {
+        RelationalType type;
+        std::shared_ptr<Expression> lhs;
+        std::shared_ptr<Expression> rhs;
       public:
         Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
         ~Relational() override = default;

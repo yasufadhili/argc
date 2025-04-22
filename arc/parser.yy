@@ -49,7 +49,7 @@ namespace yy {
 %token VAR
 
 %token TRUE FALSE
-%token ASSIGN EQ NE GT LT GEQ LEQ
+%token ASSIGN EQ NEQ GT LT GEQ LEQ
 %token NOT
 
 %token <std::string> IDENT
@@ -201,7 +201,7 @@ relational_expression
     }
   | expression NEQ expression        { 
       $$ = std::make_shared<ast::expr::rel::Relational>(
-        ast::expr::rel::RelationalType::NE, $1, $3
+        ast::expr::rel::RelationalType::NEQ, $1, $3
       ); 
     }
   | expression GT expression        { 
@@ -216,12 +216,12 @@ relational_expression
     }
   | expression LEQ expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
-        ast::expr::rel::RelationalType::LE, $1, $3
+        ast::expr::rel::RelationalType::LEQ, $1, $3
     );
   }
   | expression GEQ expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
-        ast::expr::rel::RelationalType::GE, $1, $3
+        ast::expr::rel::RelationalType::GEQ, $1, $3
     );
   }
 ;
