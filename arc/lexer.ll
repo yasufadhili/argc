@@ -95,7 +95,7 @@ include[ \t]*[\"<]            {
 
 
 {IDENTIFIER}    {
-                  std::cout << "IDENT: " << YYText() << std::endl;
+                  return yy::Parser::make_IDENT(std::string(YYText()), loc);
                 }
 
 
@@ -116,6 +116,66 @@ include[ \t]*[\"<]            {
 
 "+"             {
                   return yy::Parser::make_PLUS(loc);
+                }
+
+"true"          { 
+                  return yy::Parser::make_TRUE(loc); 
+                }
+
+"false"         { 
+                  return yy::Parser::make_FALSE(loc); 
+                }
+
+"="             { 
+                  return yy::Parser::make_ASSIGN(loc); 
+                }
+
+"=="            { 
+                  return yy::Parser::make_EQ(loc); 
+                }
+
+"!="            { 
+                  return yy::Parser::make_NE(loc); 
+                }
+
+">"             { 
+                  return yy::Parser::make_GT(loc); 
+                }
+
+"<"             { 
+                  return yy::Parser::make_LT(loc); 
+                }
+
+">="            { 
+                  return yy::Parser::make_GE(loc); 
+                }
+
+"<="            { 
+                  return yy::Parser::make_LE(loc); 
+                }
+
+"!"             { 
+                  return yy::Parser::make_NOT(loc); 
+                }
+
+"{"             { 
+                  return yy::Parser::make_LBRACE(loc); 
+                }
+
+"}"             { 
+                  return yy::Parser::make_RBRACE(loc); 
+                }
+
+"("             { 
+                  return yy::Parser::make_LPAREN(loc); 
+                }
+
+")"             { 
+                  return yy::Parser::make_RPAREN(loc); 
+                }
+
+";"             { 
+                  return yy::Parser::make_SEMICOLON(loc); 
                 }
 
 <<EOF>>         { 
@@ -143,7 +203,7 @@ void yy::Lexer::handle_inc_file()
 
 bool yy::Lexer::enter_file(std::string_view filename)
 {
-    //std::println("enter file: {}", filename);
+    
     std::cout << "Enter file: " << filename << std::endl;
 
     std::ifstream file{filename.data()};
@@ -180,4 +240,3 @@ bool yy::Lexer::exit_file()
     return true;
 }
 
-//yy::Lexer::~Lexer() = default;
