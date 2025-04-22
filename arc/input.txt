@@ -39,3 +39,10 @@ var y i32 = 20
   var y i32 = 20
 }
 
+
+{
+  var x i32
+  var y i8
+  var z i16
+  var w i64
+}
