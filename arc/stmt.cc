@@ -7,7 +7,7 @@ namespace ast::stmt {
 
   void Statement::print(const int level) {
     Node::print_indent(level);
-    std::cout << "Statement\n";
+    std::cout << "Statement \n";
   }
 
   void Block::print(const int level) {
@@ -44,6 +44,15 @@ namespace ast::stmt {
   {
 
   }
+
+  void VariableDeclaration::print(const int level) {
+    Node::print_indent(level);
+    std::cout << "Variable Declaration " << name << "\n";
+    if (initialiser.has_value()) {
+      initialiser.value()->print(level + 1);
+    }
+  }
+
 
   auto VariableDeclaration::get_name() const -> std::string {
     return name;

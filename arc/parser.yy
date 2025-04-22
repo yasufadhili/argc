@@ -67,8 +67,9 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Block>> block;
-%type <std::shared_ptr<ast::stmt::VariableDeclaration>> var_declaration;
+%type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
+%type <std::optional<std::shared_ptr<ast::expr::Expression>>> variable_assignment
 %type <std::shared_ptr<sym::Type>> type_specifier;
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
@@ -108,7 +109,7 @@ statement_list
 ;
 
 statement
-  : var_declaration {
+  : variable_declaration {
     $$ = $1;
   }
   | expression {
@@ -131,7 +132,7 @@ block
 ;
 
 
-var_declaration
+variable_declaration
   : VAR IDENT type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
   }
@@ -147,9 +148,9 @@ optional_initialiser
   }
 ;
 
-
 type_specifier
   : IDENT {
+      // Think validation should be done in semantic analysis
       $$ = std::make_shared<sym::Type>(sym::Type::TypeKind::PRIMITIVE, $1);
   }
 ;

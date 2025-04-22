@@ -192,6 +192,8 @@ namespace ast {
         const std::optional<std::shared_ptr<expr::Expression>>& init
       );
 
+      void print(int level) override;
+
       auto get_name() const -> std::string;
       auto get_type() const -> std::shared_ptr<sym::Type>;
       //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
