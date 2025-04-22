@@ -4,8 +4,15 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 namespace sym {
+
+  // TODO: Improve type checking
+  // It's just to aid the left check if an identifier is associated with any type
+  // This should be temporary till I can think of a better mechanism
+  inline std::vector<std::string> g_type_strings;
+
   class Type;
   class Scope;
   class Symbol;
@@ -22,6 +29,7 @@ namespace sym {
     [[nodiscard]] auto get_name() const -> std::string;
     [[nodiscard]] auto get_kind() const -> TypeKind;
     [[nodiscard]] auto to_string() const -> std::string;
+    auto is_type() const -> bool;
 
   private:
     TypeKind kind;
@@ -35,7 +43,8 @@ namespace sym {
       VARIABLE,
       FUNCTION,
       PARAMETER,
-      TYPE_DEF
+      TYPE_DEF,
+      TYPE_IDENT,
     };
 
     Symbol(std::string  name, std::shared_ptr<Type> type, SymbolKind kind);
@@ -84,6 +93,7 @@ namespace sym {
 
   public:
     SymbolTable();
+    static auto get_instance() -> SymbolTable&;
     auto add_predefined_types() -> void;
     auto get_predefined_type(const std::string& name) -> std::shared_ptr<Type>;
     auto enter_scope(const std::string& name) -> std::shared_ptr<Scope>;

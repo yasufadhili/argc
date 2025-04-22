@@ -5,12 +5,13 @@
 
 %{
 
-
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <stack>
 
 #include "lexer.hh"
+#include "include/symbols.hh"
 
 using namespace yy;
 
@@ -102,6 +103,16 @@ include[ \t]*[\"<]            {
 
 
 {IDENTIFIER}    {
+
+                  if (
+                    std::find(sym::g_type_strings.begin(),
+                    sym::g_type_strings.end(),
+                    YYText()
+                    ) != sym::g_type_strings.end())
+                  {
+                    return yy::Parser::make_TYPE_IDENT(std::string(YYText()), loc);
+                  }
+
                   return yy::Parser::make_IDENT(std::string(YYText()), loc);
                 }
 

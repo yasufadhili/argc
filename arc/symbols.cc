@@ -26,6 +26,7 @@ namespace sym {
     }
   }
 
+
   Symbol::Symbol(std::string name, std::shared_ptr<Type> type, const SymbolKind kind)
     : name(std::move(name)), type(std::move(type)), kind(kind)
   {
@@ -117,6 +118,11 @@ namespace sym {
 
     // Add predefined types to the global scope
     add_predefined_types();
+  }
+
+  auto SymbolTable::get_instance() -> SymbolTable & {
+    static SymbolTable instance;
+    return instance;
   }
 
 

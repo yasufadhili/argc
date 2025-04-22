@@ -54,6 +54,7 @@ namespace yy {
 %token NOT
 
 %token <std::string> IDENT
+%token <std::string> TYPE_IDENT
 %token <std::string> STRING
 %token <char> CHAR
 
@@ -124,7 +125,6 @@ function_parameters
     $$ = std::nullopt;
   }
 ;
-
 
 statement_list
   : statement {
