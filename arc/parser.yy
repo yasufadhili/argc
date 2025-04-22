@@ -81,6 +81,7 @@ namespace yy {
 
 %type <std::shared_ptr<ast::prog::Program>> program;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
+%type <std::shared_ptr<ast::func::Function>> function_definition;
 
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
@@ -94,14 +95,23 @@ namespace yy {
 
 %%
 
+
 program
   : %empty {
      $$ = std::make_shared<ast::prog::Program>();
   }
-  | identifier {
+  | function_definition {
 
   }
 ;
+
+
+function_definition
+  : DEF identifier {
+    $$ = std::make_shared<ast::func::Function>($2);
+  }
+;
+
 
 identifier
   : IDENT {

@@ -1,9 +1,11 @@
+#include <utility>
+
 #include "include/ast.hh"
 
 
 using namespace ast::func;
 
-Function::Function() = default;
+Function::Function(std::shared_ptr<ident::Identifier> i) : identifier_(std::move(i)) {};
 
 Function::~Function() = default;
 

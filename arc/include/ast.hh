@@ -67,7 +67,7 @@ namespace ast::func {
 class Function final : public Node {
   std::shared_ptr<ident::Identifier> identifier_;
 public:
-  Function();
+  Function(std::shared_ptr<ident::Identifier>);
   ~Function() override;
   void print(int level) override;
 };
