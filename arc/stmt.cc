@@ -23,7 +23,13 @@ namespace ast::stmt {
     std::cout << "Initialise\n";
   }
 
+  ExpressionStatement::ExpressionStatement(std::shared_ptr<expr::Expression> expr) : expression(std::move(expr)) {}
 
+  void ExpressionStatement::print(const int level) {
+    Node::print_indent(level);
+    std::cout << "Expression Statement\n";
+    expression->print();
+  }
 
   VariableDeclaration::VariableDeclaration(
     std::string  name,
