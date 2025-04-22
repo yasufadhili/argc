@@ -118,6 +118,18 @@ include[ \t]*[\"<]            {
                   return yy::Parser::make_PLUS(loc);
                 }
 
+"-"             {
+                  return yy::Parser::make_MINUS(loc);
+                }
+
+"*"             {
+                  return yy::Parser::make_TIMES(loc);
+                }
+
+"/"             {
+                  return yy::Parser::make_DIVIDE(loc);
+                }
+
 "true"          { 
                   return yy::Parser::make_TRUE(loc); 
                 }
