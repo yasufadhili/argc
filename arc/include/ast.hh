@@ -84,7 +84,7 @@ namespace ast {
     namespace boolean {
 
       enum struct BooleanType {
-        TRUE, FALSE
+        TRUE = 1, FALSE = 0
       };
 
       class Boolean final : public Expression {
