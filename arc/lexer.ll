@@ -62,6 +62,14 @@ include[ \t]*[\"<]            {
                                   return yy::Parser::make_END(loc);
                                 }
 
+"true"          {
+                  return yy::Parser::make_TRUE(loc);
+                }
+
+"false"         {
+                  return yy::Parser::make_FALSE(loc);
+                }
+
 "var"           {
                   return yy::Parser::make_VAR(loc);
                 }
@@ -146,14 +154,6 @@ include[ \t]*[\"<]            {
 
 "/"             {
                   return yy::Parser::make_DIVIDE(loc);
-                }
-
-"true"          { 
-                  return yy::Parser::make_TRUE(loc); 
-                }
-
-"false"         { 
-                  return yy::Parser::make_FALSE(loc); 
                 }
 
 "="             { 
