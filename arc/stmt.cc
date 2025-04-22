@@ -47,7 +47,7 @@ namespace ast::stmt {
 
   void VariableDeclaration::print(const int level) {
     Node::print_indent(level);
-    std::cout << "Variable Declaration " << name << "\n";
+    std::cout << "Variable Declaration " << name << " -> " << type->get_name() << "\n";
     if (initialiser.has_value()) {
       initialiser.value()->print(level + 1);
     }
