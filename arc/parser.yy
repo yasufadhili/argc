@@ -39,11 +39,17 @@ namespace yy {
 }
 
 %token RPAREN LPAREN
+%token LBRACE RBRACE
 %token PLUS MINUS TIMES DIVIDE
 %token <int> INTEGER
 %token <double> FLOAT
 %token END 0
 %token SEMICOLON
+
+%token TRUE FALSE
+%token ASSIGN EQ NE GT LT GE LE
+%token NOT
+%token <std::string> IDENT
 
 %left PLUS MINUS
 %left TIMES DIVIDE
