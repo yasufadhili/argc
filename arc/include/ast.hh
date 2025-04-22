@@ -235,10 +235,11 @@ namespace ast {
   namespace func {
 
     class Function final : public Node {
-      stmt::Block *body;
+      std::string name;
+      std::shared_ptr<stmt::Block> body;
     public:
-      explicit Function(stmt::Block *b);
-      ~Function() override;
+      explicit Function(std::string, std::shared_ptr<stmt::Block>);
+      ~Function() override = default;
       void print(int level = 0) override;
     };
 

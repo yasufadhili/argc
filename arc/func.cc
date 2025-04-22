@@ -1,22 +1,18 @@
 #include <iostream>
+#include <utility>
 
 #include "include/ast.hh"
 
 
 namespace ast::func {
 
-  Function::Function(stmt::Block *b) : body(b) {
+  Function::Function(std::string n, std::shared_ptr<stmt::Block> b) : name(n), body(std::move(b)) {
 
   }
 
-  Function::~Function() {
-    delete body;
-  }
-
-
-  void Function::print(int level) {
+  void Function::print(const int level) {
     Node::print_indent(level);
-    std::cout << "Function\n";
+    std::cout << "Function: " << name << std::endl;
     if (body) body->print(level + 1);
   }
 

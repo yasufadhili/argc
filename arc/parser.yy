@@ -47,6 +47,7 @@ namespace yy {
 %token END 0
 %token SEMICOLON
 %token VAR
+%token DEF
 
 %token TRUE FALSE
 %token ASSIGN EQ NEQ GT LT GEQ LEQ
@@ -64,12 +65,14 @@ namespace yy {
 %right NOT
 
 %type <std::shared_ptr<ast::prog::Program>> program;
+%type <std::vector<std::shared_ptr<ast::func::Function>>> function_list;
+%type <std::shared_ptr<<std::func::Function>>> function_definition;
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
-%type <std::shared_ptr<ast::stmt::Block>> block;
+%type <std::shared_ptr<ast::stmt::Block>> block_statement;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
-%type <std::shared_ptr<ast::stmt::Assignment>> assignment
+%type <std::shared_ptr<ast::stmt::Assignment>> assignment;
 %type <std::shared_ptr<sym::Type>> type_specifier;
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
@@ -98,6 +101,12 @@ program
                             }
 ;
 
+function_definition
+  : DEF IDENT block_statement {
+    $$ = std::make_shared<ast::func::Function>($2, $3);
+  }
+;
+
 statement_list
   : statement {
     $$ = std::vector<std::shared_ptr<ast::stmt::Statement>>{$1};
@@ -118,12 +127,12 @@ statement
   | assignment {
       $$ = $1;
   }
-  | block {
+  | block_statement {
     $$ = $1;
   }
 ;
 
-block
+block_statement
   : LBRACE statement_list RBRACE {
       $$ = std::make_shared<ast::stmt::Block>($2);
   }
