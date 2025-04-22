@@ -248,6 +248,10 @@ namespace ast {
       std::optional<std::vector<std::shared_ptr<Parameter>>> parameters;
       std::string return_type;
       std::shared_ptr<stmt::Block> body;
+      std::optional<
+        std::variant<
+        sym::Type, std::vector<sym::Type>
+      >> returns;
     public:
       Function(std::string, std::optional<std::vector<std::shared_ptr<Parameter>>>, std::string, std::shared_ptr<stmt::Block>);
       ~Function() override = default;

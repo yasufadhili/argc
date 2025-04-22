@@ -1,72 +1,21 @@
-def main () i32 {
 
-78 / 7 + 8 * 4 - 4 / 6 * (5-5)
 
-2 + 3 * 5
+def return_none() {
 
-3 * 5 + 2
+}
 
-(3 + 3) * 3 - 4
+def return_one() i8 {
 
-40 - 23 + 2344
+}
 
-40+4+12
+def return_more() (i32, i8) {
 
-45 > 3
 
-23 >= 23
+}
 
-23 == 23.34
+def with_params (a i16, b i8) {
 
-23 <= 23
-
-true
-
-//!45
-
-false
-
-23
-
-var x i16 = (23 + 12) * 4
-
-      var z i8 = 20
-
-var y i32
-
-var y i32 = 20
-
-{
-  var y i32 = 20
 }
 
 
-{
-  var x i32
-  var y i8
-  var z i16
-  var w i64
-}
 
-{
-
-"Hello, World!"
-
-'A'
-  {
-    var x i8
-    var x i16
-
-    {
-      "Inner"
-      34 == 23
-
-      {
-        56 > 2
-      }
-    }
-  }
-}
-}
-
-def main() i32 {}

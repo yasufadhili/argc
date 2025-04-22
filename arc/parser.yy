@@ -69,6 +69,9 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
 %type <std::optional<std::vector<std::shared_ptr<ast::func::Parameter>>>> function_parameters;
+%type < std::optional<std::variant<sym::Type, std::vector<sym::Type>>> > function_returns;
+%type <sym::Type> data_type;
+%type <std::vector<sym::Type>> data_type_list;
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
@@ -124,6 +127,29 @@ function_parameters
   : %empty {
     $$ = std::nullopt;
   }
+;
+
+data_type
+  : TYPE_IDENT  {
+    sym::Type t(sym::Type::TypeKind::PRIMITIVE, $1);
+    $$ = t;
+  }
+;
+
+function_returns
+  : %empty {
+    $$ = std::nullopt;
+  }
+  | data_type {
+    $$ = std::get<sym::Type>($1);
+  }
+;
+
+data_type_list
+  : data_type {
+
+  }
+  | data_type
 ;
 
 statement_list

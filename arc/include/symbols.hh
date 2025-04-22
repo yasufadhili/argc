@@ -21,19 +21,19 @@ namespace sym {
   class Scope;
   class Symbol;
 
-  class Type {
+  class Type final {
   public:
     enum class TypeKind {
-      PRIMITIVE, ARRAY, STRUCT, FUNCTION, STRING, BOOL
+      PRIMITIVE, ARRAY, STRUCT, BOOL
     };
 
     Type(TypeKind kind, std::string name);
-    virtual ~Type() = default;
+
+    ~Type() = default;
 
     [[nodiscard]] auto get_name() const -> std::string;
     [[nodiscard]] auto get_kind() const -> TypeKind;
     [[nodiscard]] auto to_string() const -> std::string;
-    auto is_type() const -> bool;
 
   private:
     TypeKind kind;
