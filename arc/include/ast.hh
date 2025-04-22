@@ -49,7 +49,7 @@ namespace ast {
     public:
       //Variable(std::string name, std::shared_ptr<sym::Type> type)
       //    : identifier(std::move(name)), var_type(std::move(type)) {}
-      
+      Variable(std::string);
       auto get_name() const -> std::string { 
         return identifier->get_name(); 
       }
@@ -80,11 +80,12 @@ namespace ast {
 
     class Constant final : public Expression {
       using  const_variant = std::variant<
-        int, double, bool
+        int, double, bool, std::string
       >;
       const_variant value;
+      sym::Type::TypeKind kind;
     public:
-      explicit Constant(const_variant);
+      explicit Constant(const const_variant, sym::Type::TypeKind);
       ~Constant() override = default;
       void print(int level = 0) override;
     };
@@ -218,7 +219,9 @@ namespace ast {
       explicit ExpressionStatement(std::shared_ptr<expr::Expression> expr)
         : expression(std::move(expr)) {}
 
-      void print(int level = 0) override;
+      void print(int level = 0) override {
+        std::cout << "Expression Statement: \n";
+      }
     };
 
   }
@@ -263,8 +266,7 @@ namespace ast {
       std::vector<std::shared_ptr<stmt::Statement>> statements;
     public:
       Program() = default;
-      explicit Program(std::vector<std::shared_ptr<stmt::Statement>> stmts)
-        : statements(std::move(stmts)) {}
+      explicit Program(std::vector<std::shared_ptr<stmt::Statement>> stmts);
       ~Program() override = default;
       void print(int level = 0) override;
 

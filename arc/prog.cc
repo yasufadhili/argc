@@ -5,7 +5,7 @@
 
 namespace ast::prog {
 
-  Program::Program(std::vector<std::shared_ptr<expr::Expression>> exps) : expressions(std::move(exps)) {
+  Program::Program(std::vector<std::shared_ptr<stmt::Statement>> stmts) : statements(std::move(stmts)) {
     
   }
 
@@ -14,9 +14,9 @@ namespace ast::prog {
     std::cout << "Program\n";
     
     Node::print_indent(level + 1);
-    std::cout << "Expressions:\n";
-    for (const auto& exp : expressions) {
-      if (exp) exp->print(level + 2);
+    std::cout << "Statements:\n";
+    for (const auto& st : statements) {
+      if (st) st->print(level + 2);
     }
   }
 

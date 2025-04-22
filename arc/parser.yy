@@ -53,10 +53,11 @@ namespace yy {
 %token NOT
 
 %token <std::string> IDENT
-%token STRING
+%token <std::string> STRING
+%token <char> CHAR
 
 %precedence ASSIGN
-%left EQ NE
+%left EQ NEQ
 %left GT LT GEQ LEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -68,7 +69,7 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Block>> block;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> var_declaration;
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
-%type <std::shared_ptr<ast::type::PrimitiveType>> type_specifier;
+%type <std::shared_ptr<sym::Type>> type_specifier;
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
 %type <std::shared_ptr<ast::expr::Constant>> constant;
@@ -107,10 +108,10 @@ statement_list
 ;
 
 statement
-  : var_declaration SEMICOLON {
+  : var_declaration {
     $$ = $1;
   }
-  | expression SEMICOLON {
+  | expression {
     $$ = std::make_shared<ast::stmt::ExpressionStatement>($1);
   }
   | block {
@@ -149,7 +150,7 @@ optional_initialiser
 
 type_specifier
   : IDENT {
-      $$ = std::make_shared<ast::type::PrimitiveType>($1);
+      $$ = std::make_shared<sym::Type>(sym::Type::TypeKind::PRIMITIVE, $1);
   }
 ;
 
@@ -159,9 +160,6 @@ expression
   | relational_expression { $$ = $1; }
   | variable { $$ = $1; }
   | constant { $$ = $1; }
-  | variable ASSIGN expression {
-      $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
-  }
 ;
 
 
@@ -201,7 +199,7 @@ relational_expression
         ast::expr::rel::RelationalType::EQ, $1, $3
       ); 
     }
-  | expression NE expression        { 
+  | expression NEQ expression        { 
       $$ = std::make_shared<ast::expr::rel::Relational>(
         ast::expr::rel::RelationalType::NE, $1, $3
       ); 
@@ -265,12 +263,19 @@ factor
 
 
 number
-  : INTEGER   {
-      $$ = std::make_shared<ast::expr::Constant>($1);
-    }
-  | FLOAT     {
-      $$ = std::make_shared<ast::expr::Constant>($1);
-    }
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Constant>(
+      $1,
+      sym::Type::TypeKind::PRIMITIVE
+    );
+  }
+
+  | FLOAT {
+    $$ = std::make_shared<ast::expr::Constant>(
+      $1,
+      sym::Type::TypeKind::PRIMITIVE
+    );
+  }
 ;
 
 variable
@@ -282,35 +287,35 @@ variable
 constant
   : INTEGER {
     $$ = std::make_shared<ast::expr::Constant>(
-        $1,
-        std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::INT)
+      $1,
+      sym::Type::TypeKind::PRIMITIVE
     );
   }
 
   | FLOAT {
     $$ = std::make_shared<ast::expr::Constant>(
       $1,
-      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::FLOAT)
+      sym::Type::TypeKind::PRIMITIVE
     );
   }
 
   | STRING {
     $$ = std::make_shared<ast::expr::Constant>(
       $1,
-      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::STRING)
+      sym::Type::TypeKind::STRING
     );
   }
 
   | TRUE {
     $$ = std::make_shared<ast::expr::Constant>(
       true,
-      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::BOOL)
+      sym::Type::TypeKind::BOOL
     );
   }
   | FALSE {
     $$ = std::make_shared<ast::expr::Constant>(
       false,
-      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::BOOL)
+      sym::Type::TypeKind::BOOL
     );
   }
 ;

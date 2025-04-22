@@ -147,7 +147,7 @@ include[ \t]*[\"<]            {
                 }
 
 "!="            { 
-                  return yy::Parser::make_NE(loc); 
+                  return yy::Parser::make_NEQ(loc); 
                 }
 
 ">"             { 
@@ -159,11 +159,11 @@ include[ \t]*[\"<]            {
                 }
 
 ">="            { 
-                  return yy::Parser::make_GE(loc); 
+                  return yy::Parser::make_GEQ(loc); 
                 }
 
 "<="            { 
-                  return yy::Parser::make_LE(loc); 
+                  return yy::Parser::make_LEQ(loc); 
                 }
 
 "!"             { 

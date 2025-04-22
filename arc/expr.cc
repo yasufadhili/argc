@@ -27,7 +27,7 @@ void Unary::print(const int level) {
   std::cout << "Unary\n";
 }
 
-Constant::Constant(const const_variant v) : value(v) {
+Constant::Constant(const const_variant v, sym::Type::TypeKind k) : value(v), kind(k) {
 
 }
 
@@ -41,7 +41,13 @@ void Constant::print(const int level) {
   }
 }
 
+Variable::Variable(std::string n) {
+  
+}
 
+void Variable::print(int level) {
+  std::cout << "Variable: \n";
+}
 
 namespace arith {
 
