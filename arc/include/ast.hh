@@ -80,7 +80,7 @@ namespace ast {
 
     class Constant final : public Expression {
       using  const_variant = std::variant<
-        int, double
+        int, double, bool
       >;
       const_variant value;
     public:
@@ -260,19 +260,16 @@ namespace ast {
   namespace prog {
 
     class Program final: public Node {
-      std::vector<module::Module*> modules;
-      std::vector<
-        std::shared_ptr<expr::Expression>
-      > expressions;
+      std::vector<std::shared_ptr<stmt::Statement>> statements;
     public:
-      //explicit Program(std::vector<module::Module*> modules);
       Program() = default;
-      explicit Program(std::vector<std::shared_ptr<expr::Expression>> exps);
+      explicit Program(std::vector<std::shared_ptr<stmt::Statement>> stmts)
+        : statements(std::move(stmts)) {}
       ~Program() override = default;
       void print(int level = 0) override;
 
-      auto add_expression(std::shared_ptr<expr::Expression> e) {
-        expressions.emplace_back(e);
+      auto add_statement(std::shared_ptr<stmt::Statement> s) {
+        statements.emplace_back(s);
       }
     };
 

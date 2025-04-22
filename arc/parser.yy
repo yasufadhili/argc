@@ -46,35 +46,39 @@ namespace yy {
 %token <double> FLOAT
 %token END 0
 %token SEMICOLON
+%token VAR
 
 %token TRUE FALSE
-%token ASSIGN EQ NE GT LT GE LE
+%token ASSIGN EQ NE GT LT GEQ LEQ
 %token NOT
+
 %token <std::string> IDENT
+%token STRING
 
 %precedence ASSIGN
 %left EQ NE
-%left GT LT GE LE
+%left GT LT GEQ LEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT
 
 %type <std::shared_ptr<ast::prog::Program>> program;
-%type <std::vector<std::shared_ptr<ast::expr::Expression>>> expression_list;
+%type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
+%type <std::shared_ptr<ast::stmt::Statement>> statement;
+%type <std::shared_ptr<ast::stmt::Block>> block;
+%type <std::shared_ptr<ast::stmt::VariableDeclaration>> var_declaration;
+%type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
+%type <std::shared_ptr<ast::type::PrimitiveType>> type_specifier;
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
-%type <std::shared_ptr<ast::expr::Constant>> constant_expression;
+%type <std::shared_ptr<ast::expr::Constant>> constant;
 %type <std::shared_ptr<ast::expr::Constant>> number;
 %type <std::shared_ptr<ast::expr::Expression>> factor;
 %type <std::shared_ptr<ast::expr::Expression>> term;
-
-%type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression
-%type <std::shared_ptr<ast::expr::Unary>> unary_expression
-%type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression
-%type <std::shared_ptr<ast::stmt::Statement>> statement
-%type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list
-%type <std::shared_ptr<ast::stmt::Block>> block
-
+%type <std::shared_ptr<ast::expr::Variable>> variable;
+%type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression;
+%type <std::shared_ptr<ast::expr::Unary>> unary_expression;
+%type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression;
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
 
@@ -86,36 +90,78 @@ program
   : %empty                  {
                                $$ = std::make_shared<ast::prog::Program>();
                             }
-
-  | expression_list         {
+  | statement_list         {
                               result = std::make_shared<ast::prog::Program>($1);
                               $$ = result;
                             }
 ;
 
-expression_list
-  : expression_list expression {
-      $$ = $1;
-      $$.push_back($2);
-    }
-  | expression {
-      $$ = std::vector<std::shared_ptr<ast::expr::Expression>>{$1};
-    }
+statement_list
+  : statement {
+    $$ = std::vector<std::shared_ptr<ast::stmt::Statement>>{$1};
+  }
+  | statement_list statement {
+    $$ = $1;
+    $$.push_back($2);
+  }
 ;
 
+statement
+  : var_declaration SEMICOLON {
+    $$ = $1;
+  }
+  | expression SEMICOLON {
+    $$ = std::make_shared<ast::stmt::ExpressionStatement>($1);
+  }
+  | block {
+    $$ = $1;
+  }
+;
+
+block
+  : LBRACE statement_list RBRACE {
+      $$ = std::make_shared<ast::stmt::Block>($2);
+  }
+  | LBRACE RBRACE {
+    $$ = std::make_shared<ast::stmt::Block>(
+      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    );
+  }
+;
+
+
+var_declaration
+  : VAR IDENT type_specifier optional_initialiser {
+    $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+  }
+;
+
+
+optional_initialiser
+  : %empty {
+    $$ = std::nullopt;
+  }
+  | ASSIGN expression {
+    $$ = $2;
+  }
+;
+
+
+type_specifier
+  : IDENT {
+      $$ = std::make_shared<ast::type::PrimitiveType>($1);
+  }
+;
+
+
 expression
-  : arithmetic_expression             { 
-                                        $$ = $1; 
-                                      }
-  | boolean_expression                { 
-                                        $$ = $1; 
-                                      }
-  | unary_expression                  { 
-                                        $$ = $1; 
-                                      }
-  | relational_expression             { 
-                                        $$ = $1; 
-                                      }
+  : arithmetic_expression { $$ = $1; }
+  | relational_expression { $$ = $1; }
+  | variable { $$ = $1; }
+  | constant { $$ = $1; }
+  | variable ASSIGN expression {
+      $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+  }
 ;
 
 
@@ -170,16 +216,16 @@ relational_expression
         ast::expr::rel::RelationalType::LT, $1, $3
       ); 
     }
-  | expression GE expression        { 
-      $$ = std::make_shared<ast::expr::rel::Relational>(
-        ast::expr::rel::RelationalType::GE, $1, $3
-      ); 
-    }
-  | expression LE expression        { 
-      $$ = std::make_shared<ast::expr::rel::Relational>(
+  | expression LEQ expression {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
         ast::expr::rel::RelationalType::LE, $1, $3
-      ); 
-    }
+    );
+  }
+  | expression GEQ expression {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+        ast::expr::rel::RelationalType::GE, $1, $3
+    );
+  }
 ;
 
 
@@ -217,9 +263,6 @@ factor
   | LPAREN expression RPAREN { $$ = $2; }
 ;
 
-constant_expression
-  : number                   { $$ = $1; }
-;
 
 number
   : INTEGER   {
@@ -229,6 +272,49 @@ number
       $$ = std::make_shared<ast::expr::Constant>($1);
     }
 ;
+
+variable
+  : IDENT {
+    $$ = std::make_shared<ast::expr::Variable>($1);
+  }
+;
+
+constant
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Constant>(
+        $1,
+        std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::INT)
+    );
+  }
+
+  | FLOAT {
+    $$ = std::make_shared<ast::expr::Constant>(
+      $1,
+      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::FLOAT)
+    );
+  }
+
+  | STRING {
+    $$ = std::make_shared<ast::expr::Constant>(
+      $1,
+      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::STRING)
+    );
+  }
+
+  | TRUE {
+    $$ = std::make_shared<ast::expr::Constant>(
+      true,
+      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::BOOL)
+    );
+  }
+  | FALSE {
+    $$ = std::make_shared<ast::expr::Constant>(
+      false,
+      std::make_shared<ast::type::PrimitiveType>(ast::type::PrimitiveType::Kind::BOOL)
+    );
+  }
+;
+
 
 %%
 

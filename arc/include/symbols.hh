@@ -11,7 +11,7 @@ namespace sym {
   class Symbol;
 
   class Type {
-
+    std::string name;
   public:
     enum class TypeKind {
       PRIMITIVE, ARRAY, STRUCT, FUNCTION

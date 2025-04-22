@@ -67,7 +67,7 @@ include[ \t]*[\"<]            {
                 }
 
 {FLOAT}         {
-                  std::cout << "FLOAT: " << YYText() << std::endl;
+                  return yy::Parser::make_FLOAT(std::atof(YYText()), loc);
                 }
 
 
@@ -90,7 +90,7 @@ include[ \t]*[\"<]            {
                       processed += str[i];
                     }
                   }
-                  std::cout << "STRING: " << processed << std::endl;
+                  return yy::Parser::make_STRING(processed, loc);
                 }
 
 
@@ -111,7 +111,7 @@ include[ \t]*[\"<]            {
                       default: c = yytext[2]; break;
                     }
                   }
-                  std::cout << "CHAR: " << c << std::endl;
+                  return yy::Parser::make_CHAR(c, loc);
                 }
 
 "+"             {
