@@ -234,11 +234,22 @@ namespace ast {
 
   namespace func {
 
+    class Parameter final: public Node {
+      std::string name;
+      std::string type;
+      //std::shared_ptr<expr::Expression> value;
+    public:
+      explicit Parameter(std::string name, std::string type);
+      void print(int level = 0) override;
+    };
+
     class Function final : public Node {
       std::string name;
+      std::optional<std::vector<std::shared_ptr<Parameter>>> parameters;
+      std::string return_type;
       std::shared_ptr<stmt::Block> body;
     public:
-      explicit Function(std::string, std::shared_ptr<stmt::Block>);
+      Function(std::string, std::optional<std::vector<std::shared_ptr<Parameter>>>, std::string, std::shared_ptr<stmt::Block>);
       ~Function() override = default;
       void print(int level = 0) override;
     };
@@ -269,15 +280,15 @@ namespace ast {
   namespace prog {
 
     class Program final: public Node {
-      std::vector<std::shared_ptr<stmt::Statement>> statements;
+      std::vector<std::shared_ptr<func::Function>> fns;
     public:
       Program() = default;
-      explicit Program(std::vector<std::shared_ptr<stmt::Statement>> stmts);
+      explicit Program(std::vector<std::shared_ptr<func::Function>> fns);
       ~Program() override = default;
       void print(int level = 0) override;
 
-      auto add_statement(std::shared_ptr<stmt::Statement> s) {
-        statements.emplace_back(s);
+      auto add_function(std::shared_ptr<func::Function> f) {
+        fns.emplace_back(f);
       }
     };
 

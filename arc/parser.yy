@@ -66,7 +66,8 @@ namespace yy {
 
 %type <std::shared_ptr<ast::prog::Program>> program;
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_list;
-%type <std::shared_ptr<<std::func::Function>>> function_definition;
+%type <std::shared_ptr<ast::func::Function>> function_definition;
+%type <std::optional<std::vector<std::shared_ptr<ast::func::Parameter>>>> function_parameters;
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
@@ -95,17 +96,35 @@ program
   : %empty                  {
                                $$ = std::make_shared<ast::prog::Program>();
                             }
-  | statement_list         {
+  | function_list           {
                               result = std::make_shared<ast::prog::Program>($1);
                               $$ = result;
                             }
 ;
 
+function_list
+  : function_definition {
+    $$ = std::vector<std::shared_ptr<ast::func::Function>>{$1};
+  }
+  | function_list function_definition {
+    $$ = $1;
+    $$.push_back($2);
+  }
+
+;
+
 function_definition
-  : DEF IDENT block_statement {
-    $$ = std::make_shared<ast::func::Function>($2, $3);
+  : DEF IDENT LPAREN function_parameters RPAREN IDENT block_statement {
+    $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
   }
 ;
+
+function_parameters
+  : %empty {
+    $$ = std::nullopt;
+  }
+;
+
 
 statement_list
   : statement {
