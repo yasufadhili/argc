@@ -80,8 +80,9 @@ namespace yy {
 
 
 %type <std::shared_ptr<ast::prog::Program>> program;
-%type <std::shared_ptr<ast::ident::Identifier>> identifier;
+%type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
+%type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
@@ -104,6 +105,7 @@ program
 
   }
 ;
+
 
 
 function_definition
