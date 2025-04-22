@@ -61,6 +61,10 @@ include[ \t]*[\"<]            {
                                   return yy::Parser::make_END(loc);
                                 }
 
+"var"           {
+                  return yy::Parser::make_VAR(loc);
+                }
+
 
 {INTEGER}       {
                   return yy::Parser::make_INTEGER(std::atof(YYText()), loc);

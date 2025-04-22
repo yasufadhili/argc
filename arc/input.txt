@@ -26,3 +26,5 @@ true
 false
 
 23
+
+var x i16 = 23
