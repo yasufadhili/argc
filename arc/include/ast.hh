@@ -24,7 +24,7 @@ namespace ast {
   };
 
 
-  class Identifier {
+  class Identifier : public Node {
     std::string name;
   public:
     auto set_name(const std::string& n) -> void {
@@ -32,6 +32,10 @@ namespace ast {
     }
     auto get_name() const -> std::string {
       return name;
+    }
+    void print(const int level = 0) override {
+      print_indent(level);
+      std::cout << "Identifier: " << get_name() << std::endl;
     }
   };
 
@@ -49,12 +53,12 @@ namespace ast {
     public:
       //Variable(std::string name, std::shared_ptr<sym::Type> type)
       //    : identifier(std::move(name)), var_type(std::move(type)) {}
-      Variable(std::string);
+      Variable(const std::string&);
       auto get_name() const -> std::string { 
         return identifier->get_name(); 
       }
 
-      void print(int level = 0) override;
+      void print(int) override;
     };
 
     class Binary : public Expression {

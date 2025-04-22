@@ -41,11 +41,13 @@ void Constant::print(const int level) {
   }
 }
 
-Variable::Variable(std::string n) {
+Variable::Variable(const std::string& n) {
   
 }
 
-void Variable::print(int level) {
+void Variable::print(const int level = 0) {
+  Node::print_indent(level);
+  //std::cout << "Variable: " << identifier->get_name() << "\n";
   std::cout << "Variable: \n";
 }
 

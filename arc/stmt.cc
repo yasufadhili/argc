@@ -28,7 +28,7 @@ namespace ast::stmt {
   void ExpressionStatement::print(const int level) {
     Node::print_indent(level);
     std::cout << "Expression Statement\n";
-    expression->print();
+    expression->print(level +1);
   }
 
   VariableDeclaration::VariableDeclaration(
