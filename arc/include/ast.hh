@@ -66,6 +66,10 @@ namespace ast::func {
 
 class Function final : public Node {
   std::shared_ptr<ident::Identifier> identifier_;
+  std::variant<
+    std::shared_ptr<ident::TypeIdentifier>,
+    std::vector<std::shared_ptr<ident::TypeIdentifier>>
+  > function_return_;
 public:
   explicit Function(std::shared_ptr<ident::Identifier>);
   ~Function() override;

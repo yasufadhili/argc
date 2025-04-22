@@ -11,7 +11,7 @@ enum class TypeKind {
 class Type final {
   TypeKind kind;
 public:
-  Type(TypeKind kind);
+  explicit Type(TypeKind kind);
 };
 
 

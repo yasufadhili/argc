@@ -13,6 +13,9 @@ void Function::print(const int level) {
   print_indent(level);
   std::cout << "Function \n";
   identifier_->print(level + 1);
+  if (std::holds_alternative<std::shared_ptr<ident::TypeIdentifier>>(function_return_)) {
+    std::get<std::shared_ptr<ident::TypeIdentifier>>(function_return_)->print(level + 2);
+  }
 }
 
 

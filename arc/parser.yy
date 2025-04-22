@@ -82,6 +82,7 @@ namespace yy {
 %type <std::shared_ptr<ast::prog::Program>> program;
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
+%type < std::variant< std::shared_ptr<ast::ident::TypeIdentifier>, std::vector< std::shared_ptr<ast::ident::TypeIdentifier> > > > function_returns;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
@@ -118,8 +119,15 @@ function_definition_list
 
 
 function_definition
-  : DEF identifier {
+  : DEF identifier LPAREN RPAREN function_returns {
     $$ = std::make_shared<ast::func::Function>($2);
+  }
+;
+
+
+function_returns
+  : type_identifier {
+    $$ = $1;
   }
 ;
 
@@ -132,7 +140,7 @@ identifier
 
 
 type_identifier
-  : TYPE_IDENT {
+  : IDENT {
     $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
   }
 ;
