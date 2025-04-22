@@ -67,6 +67,13 @@ namespace yy {
 %type <std::shared_ptr<ast::expr::Expression>> factor;
 %type <std::shared_ptr<ast::expr::Expression>> term;
 
+%type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression
+%type <std::shared_ptr<ast::expr::Unary>> unary_expression
+%type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression
+%type <std::shared_ptr<ast::stmt::Statement>> statement
+%type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list
+%type <std::shared_ptr<ast::stmt::Block>> block
+
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
 
