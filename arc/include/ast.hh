@@ -36,8 +36,17 @@ namespace ast {
       void print(int level = 0) override;
     };
 
-    class Unary : public Expression {
+    class Unary final : public Expression {
     public:
+      enum struct UnaryOp {
+        NEG, NOT
+      };
+    private:
+      UnaryOp op;
+      std::shared_ptr<Expression> operand;
+
+    public:
+      Unary(UnaryOp op, std::shared_ptr<Expression> operand);
       ~Unary() override = default;
       void print(int level = 0) override;
     };
@@ -69,38 +78,20 @@ namespace ast {
         void print(int level = 0) override;
       };
 
-      class Neg final : public Unary {
-      public:
-        ~Neg() override = default;
-        void print(int level = 0) override;
-      };
-
-      class Not final : public Unary {
-      public:
-        ~Not() override = default;
-        void print(int level = 0) override;
-      };
-
     }
 
 
     namespace boolean {
 
-      class Boolean : public Unary {
+      enum struct BooleanType {
+        TRUE, FALSE
+      };
+
+      class Boolean final : public Expression {
+        BooleanType type;
       public:
+        explicit Boolean(BooleanType);
         ~Boolean() override = default;
-        void print(int level = 0) override;
-      };
-
-      class True final: public Boolean {
-      public:
-        ~True() override = default;
-        void print(int level = 0) override;
-      };
-
-      class False final: public Boolean {
-      public:
-        ~False() override = default;
         void print(int level = 0) override;
       };
 

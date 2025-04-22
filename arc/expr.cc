@@ -17,70 +17,63 @@ void Binary::print(int level) {
   std::cout << "Binary\n";
 }
 
+Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand) : op(op), operand(std::move(operand)) {
+
+}
+
+
 void Unary::print(const int level) {
   Node::print_indent(level);
   std::cout << "Unary\n";
 }
 
-  Constant::Constant(const const_variant v) : value(v) {
+Constant::Constant(const const_variant v) : value(v) {
 
-  }
+}
 
-  void Constant::print(const int level) {
-    print_indent(level);
-    std::cout << "Constant: ";
-    if (std::holds_alternative<int>(value)) {
-      std::cout << std::get<int>(value) << '\n';
-    } else if (std::holds_alternative<double>(value)) {
-      std::cout << std::get<double>(value) << '\n';
-    }
+void Constant::print(const int level) {
+  print_indent(level);
+  std::cout << "Constant: ";
+  if (std::holds_alternative<int>(value)) {
+    std::cout << std::get<int>(value) << '\n';
+  } else if (std::holds_alternative<double>(value)) {
+    std::cout << std::get<double>(value) << '\n';
   }
+}
 
 
 
 namespace arith {
 
-  Arithmetic::Arithmetic(const ArithmeticType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
-    : type(t), lhs(std::move(l)), rhs(std::move(r))
-  {
+Arithmetic::Arithmetic(const ArithmeticType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
+  : type(t), lhs(std::move(l)), rhs(std::move(r))
+{
 
-  }
+}
 
 
-  void Arithmetic::print(const int level) {
-    Node::print_indent(level);
-    std::cout << "Arithmetic\n";
-    lhs->print(level + 1);
-    rhs->print(level + 1);
-  }
+void Arithmetic::print(const int level) {
+  Node::print_indent(level);
+  std::cout << "Arithmetic\n";
+  lhs->print(level + 1);
+  rhs->print(level + 1);
+}
 
-  void Neg::print(int level) {
-    Node::print_indent(level);
-    std::cout << "Neg\n";
-  }
 
-  void Not::print(int level) {
-    Node::print_indent(level);
-    std::cout << "Not\n";
-  }
 }
 
 namespace boolean {
-  void Boolean::print(int level) {
+
+  Boolean::Boolean(const BooleanType t) : type(t) {
+
+  }
+
+  void Boolean::print(const int level) {
     Node::print_indent(level);
     std::cout << "Boolean\n";
   }
 
-  void True::print(int level) {
-    Node::print_indent(level);
-    std::cout << "True\n";
-  }
-
-  void False::print(int level) {
-    Node::print_indent(level);
-    std::cout << "False\n";
-  }
-}
+}// namespace boolean
 
 namespace rel {
   void Relational::print(int level) {
