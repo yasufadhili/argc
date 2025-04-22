@@ -51,8 +51,12 @@ namespace yy {
 %token NOT
 %token <std::string> IDENT
 
+%precedence ASSIGN
+%left EQ NE
+%left GT LT GE LE
 %left PLUS MINUS
 %left TIMES DIVIDE
+%right NOT
 
 %type <std::shared_ptr<ast::prog::Program>> program;
 %type <std::vector<std::shared_ptr<ast::expr::Expression>>> expression_list;
