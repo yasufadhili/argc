@@ -5,6 +5,7 @@
 #include <variant>
 #include <vector>
 #include <iostream>
+#include <optional>
 
 #include "symbols.hh"
 
@@ -22,11 +23,37 @@ namespace ast {
     virtual void print(int level = 0) = 0;
   };
 
+
+  class Identifier {
+    std::string name;
+  public:
+    auto set_name(const std::string& n) -> void {
+      name = n;
+    }
+    auto get_name() const -> std::string {
+      return name;
+    }
+  };
+
   namespace expr {
 
     class Expression : public Node {
     public:
       ~Expression() override = default;
+      void print(int level = 0) override;
+    };
+
+    class Variable final : public Expression {
+      std::shared_ptr<Identifier> identifier;
+      std::shared_ptr<sym::Type> type;
+    public:
+      //Variable(std::string name, std::shared_ptr<sym::Type> type)
+      //    : identifier(std::move(name)), var_type(std::move(type)) {}
+      
+      auto get_name() const -> std::string { 
+        return identifier->get_name(); 
+      }
+
       void print(int level = 0) override;
     };
 
@@ -124,19 +151,23 @@ namespace ast {
       void print(int level = 0) override;
     };
 
-    class Block final: public Statement {
-      std::vector<Statement*> statements;
+    class Block final : public Statement {
+      std::vector<std::shared_ptr<Statement>> statements;
     public:
-      explicit Block(std::vector<Statement*>);
+      explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
+        : statements(std::move(stmts)) {}
 
-      ~Block() override;
+      const auto& get_statements() const { return statements; }
+      auto add_statement(std::shared_ptr<Statement> stmt) -> void {
+        statements.push_back(std::move(stmt));
+      }
       void print(int level = 0) override;
     };
 
     class Initialise final : public Statement {
-      expr::Expression* expression;
+      std::shared_ptr<expr::Expression> expression;
     public:
-      explicit Initialise(expr::Expression*);
+      explicit Initialise(std::shared_ptr<expr::Expression>);
       ~Initialise() override = default;
       void print(int level = 0) override;
     };
@@ -144,33 +175,49 @@ namespace ast {
     class VariableDeclaration final : public Statement {
       std::string name;
       std::shared_ptr<sym::Type> type;
-      std::shared_ptr<expr::Expression> initialiser;
+      std::optional<std::shared_ptr<expr::Expression>> initialiser;
       std::shared_ptr<sym::Symbol> symbol;
     public:
-      VariableDeclaration(const std::string&name, const std::shared_ptr<sym::Type> &type, const std::shared_ptr<expr::Expression> &initialiser);
+      VariableDeclaration(
+        std::string name,
+        const std::shared_ptr<sym::Type> &type,
+        const std::optional<std::shared_ptr<expr::Expression>>& init
+      );
 
       auto get_name() const -> std::string;
       auto get_type() const -> std::shared_ptr<sym::Type>;
-      auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
+      //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
 
-      auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void;
-      auto get_symbol() const -> std::shared_ptr<sym::Symbol>;
+      //auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void;
+      //auto get_symbol() const -> std::shared_ptr<sym::Symbol>;
 
     };
 
-    class Assign final : public Statement {
-      expr::Expression* expression;
+    class Assignment final : public Statement {
+      std::shared_ptr<expr::Variable> target;
+      std::shared_ptr<expr::Expression> value;
     public:
-      explicit Assign(expr::Expression*);
-      ~Assign() override;
+      Assignment(std::shared_ptr<expr::Variable> target_var, std::shared_ptr<expr::Expression> assigned_value)
+          : target(std::move(target_var)),
+            value(std::move(assigned_value)) {}
+
       void print(int level = 0) override;
     };
 
     class RegisterAssign final : public Statement {
-      expr::Expression* expression;
+      std::shared_ptr<expr::Expression> expression;
     public:
       explicit RegisterAssign(expr::Expression* exp);
       ~RegisterAssign() override;
+      void print(int level = 0) override;
+    };
+
+    class ExpressionStatement final : public Statement {
+      std::shared_ptr<expr::Expression> expression;
+    public:
+      explicit ExpressionStatement(std::shared_ptr<expr::Expression> expr)
+        : expression(std::move(expr)) {}
+
       void print(int level = 0) override;
     };
 

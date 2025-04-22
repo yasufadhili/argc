@@ -10,26 +10,12 @@ namespace ast::stmt {
     std::cout << "Statement\n";
   }
 
-  Block::Block(std::vector<Statement *> stmts) : statements(std::move(stmts)) {
-
-  }
-
-  Block::~Block() {
-    for (const auto s : statements) {
-      delete s;
-    }
-  }
-
-
   void Block::print(const int level) {
     Node::print_indent(level);
     std::cout << "Block\n";
-    for (const auto stmt : statements) {
+    for (const auto& stmt : statements) {
       if (stmt) stmt->print(level + 1);
     }
-  }
-
-  Initialise::Initialise(expr::Expression *) : expression(nullptr) {
   }
 
   void Initialise::print(const int level) {
@@ -38,28 +24,16 @@ namespace ast::stmt {
   }
 
 
-  Assign::Assign(expr::Expression *) : expression(nullptr) {
-
-  }
-
-  Assign::~Assign() {
-    delete expression;
-  }
-
-  void Assign::print(const int level) {
-    Node::print_indent(level);
-    std::cout << "Assign\n";
-  }
 
   VariableDeclaration::VariableDeclaration(
-    const std::string& name,
+    std::string  name,
     const std::shared_ptr<sym::Type> &type,
-    const std::shared_ptr<expr::Expression> &initialiser = nullptr
-    )
+    const std::optional<std::shared_ptr<expr::Expression>>& init = std::nullopt
+  )
       :
-  name(name),
+  name(std::move(name)),
   type(type),
-  initialiser(initialiser),
+  initialiser(init),
   symbol(nullptr)
   {
 
@@ -69,6 +43,7 @@ namespace ast::stmt {
     return name;
   }
 
+  /**
   auto VariableDeclaration::get_initialiser() const -> std::shared_ptr<expr::Expression> {
     return initialiser;
   }
@@ -91,7 +66,7 @@ namespace ast::stmt {
   RegisterAssign::~RegisterAssign() {
     delete expression;
   }
-
+  **/
 
   void RegisterAssign::print(const int level) {
     Node::print_indent(level);
