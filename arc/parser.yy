@@ -56,6 +56,7 @@ namespace yy {
 %token <double> FLOAT
 %token END 0
 %token SEMICOLON
+%token COMMA
 %token VAR
 %token DEF
 
@@ -82,7 +83,8 @@ namespace yy {
 %type <std::shared_ptr<ast::prog::Program>> program;
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
-%type < std::variant< std::shared_ptr<ast::ident::TypeIdentifier>, std::vector< std::shared_ptr<ast::ident::TypeIdentifier> > > > function_returns;
+%type <std::variant<std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>, std::shared_ptr<ast::ident::TypeIdentifier>>> function_returns;
+%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> function_returns_two_values;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
@@ -128,6 +130,16 @@ function_definition
 function_returns
   : type_identifier {
     $$ = $1;
+  }
+  | LPAREN type_identifier RPAREN {
+    $$ = $2;
+  }
+  | function_returns_two_values
+;
+
+function_returns_two_values
+  : LPAREN type_identifier COMMA type_identifier RPAREN {
+    $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $2, $4 } ;
   }
 ;
 

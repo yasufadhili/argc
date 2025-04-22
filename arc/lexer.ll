@@ -198,6 +198,11 @@ include[ \t]*[\"<]            {
                   return yy::Parser::make_SEMICOLON(loc); 
                 }
 
+","             {
+                  return yy::Parser::make_COMMA(loc);
+                }
+
+
 <<EOF>>         { 
                   if(!exit_file()) { 
                     return yy::Parser::make_END(loc);
