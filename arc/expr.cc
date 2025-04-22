@@ -30,10 +30,15 @@ namespace ast::expr {
   void Constant::print(const int level) {
     print_indent(level);
     std::cout << "Constant: ";
+
     if (std::holds_alternative<int>(value)) {
-      std::cout << std::get<int>(value) << '\n';
+      std::cout << std::get<int>(value) << " -> int" << '\n';
     } else if (std::holds_alternative<double>(value)) {
-      std::cout << std::get<double>(value) << '\n';
+      std::cout << std::get<double>(value) << " -> double" << '\n';
+    } else if (std::holds_alternative<std::string>(value)) {
+      std::cout << std::get<std::string>(value) << " -> str" <<  '\n';
+    } else if (std::holds_alternative<char>(value)) {
+      std::cout << std::get<char>(value) << " -> char" << '\n';
     }
   }
 

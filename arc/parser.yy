@@ -312,9 +312,16 @@ constant
   | STRING {
     $$ = std::make_shared<ast::expr::Constant>(
       $1,
-      sym::Type::TypeKind::STRING
+      sym::Type::TypeKind::PRIMITIVE
     );
   }
+
+  | CHAR {
+      $$ = std::make_shared<ast::expr::Constant>(
+        $1,
+        sym::Type::TypeKind::PRIMITIVE
+      );
+    }
 
   | TRUE {
     $$ = std::make_shared<ast::expr::Constant>(

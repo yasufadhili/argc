@@ -84,12 +84,12 @@ namespace ast {
 
     class Constant final : public Expression {
       using  const_variant = std::variant<
-        int, double, bool, std::string
+        int, double, bool, std::string, char
       >;
       const_variant value;
       sym::Type::TypeKind kind;
     public:
-      explicit Constant(const const_variant, sym::Type::TypeKind);
+      explicit Constant(const_variant, sym::Type::TypeKind);
       ~Constant() override = default;
       void print(int level = 0) override;
     };
