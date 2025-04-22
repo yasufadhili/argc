@@ -88,6 +88,16 @@ namespace ast::stmt {
     std::cout << "RegisterAssign\n";
   }
 
+  Assignment::Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value)
+          : target(std::move(target_var)),
+            value(std::move(assigned_value)) {}
+
+  void Assignment::print(const int level) {
+    Node::print_indent(level);
+    std::cout << "Assignment " << target << "\n";
+    value->print(level + 1);
+  }
+
 
 
 }

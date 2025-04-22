@@ -69,7 +69,7 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Block>> block;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
-%type <std::optional<std::shared_ptr<ast::expr::Expression>>> variable_assignment
+%type <std::shared_ptr<ast::stmt::Assignment>> assignment
 %type <std::shared_ptr<sym::Type>> type_specifier;
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
@@ -115,6 +115,9 @@ statement
   | expression {
     $$ = std::make_shared<ast::stmt::ExpressionStatement>($1);
   }
+  | assignment {
+      $$ = $1;
+  }
   | block {
     $$ = $1;
   }
@@ -155,6 +158,12 @@ type_specifier
   }
 ;
 
+
+assignment
+  : IDENT ASSIGN expression {
+    $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+  }
+;
 
 expression
   : arithmetic_expression { $$ = $1; }

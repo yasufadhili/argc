@@ -203,13 +203,13 @@ namespace ast {
 
     };
 
+
     class Assignment final : public Statement {
-      std::shared_ptr<expr::Variable> target;
+      //std::shared_ptr<expr::Variable> target;
+      std::string target;
       std::shared_ptr<expr::Expression> value;
     public:
-      Assignment(std::shared_ptr<expr::Variable> target_var, std::shared_ptr<expr::Expression> assigned_value)
-          : target(std::move(target_var)),
-            value(std::move(assigned_value)) {}
+      Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
 
       void print(int level = 0) override;
     };

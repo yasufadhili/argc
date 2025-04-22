@@ -27,4 +27,11 @@ false
 
 23
 
-var x i16 = 23
+var x i16 = (23 + 12) * 4
+
+      var z i8 = 20
+
+var y i32
+
+y = 20
+
