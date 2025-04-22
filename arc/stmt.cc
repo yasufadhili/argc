@@ -12,7 +12,7 @@ namespace ast::stmt {
 
   void Block::print(const int level) {
     Node::print_indent(level);
-    std::cout << "Block\n";
+    std::cout << "Block Statement \n";
     for (const auto& stmt : statements) {
       if (stmt) stmt->print(level + 1);
     }
