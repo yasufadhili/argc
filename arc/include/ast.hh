@@ -106,6 +106,7 @@ namespace ast {
 
       class Relational final : public Binary {
       public:
+        Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
         ~Relational() override = default;
         void print(int level = 0) override;
       };

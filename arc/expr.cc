@@ -76,6 +76,11 @@ namespace boolean {
 }// namespace boolean
 
 namespace rel {
+
+Relational::Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> ){
+  
+}
+
   void Relational::print(int level) {
     Node::print_indent(level);
     std::cout << "Relational\n";
