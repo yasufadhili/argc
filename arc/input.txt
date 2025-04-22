@@ -69,4 +69,4 @@ var y i32 = 20
 }
 }
 
-def main() i43 {}
+def main() i32 {}

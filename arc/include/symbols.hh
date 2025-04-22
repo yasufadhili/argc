@@ -11,7 +11,11 @@ namespace sym {
   // TODO: Improve type checking
   // It's just to aid the left check if an identifier is associated with any type
   // This should be temporary till I can think of a better mechanism
-  inline std::vector<std::string> g_type_strings;
+  inline std::vector<std::string> g_type_strings {
+    "i8", "i16", "i32", "i64",
+    "u8", "u16", "u32", "u64",
+    "f32", "f64"
+  };
 
   class Type;
   class Scope;

@@ -115,7 +115,7 @@ function_list
 ;
 
 function_definition
-  : DEF IDENT LPAREN function_parameters RPAREN IDENT block_statement {
+  : DEF IDENT LPAREN function_parameters RPAREN TYPE_IDENT block_statement {
     $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
   }
 ;
@@ -180,7 +180,7 @@ optional_initialiser
 ;
 
 type_specifier
-  : IDENT {
+  : TYPE_IDENT {
       // Think validation should be done in semantic analysis
       $$ = std::make_shared<sym::Type>(sym::Type::TypeKind::PRIMITIVE, $1);
   }
