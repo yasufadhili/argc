@@ -130,14 +130,14 @@ auto OptionParser::parse(config::Config &config) -> bool {
     switch (config.build_mode) {
       case config::Config::BuildMode::COMPILE_ONLY: {
         if (!config.input_files.empty()) {
-          const fs::path input_path { config.input_files.front() };
+          const fs::path input_path{config.input_files.front()};
           config.output_file = input_path.stem().string() + ".o";
         }
         break;
       }
       case config::Config::BuildMode::ASSEMBLE_ONLY: {
         if (!config.input_files.empty()) {
-          const fs::path input_path { config.input_files.front() };
+          const fs::path input_path{config.input_files.front()};
           config.output_file = input_path.stem().string() + ".asm";
         }
         break;
@@ -150,6 +150,37 @@ auto OptionParser::parse(config::Config &config) -> bool {
 
   return true;
 }
+
+Compiler::Compiler(const config::Config &config)
+  : config_(std::move(config)) {
+}
+
+auto Compiler::compile() -> bool {
+  if (config_.verbose) {
+    log_config();
+  }
+  try {
+    switch (config_.build_mode) {
+      case config::Config::BuildMode::PREPROCESS:
+        return preprocess_files();
+      case config::Config::BuildMode::CHECK_SYNTAX_ONLY:
+        return check_syntax();
+      case config::Config::BuildMode::ASSEMBLE_ONLY:
+        return generate_asm();
+      case config::Config::BuildMode::COMPILE_ONLY:
+        return compile_to_obj_files();
+      case config::Config::BuildMode::COMPILE_AND_LINK:
+        return compile_and_link();
+      default:
+        std::cerr << "Error: Unknown build mode" << std::endl;
+        return false;
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Compilation error: " << e.what() << std::endl;
+    return false;
+  }
+}
+
 
 auto driver::display_help(const std::string &prog_name) -> void {
   std::cout << "Usage: " << prog_name << " [options] file..." << std::endl;
