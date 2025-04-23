@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+// Temporary till parsing gets working
 
 namespace stages {
 
@@ -13,7 +14,9 @@ auto preprocess_source(
   const std::unordered_map<std::string, std::string>& macros,
   std::string& output,
   bool verbose
-) -> bool ;
+) -> bool {
+  return true;
+}
 
 
 auto link_objects(
@@ -22,7 +25,9 @@ auto link_objects(
   const std::vector<std::string>& libraries,
   const std::string& output_file,
   bool verbose
-) -> bool ;
+) -> bool {
+  return true;
+}
 
 
 }

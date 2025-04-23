@@ -194,7 +194,7 @@ auto Compiler::log_config() -> void {
   }
   std::cout << "  Output file: " << config_.output_file << std::endl;
   std::cout << "  Standard version: " << config_.standard_version << std::endl;
-  std::cout << "  Optimization level: " << config_.optimisation_level << std::endl;
+  std::cout << "  Optimisation level: " << config_.optimisation_level << std::endl;
   std::cout << "  Debug info: " << (config_.debug ? "yes" : "no") << std::endl;
   std::cout << "  Warnings enabled: " << (config_.warnings ? "yes" : "no") << std::endl;
   std::cout << "  Warnings as errors: " << (config_.warnings_as_errors ? "yes" : "no") << std::endl;
@@ -276,17 +276,6 @@ auto Compiler::preprocess_files() const -> bool {
 
       std::string preprocessed_code;
       // Do some preprocessing in future for now some mock
-      if (!stages::preprocess_source(
-          source_code,
-          config_.include_paths,
-          config_.defined_macros,
-          preprocessed_code,
-          config_.verbose
-        )
-        ) {
-        std::cerr << "Error: Failed to preprocess " << input_file << std::endl;
-        return false;
-      }
 
       std::string preprocessed_file;
       if (config_.output_specified) {
@@ -313,7 +302,67 @@ auto Compiler::preprocess_files() const -> bool {
   return true;
 }
 
+auto Compiler::check_syntax() -> bool {
+  return true;
+}
 
+auto Compiler::generate_asm() -> bool {
+  if (config_.verbose) {
+    std::cout << "Generating assembly..." << std::endl;
+  }
+  if (config_.input_files.empty()) {
+    std::cerr << "Error: No input files to compile" << std::endl;
+    return false;
+  }
+  for (const auto& input_file : config_.input_files) {
+    if (config_.verbose) {
+      std::cout << "Generating assembly for file: " << input_file << std::endl;
+    }
+    try {
+      // Read source file
+      std::ifstream in_file(input_file);
+      if (!in_file) {
+        std::cerr << "Error: Cannot open input file: " << input_file << std::endl;
+        return false;
+      }
+
+      std::stringstream buffer;
+      buffer << in_file.rdbuf();
+      std::string source_code = buffer.str();
+
+      // Preprocess
+      // Parse
+      // Analyse
+      // Optimise
+
+      // Determine output file
+      std::string output_file;
+      if (config_.output_specified) {
+        output_file = config_.output_file;
+      } else {
+        output_file = fs::path(input_file).stem().string() + ".asm";
+      }
+
+      // Generate ASM
+
+      if (config_.verbose) {
+        std::cout << "Successfully generated assembly: " << output_file << std::endl;
+      }
+    } catch (const std::exception& e) {
+      std::cerr << "Error generating assembly for " << input_file << ": " << e.what() << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
+auto Compiler::compile_to_obj_files() -> bool {
+  return true;
+}
+
+auto Compiler::compile_and_link() -> bool {
+  return true;
+}
 
 auto driver::display_help(const std::string &prog_name) -> void {
   std::cout << "Usage: " << prog_name << " [options] file..." << std::endl;
@@ -327,7 +376,7 @@ auto driver::display_help(const std::string &prog_name) -> void {
   std::cout << "  -g                    Generate debugging information" << std::endl;
   std::cout << "  -w                    Disable all warnings" << std::endl;
   std::cout << "  -Werror               Treat warnings as errors" << std::endl;
-  std::cout << "  -std=<standard>       Specify language standard (e.g., 1)" << std::endl;
+  std::cout << "  -std=<standard>       Specify language standard (e.g. 1)" << std::endl;
   std::cout << "  -I<dir>               Add directory to include search path" << std::endl;
   //std::cout << "  -D<macro>[=<val>]     Define a preprocessor macro" << std::endl;
   std::cout << "  -L<dir>               Add directory to library search path" << std::endl;
@@ -342,7 +391,7 @@ auto driver::display_help(const std::string &prog_name) -> void {
 
 auto driver::display_version() -> void {
   std::cout << "Argon Compiler (argc) v0.0.1" << std::endl;
-  std::cout << "No Copyright (C) 2025 Yasu Fadhili" << std::endl;
+  std::cout << "Copyright (C) 2025 Yasu Fadhili" << std::endl;
   std::cout << "This is free software; see the source for copying conditions." << std::endl;
 }
 
