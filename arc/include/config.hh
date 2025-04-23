@@ -1,7 +1,8 @@
 #pragma once
+
 #include <string>
 #include <vector>
-
+#include <unordered_map>
 
 namespace config {
 
@@ -22,14 +23,16 @@ struct Config {
     CHECK_SYNTAX_ONLY   // -fsyntax-only
   } build_mode = BuildMode::COMPILE_AND_LINK;
 
-
+  // Preprocessor Options
   std::vector<std::string> include_paths;
+  std::unordered_map<std::string, std::string> defined_macros;
 
   int8_t optimisation_level { -1 };
   bool warnings { true } ;
   bool warnings_as_errors { false } ;
   bool debug { false } ;
   std::string standard_version { "1" };
+  std::string target_architecture { "x86_64" };
 
   // Linker options
   std::vector<std::string> library_paths;
