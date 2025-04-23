@@ -181,6 +181,54 @@ auto Compiler::compile() -> bool {
   }
 }
 
+auto Compiler::log_config() -> void {
+  std::cout << "Compiler Configuration:" << std::endl;
+        std::cout << "  Build mode: " << get_build_mode_name() << std::endl;
+        std::cout << "  Input files: " << config_.input_files.size() << " file(s)" << std::endl;
+        for (const auto& file : config_.input_files) {
+            std::cout << "    - " << file << std::endl;
+        }
+        std::cout << "  Output file: " << config_.output_file << std::endl;
+        std::cout << "  Standard version: " << config_.standard_version << std::endl;
+        std::cout << "  Optimization level: " << config_.optimisation_level << std::endl;
+        std::cout << "  Debug info: " << (config_.debug ? "yes" : "no") << std::endl;
+        std::cout << "  Warnings enabled: " << (config_.warnings ? "yes" : "no") << std::endl;
+        std::cout << "  Warnings as errors: " << (config_.warnings_as_errors ? "yes" : "no") << std::endl;
+        std::cout << "  Target architecture: " << config_.target_architecture << std::endl;
+
+        if (!config_.include_paths.empty()) {
+            std::cout << "  Include paths:" << std::endl;
+            for (const auto& path : config_.include_paths) {
+                std::cout << "    - " << path << std::endl;
+            }
+        }
+
+        if (!config_.defined_macros.empty()) {
+            std::cout << "  Defined macros:" << std::endl;
+            for (const auto& [name, value] : config_.defined_macros) {
+                std::cout << "    - " << name << " = " << value << std::endl;
+            }
+        }
+
+        if (!config_.library_paths.empty()) {
+            std::cout << "  Library paths:" << std::endl;
+            for (const auto& path : config_.library_paths) {
+                std::cout << "    - " << path << std::endl;
+            }
+        }
+
+        if (!config_.libraries.empty()) {
+            std::cout << "  Libraries:" << std::endl;
+            for (const auto& lib : config_.libraries) {
+                std::cout << "    - " << lib << std::endl;
+            }
+        }
+
+        std::cout << "  Static linking: " << (config_.static_linking ? "yes" : "no") << std::endl;
+        std::cout << "  Keep temporary files: " << (config_.keep_temp_files ? "yes" : "no") << std::endl;
+}
+
+
 
 auto driver::display_help(const std::string &prog_name) -> void {
   std::cout << "Usage: " << prog_name << " [options] file..." << std::endl;
