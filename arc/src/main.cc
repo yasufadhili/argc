@@ -15,7 +15,7 @@ auto main(const int argc, char* argv[]) -> int {
 
   try {
 
-    driver::OptionParser option_parser(argc, argv);
+    const driver::OptionParser option_parser(argc, argv);
 
     config::Config config;
 
@@ -37,38 +37,39 @@ auto main(const int argc, char* argv[]) -> int {
       return 1;
     }
 
-    driver::Compiler compiler(config);
+    std::fstream in(config.input_files.at(0));
+    if (!in.is_open()) {
+      std::cerr << "Unable to open file '" << config.input_files.at(0) << "'" << std::endl;
+      return 1;
+    }
+    yy::Lexer lexer{in, std::cerr};
+    lexer.set_debug(false);
 
-    bool success { compiler.compile() };
+    std::shared_ptr<ast::prog::Program> program;
 
-    return success ? 0 : 1;
+    yy::Parser parser{lexer, program};
+    parser.set_debug_level(0);
 
+    if (parser.parse() != 0) {
+      std::cerr << "Parsing failed" << std::endl;
+      return 1;
+    }
+
+    program->print(0);
+
+    return 0;
   } catch (const std::exception& e) {
     std::cerr << "Fatal error: " << e.what() << std::endl;
     return 1;
   }
 
   /**
-  std::fstream input("../tests/input.txt");
-  if (!input.is_open()) {
-    std::cerr << "Unable to open file" << std::endl;
-    exit(EXIT_FAILURE);
-  }
 
-  yy::Lexer lexer{input, std::cerr};
-  lexer.set_debug(false);
 
-  std::shared_ptr<ast::prog::Program> program;
 
-  yy::Parser parser{lexer, program};
-  parser.set_debug_level(0);
 
-  if (parser.parse() != 0) {
-    std::cerr << "Parsing failed" << std::endl;
-    exit(EXIT_FAILURE);
-  }
 
-  program->print(0);
+
 
   return 0;
 

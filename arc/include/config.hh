@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -8,10 +9,11 @@ namespace config {
 
 
 struct Config {
+  std::ifstream input_file;
   std::vector<std::string> input_files;
   std::string output_file { "a.out" };
   bool output_specified { false } ;
-  //std::vector<std::string> output_files;
+  std::vector<std::string> output_files;
 
 
   enum class BuildMode {

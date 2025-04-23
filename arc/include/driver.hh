@@ -1,5 +1,7 @@
 #pragma once
 #include "config.hh"
+#include "../src/parser.hh"
+#include "ast.hh"
 
 namespace driver {
 
@@ -18,24 +20,6 @@ auto display_version() -> void;
 
 auto validate_input_files(const config::Config& config) -> bool;
 auto cleanup_temp_files(const config::Config& config) -> void;
-
-
-
-class Compiler {
-  config::Config config_;
-  auto log_config() -> void;
-  auto get_build_mode_name() const -> std::string;
-  auto preprocess_files() const -> bool;
-  auto check_syntax() -> bool;
-  auto generate_asm() -> bool;
-  auto compile_to_obj_files() -> bool;
-  auto compile_and_link() -> bool;
-public:
-  explicit Compiler(const config::Config& config);
-  ~Compiler() = default;
-  auto compile() -> bool;
-};
-
 
 
 }
