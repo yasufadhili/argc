@@ -24,7 +24,7 @@ auto cleanup_temp_files(const config::Config& config) -> void;
 class Compiler {
   config::Config config_;
   auto log_config() -> void;
-  auto get_build_mode_name() -> std::string;
+  auto get_build_mode_name() const -> std::string;
   auto preprocess_files() -> bool;
   auto check_syntax() -> bool;
   auto generate_asm() -> bool;
