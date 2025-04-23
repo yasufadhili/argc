@@ -4,6 +4,10 @@
 
 #include "../include/driver.hh"
 
+#include <fstream>
+
+#include "../include/stages.hh"
+
 namespace fs = std::filesystem;
 using namespace driver;
 
@@ -13,7 +17,7 @@ OptionParser::OptionParser(const int argc, char *argv[]) : argc_(argc), argv_(ar
 
 OptionParser::~OptionParser() = default;
 
-auto OptionParser::parse(config::Config &config) -> bool {
+auto OptionParser::parse(config::Config &config) const -> bool {
   if (argc_ < 2) {
     std::cerr << "Error: No input files provided. Use --help for usage information." << std::endl;
     return false;
@@ -85,7 +89,7 @@ auto OptionParser::parse(config::Config &config) -> bool {
         }
         size_t equal_pos = definition.find('=');
         if (equal_pos != std::string::npos) {
-          config.defined_macros[definition.substr(0, equal_pos)] = definition.substr(equalPos + 1);
+          config.defined_macros[definition.substr(0, equal_pos)] = definition.substr(equal_pos + 1);
         } else {
           config.defined_macros[definition] = "1"; // Define with default value of "1"
         }
@@ -244,6 +248,71 @@ auto Compiler::get_build_mode_name() const -> std::string {
       return "Unkown";
   }
 }
+
+auto Compiler::preprocess_files() const -> bool {
+  if (config_.verbose) {
+    std::cout << "Starting preprocessing stage..." << std::endl;
+  }
+  if (config_.input_files.empty()) {
+    std::cerr << "Error: No input files to preprocess" << std::endl;
+    return false;
+  }
+  for (const auto& input_file : config_.input_files) {
+    if (config_.verbose) {
+      std::cout << "Preprocessing file: " << input_file << std::endl;
+    }
+
+    try {
+
+      std::ifstream in_file(input_file);
+      if (!in_file) {
+        std::cerr << "Error: Cannot open input file: " << input_file << std::endl;
+        return false;
+      }
+
+      std::stringstream buffer;
+      buffer << in_file.rdbuf();
+      std::string source_code = buffer.str();
+
+      std::string preprocessed_code;
+      // Do some preprocessing in future for now some mock
+      if (!stages::preprocess_source(
+          source_code,
+          config_.include_paths,
+          config_.defined_macros,
+          preprocessed_code,
+          config_.verbose
+        )
+        ) {
+        std::cerr << "Error: Failed to preprocess " << input_file << std::endl;
+        return false;
+      }
+
+      std::string preprocessed_file;
+      if (config_.output_specified) {
+        preprocessed_file = config_.output_file;
+      } else {
+        preprocessed_file = fs::path(input_file).stem().string() + ".i";
+      }
+
+      std::ofstream out_file(preprocessed_file);
+      if (!out_file) {
+        std::cerr << "Error: Cannot open output file: " << preprocessed_file << std::endl;
+        return false;
+      }
+
+      out_file << preprocessed_code;
+      if (config_.verbose) {
+        std::cout << "Successfully preprocessed to: " << preprocessed_file << std::endl;
+      }
+    } catch (const std::exception& e) {
+      std::cerr << "Error preprocessing file " << input_file << ": " << e.what() << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 
 
 auto driver::display_help(const std::string &prog_name) -> void {

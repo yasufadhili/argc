@@ -10,7 +10,7 @@ class OptionParser {
 public:
   OptionParser(int argc, char* argv[]);
   ~OptionParser();
-  auto parse(config::Config& config) -> bool;
+  auto parse(config::Config& config) const -> bool;
 };
 
 auto display_help(const std::string& prog_name) -> void;
@@ -25,7 +25,7 @@ class Compiler {
   config::Config config_;
   auto log_config() -> void;
   auto get_build_mode_name() const -> std::string;
-  auto preprocess_files() -> bool;
+  auto preprocess_files() const -> bool;
   auto check_syntax() -> bool;
   auto generate_asm() -> bool;
   auto compile_to_obj_files() -> bool;

@@ -10,6 +10,7 @@ namespace stages {
 auto preprocess_source(
   const std::string& src,
   const std::vector<std::string>& include_paths,
+  const std::unordered_map<std::string, std::string>& macros,
   std::string& output,
   bool verbose
 ) -> bool ;
