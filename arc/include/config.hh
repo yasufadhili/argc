@@ -3,7 +3,7 @@
 #include <vector>
 
 
-namespace conf {
+namespace config {
 
 
 struct Config {
