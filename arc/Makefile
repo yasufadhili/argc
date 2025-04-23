@@ -13,7 +13,7 @@ FLEX = flex
 BISON = bison
 
 # Directories
-SRC_DIR = $(ROOT_DIR)
+SRC_DIR = $(ROOT_DIR)/src
 INCLUDE_DIR = include
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
