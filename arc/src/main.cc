@@ -1,8 +1,8 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "lexer.hh"
@@ -11,7 +11,7 @@
 
 
 auto main(const int argc, char* argv[]) -> int {
-  std::fstream input("input.txt");
+  std::fstream input("../tests/input.txt");
   if (!input.is_open()) {
     std::cerr << "Unable to open file" << std::endl;
     exit(EXIT_FAILURE);

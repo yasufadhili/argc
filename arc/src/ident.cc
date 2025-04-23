@@ -1,4 +1,4 @@
-#include "include/ast.hh"
+#include "../include/ast.hh"
 
 
 using namespace ast::ident;

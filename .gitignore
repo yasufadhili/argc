@@ -42,6 +42,8 @@ output
 build
 .cache
 
+.depend
+
 # Temporary from Flex and Bison
 parser.hh
 parser.cc
