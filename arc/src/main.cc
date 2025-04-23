@@ -1,11 +1,13 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <iostream>
 #include <string>
 
 #include "lexer.hh"
 #include "parser.hh"
+#include "include/ast.hh"
 
 
 auto main(const int argc, char* argv[]) -> int {

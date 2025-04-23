@@ -6,7 +6,7 @@ ROOT_DIR = $(shell pwd)
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -I$(ROOT_DIR)
+CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)
 
 # Flex and Bison
 FLEX = flex
@@ -84,7 +84,7 @@ clean:
 distclean: clean
 	@echo "Removing build directories"
 	@rm -rf $(BUILD_DIR)
-	@rm -f parser.cc parser.hh location.hh
+	@rm -f ./src/parser.cc ./src/parser.hh ./src/location.hh
 
 # Rebuild target
 rebuild: clean all
