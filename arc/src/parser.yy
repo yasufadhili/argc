@@ -14,7 +14,7 @@
 %define parse.lac full
 
 %locations
-
+%define api.location.file "location.hh"
 
 
 %param {yy::Lexer &lexer}
@@ -65,6 +65,7 @@ namespace yy {
 %token COMMA ","
 %token VAR  "variable declaration"
 %token DEF  "function definition"
+%token RETURN "return"
 
 %token TRUE "true"
 %token FALSE "false"
@@ -105,6 +106,7 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::param::Parameter>>> non_empty_parameter_list;
 %type <std::shared_ptr<ast::param::Parameter>> parameter;
 %type <std::shared_ptr<ast::stmt::Block>> function_body;
+%type <std::shared_ptr<ast::stmt::Return>> return_statement;
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
@@ -319,6 +321,9 @@ statement
   | block_statement {
     $$ = $1;
   }
+  | return_statement {
+    $$ = $1;
+  }
 ;
 
 
@@ -337,6 +342,16 @@ block_statement
 variable_declaration
   : VAR IDENT type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+  }
+;
+
+
+return_statement
+  : RETURN expression {
+    $$ = std::make_shared<ast::stmt::Return>($2);
+  }
+  | RETURN {
+    $$ = std::make_shared<ast::stmt::Return>(std::nullopt);
   }
 ;
 

@@ -226,6 +226,14 @@ namespace ast::stmt {
     void print(int) override;
   };
 
+  class Return final : public Statement {
+    std::optional<std::shared_ptr<expr::Expression>> expression;
+  public:
+    explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
+    ~Return() override = default;
+    void print(int) override;
+  };
+
 }
 
 
