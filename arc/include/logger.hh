@@ -6,6 +6,7 @@
 #include <fstream>
 #include <functional>
 #include <memory>
+#include <iostream>
 #include <iomanip>
 
 namespace logger {
@@ -81,7 +82,7 @@ namespace logger {
      * @brief Get the minimum log level for this sink
      * @return The minimum log level
    */
-    auto get_level(LogLevel level) const -> LogLevel;
+    auto get_level() const -> LogLevel;
 
     /**
      * @brief Set the format string for this sink

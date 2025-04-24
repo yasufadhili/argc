@@ -58,7 +58,7 @@ auto LogSink::format_message(const LogMessage &log_message) const -> std::string
           tm tmBuf;
           localtime_r(&timeT, &tmBuf);
 
-          result << std::put_time(&tmBuf, "%Y-%m-%d %H:%M:%S")
+          result << std::put_time(&tmBuf, "%d-%m-%Y %H:%M:%S")
               << '.' << std::setfill('0') << std::setw(3) << ms.count();
           break;
         }
@@ -107,7 +107,7 @@ auto LogSink::format_message(const LogMessage &log_message) const -> std::string
   return result.str();
 }
 
-auto LogSink::get_level(LogLevel level) const -> LogLevel {
+auto LogSink::get_level() const -> LogLevel {
   return min_level_;
 }
 
@@ -248,12 +248,12 @@ auto Logger::should_log(const LogLevel level) const -> bool {
   return level >= global_level_;
 }
 
-auto Logger::log(LogLevel level, const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
+auto Logger::log(const LogLevel level, const std::string &message, const std::string &file_name, const int line_number, const std::string &function_name) -> void {
   if (!should_log(level)) {
     return;
   }
 
-  LogMessage logMessage(level, message, file_name, line_number, function_name);
+  const LogMessage logMessage(level, message, file_name, line_number, function_name);
 
   std::lock_guard<std::mutex> lock(mutex_);
   for (const auto& sink : sinks_) {
