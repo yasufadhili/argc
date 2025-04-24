@@ -48,7 +48,7 @@ namespace ast::ident {
     ~TypeIdentifier() override = default;
 
     void print(int level) override;
-    const  std::string& name() const { return name_; }
+    const std::string& name() const { return name_; }
 
   private:
     std::string name_;
@@ -116,7 +116,6 @@ namespace ast::func {
              std::shared_ptr<FunctionBody> body)
       : name_(std::move(name)),
         params_(std::move(params)),
-        return_type_(),
         body_(std::move(body)) {
     }
 

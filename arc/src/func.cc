@@ -17,15 +17,32 @@ void Function::print(const int level) {
 
   if (return_type().has_value()) {
     if (std::holds_alternative<std::shared_ptr<ident::TypeIdentifier>>(return_type().value())) {
-      std::get<std::shared_ptr<ident::TypeIdentifier>>(return_type().value())->print(level + 2);
-    }
-    else if (std::holds_alternative<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
-      std::cout << "...\n";
+      auto i = std::get<std::shared_ptr<ident::TypeIdentifier>>(return_type().value());
+      if (i == nullptr) {
+        return;
+      }
+      i->print(level + 1);
+    } else if (std::holds_alternative<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
       for (const auto& rt: std::get<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
         rt->print(level + 2);
       }
     }
   }
+
+
+
+  /**
+  if (return_type().has_value()) {
+    if (std::holds_alternative<std::shared_ptr<ident::TypeIdentifier>>(return_type().value())) {
+      std::get<std::shared_ptr<ident::TypeIdentifier>>(return_type().value())->print(level + 2);
+    }
+    else if (std::holds_alternative<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
+      for (const auto& rt: std::get<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
+        rt->print(level + 2);
+      }
+    }
+  }
+  **/
 
 }
 
