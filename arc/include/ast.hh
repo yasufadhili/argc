@@ -82,7 +82,7 @@ namespace ast::expr {
   public:
     Unary(UnaryOp op, std::shared_ptr<Expression> operand);
     ~Unary() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class Constant final : public Expression {
@@ -92,7 +92,7 @@ namespace ast::expr {
     const_variant value;
     sym::TypeKind kind;
   public:
-    explicit Constant(const const_variant &, sym::TypeKind);
+    explicit Constant(const_variant , sym::TypeKind);
     ~Constant() override = default;
     void print(int level = 0) override;
   };
@@ -223,6 +223,23 @@ namespace ast::stmt {
     std::shared_ptr<expr::Expression> expression;
   public:
     explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
+    void print(int) override;
+  };
+
+  class Return final : public Statement {
+    std::optional<std::shared_ptr<expr::Expression>> expression;
+  public:
+    explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
+    ~Return() override = default;
+    void print(int) override;
+  };
+
+  class Repeat final : public Statement {
+    std::optional<std::shared_ptr<expr::Expression>> times_;
+    std::shared_ptr<Block> body_;
+  public:
+    explicit Repeat(std::optional<std::shared_ptr<expr::Expression>> times);
+    ~Repeat() override = default;
     void print(int) override;
   };
 

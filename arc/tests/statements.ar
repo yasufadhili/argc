@@ -1,0 +1,14 @@
+
+def main () {
+
+
+}
+
+def main {
+
+  ret
+}
+
+def another {
+  ret 23 + 5 * 3
+}
