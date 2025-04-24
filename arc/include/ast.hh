@@ -173,6 +173,19 @@ namespace ast::stmt {
     void print(int level) override;
   };
 
+  class Block final : public Statement {
+    std::vector<std::shared_ptr<Statement>> statements;
+  public:
+    explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
+      : statements(std::move(stmts)) {}
+
+    const auto& get_statements() const { return statements; }
+    auto add_statement(std::shared_ptr<Statement> stmt) -> void {
+      statements.push_back(std::move(stmt));
+    }
+    void print(int level = 0) override;
+  };
+
   class Assignment final : public Statement {
     //std::shared_ptr<expr::Variable> target;
     std::string target;
