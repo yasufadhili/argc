@@ -92,7 +92,7 @@ namespace ast::expr {
     const_variant value;
     sym::TypeKind kind;
   public:
-    explicit Constant(const_variant, sym::TypeKind);
+    explicit Constant(const const_variant &, sym::TypeKind);
     ~Constant() override = default;
     void print(int level = 0) override;
   };
