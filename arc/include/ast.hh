@@ -186,6 +186,29 @@ namespace ast::stmt {
     void print(int level = 0) override;
   };
 
+  class VariableDeclaration final : public Statement {
+    std::string name;
+    std::shared_ptr<sym::Type> type;
+    std::optional<std::shared_ptr<expr::Expression>> initialiser;
+    std::shared_ptr<sym::Symbol> symbol;
+  public:
+    VariableDeclaration(
+      std::string name,
+      const std::shared_ptr<sym::Type> &type,
+      const std::optional<std::shared_ptr<expr::Expression>>& init
+    );
+
+    void print(int level) override;
+
+    auto get_name() const -> std::string;
+    auto get_type() const -> std::shared_ptr<sym::Type>;
+    //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
+
+    //auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void;
+    //auto get_symbol() const -> std::shared_ptr<sym::Symbol>;
+
+  };
+
   class Assignment final : public Statement {
     //std::shared_ptr<expr::Variable> target;
     std::string target;

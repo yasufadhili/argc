@@ -94,6 +94,11 @@ namespace yy {
 %type <std::shared_ptr<ast::param::Parameter>> parameter;
 %type <std::shared_ptr<ast::func::FunctionBody>> function_body;
 
+%type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
+%type <std::shared_ptr<ast::stmt::Statement>> statement;
+%type <std::shared_ptr<ast::stmt::Block>> block_statement;
+%type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
+
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
