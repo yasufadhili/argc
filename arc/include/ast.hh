@@ -54,6 +54,100 @@ namespace ast::ident {
     std::string name_;
   };
 
+}
+
+namespace ast::expr {
+
+  class Expression : public Node {
+  public:
+    ~Expression() override = default;
+    void print(int level = 0) override;
+  };
+
+  class Binary : public Expression {
+  public:
+    ~Binary() override = default;
+    void print(int level = 0) override;
+  };
+
+  class Unary final : public Expression {
+  public:
+    enum struct UnaryOp {
+      NEG, NOT
+    };
+  private:
+    UnaryOp op;
+    std::shared_ptr<Expression> operand;
+
+  public:
+    Unary(UnaryOp op, std::shared_ptr<Expression> operand);
+    ~Unary() override = default;
+    void print(int level = 0) override;
+  };
+
+  class Constant final : public Expression {
+    using  const_variant = std::variant<
+      int, double, bool, std::string, char
+    >;
+    const_variant value;
+    sym::TypeKind kind;
+  public:
+    explicit Constant(const_variant, sym::TypeKind);
+    ~Constant() override = default;
+    void print(int level = 0) override;
+  };
+
+}
+
+namespace ast::expr::arith {
+
+  enum struct ArithmeticType {
+    ADD, SUB, DIV, MUL, MOD
+  };
+
+  class Arithmetic final : public Binary {
+    ArithmeticType type;
+    std::shared_ptr<Expression> lhs;
+    std::shared_ptr<Expression> rhs;
+  public:
+    Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
+    ~Arithmetic() override = default;
+    void print(int level = 0) override;
+  };
+
+}
+
+namespace ast::expr::boolean {
+
+  enum struct BooleanType {
+    TRUE = 1, FALSE = 0
+  };
+
+  class Boolean final : public Expression {
+    BooleanType type;
+  public:
+    explicit Boolean(BooleanType);
+    ~Boolean() override = default;
+    void print(int level = 0) override;
+  };
+
+}
+
+namespace ast::expr::rel {
+
+  enum struct RelationalType {
+    EQ, NEQ,  GT, LT, GEQ, LEQ
+  };
+
+  class Relational final : public Binary {
+    RelationalType type;
+    std::shared_ptr<Expression> lhs;
+    std::shared_ptr<Expression> rhs;
+  public:
+    Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
+    ~Relational() override = default;
+    void print(int level = 0) override;
+  };
 
 }
 
