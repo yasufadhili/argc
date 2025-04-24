@@ -285,6 +285,45 @@ function_body
 ;
 
 
+statement_list
+  : statement {
+    $$ = std::vector<std::shared_ptr<ast::stmt::Statement>>{$1};
+  }
+  | statement_list statement {
+    $$ = $1;
+    $$.push_back($2);
+  }
+;
+
+
+statement
+  : variable_declaration {
+    $$ = $1;
+  }
+  | expression {
+    $$ = std::make_shared<ast::stmt::ExpressionStatement>($1);
+  }
+  | assignment {
+      $$ = $1;
+  }
+  | block_statement {
+    $$ = $1;
+  }
+;
+
+
+block_statement
+  : LBRACE statement_list RBRACE {
+      $$ = std::make_shared<ast::stmt::Block>($2);
+  }
+  | LBRACE RBRACE {
+    $$ = std::make_shared<ast::stmt::Block>(
+      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    );
+  }
+;
+
+
 variable_declaration
   : VAR IDENT type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);

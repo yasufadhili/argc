@@ -218,6 +218,14 @@ namespace ast::stmt {
 
     void print(int level = 0) override;
   };
+
+  class ExpressionStatement final : public Statement {
+    std::shared_ptr<expr::Expression> expression;
+  public:
+    explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
+    void print(int) override;
+  };
+
 }
 
 
