@@ -182,9 +182,9 @@ namespace ast::expr::rel {
   };
 
   class Relational final : public Binary {
-    RelationalType type;
-    std::shared_ptr<Expression> lhs;
-    std::shared_ptr<Expression> rhs;
+    RelationalType type_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
   public:
     Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
     ~Relational() override = default;

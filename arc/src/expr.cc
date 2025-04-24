@@ -112,13 +112,13 @@ void Boolean::print(const int level) {
 
 
 Relational::Relational(const RelationalType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
-  : type(t), lhs(std::move(l)), rhs(std::move(r)) {
+  : type_(t), lhs_(std::move(l)), rhs_(std::move(r)) {
 }
 
 void Relational::print(const int level) {
   print_indent(level);
   std::string op;
-  switch (type) {
+  switch (type_) {
     case RelationalType::EQ:
       op = "==";
       break;
@@ -137,13 +137,18 @@ void Relational::print(const int level) {
     case RelationalType::LEQ:
       op = "<=";
       break;
+    case RelationalType::NONE:
+      op = "None";
+      break;
     default:
       op = "Unknown";
       break;
   }
   std::cout << "Relational Expression: " << op << '\n';
-  lhs->print(level + 1);
-  rhs->print(level + 1);
+  lhs_->print(level + 1);
+  if (rhs_) {
+    rhs_->print(level + 1);
+  }
 }
 
 
