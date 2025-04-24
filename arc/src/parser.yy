@@ -92,7 +92,7 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::param::Parameter>>> parameter_list;
 %type <std::vector<std::shared_ptr<ast::param::Parameter>>> non_empty_parameter_list;
 %type <std::shared_ptr<ast::param::Parameter>> parameter;
-%type <std::shared_ptr<ast::func::FunctionBody>> function_body;
+%type <std::shared_ptr<ast::stmt::Block>> function_body;
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
@@ -277,10 +277,8 @@ parameter
 
 
 function_body
-  : LBRACE RBRACE {
-    $$ = std::make_shared<ast::func::FunctionBody>(
-      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
-    );
+  : block_statement {
+    $$ = $1;
   }
 ;
 

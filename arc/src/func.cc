@@ -84,15 +84,18 @@ void Function::print(const int level) {
     if (std::holds_alternative<std::shared_ptr<ident::TypeIdentifier>>(return_type().value())) {
       auto i = std::get<std::shared_ptr<ident::TypeIdentifier>>(return_type().value());
       if (i == nullptr) {
-        return;
+        std::cout << "" ;
+      } else {
+        i->print(level + 2);
       }
-      i->print(level + 2);
     } else if (std::holds_alternative<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
       for (const auto& rt: std::get<std::vector<std::shared_ptr<ident::TypeIdentifier>>>(return_type().value())) {
         rt->print(level + 2);
       }
     }
   }
+
+  body()->print(level + 1);
 
 }
 
