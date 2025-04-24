@@ -146,6 +146,10 @@ include[ \t]*[\"<]            {
                   return yy::Parser::make_DIVIDE(loc);
                 }
 
+"%"             {
+                  return yy::Parser::make_MODULO(loc);
+                }
+
 "="             { 
                   return yy::Parser::make_ASSIGN(loc); 
                 }

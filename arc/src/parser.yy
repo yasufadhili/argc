@@ -53,6 +53,7 @@ namespace yy {
 %token LBRACE RBRACE
 %token PLUS MINUS
 %token TIMES DIVIDE
+%token MODULO
 %token <int> INTEGER
 %token <double> FLOAT
 %token END 0
