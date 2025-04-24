@@ -270,19 +270,19 @@ namespace ast::func {
     // Constructor for function with no return type
     Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
-             std::shared_ptr<FunctionBody> body);
+             std::shared_ptr<stmt::Block> body);
 
     // Constructor for function with single return type
     Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
              std::shared_ptr<ident::TypeIdentifier> return_type,
-             std::shared_ptr<FunctionBody> body);
+             std::shared_ptr<stmt::Block> body);
 
     // Constructor for function with multiple return types
     Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
              std::vector<std::shared_ptr<ident::TypeIdentifier> > return_types,
-             std::shared_ptr<FunctionBody> body);
+             std::shared_ptr<stmt::Block> body);
 
     // Generic constructor that can handle optional return types
     Function(std::shared_ptr<ident::Identifier> name,
@@ -291,7 +291,7 @@ namespace ast::func {
                std::shared_ptr<ident::TypeIdentifier>,
                std::vector<std::shared_ptr<ident::TypeIdentifier> >
              > > return_type,
-             std::shared_ptr<FunctionBody> body);
+             std::shared_ptr<stmt::Block> body);
 
     ~Function() override = default;
 
@@ -303,7 +303,7 @@ namespace ast::func {
       std::vector<std::shared_ptr<ident::TypeIdentifier> >
     > > &return_type() const;
 
-    auto body() const -> const std::shared_ptr<FunctionBody>&;
+    auto body() const -> const std::shared_ptr<stmt::Block>&;
 
     void print(int level) override;
 
@@ -314,7 +314,7 @@ namespace ast::func {
       std::shared_ptr<ident::TypeIdentifier>,
       std::vector<std::shared_ptr<ident::TypeIdentifier> >
     > > return_type_;
-    std::shared_ptr<FunctionBody> body_;
+    std::shared_ptr<stmt::Block> body_;
   };
 
 

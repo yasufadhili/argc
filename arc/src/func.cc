@@ -20,7 +20,7 @@ void FunctionBody::print(int level) {
 
 Function::Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
-             std::shared_ptr<FunctionBody> body)
+             std::shared_ptr<stmt::Block> body)
       : name_(std::move(name)),
         params_(std::move(params)),
         body_(std::move(body)) {
@@ -29,7 +29,7 @@ Function::Function(std::shared_ptr<ident::Identifier> name,
 Function::Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
              std::shared_ptr<ident::TypeIdentifier> return_type,
-             std::shared_ptr<FunctionBody> body)
+             std::shared_ptr<stmt::Block> body)
       : name_(std::move(name)),
         params_(std::move(params)),
         return_type_(std::move(return_type)),
@@ -39,7 +39,7 @@ Function::Function(std::shared_ptr<ident::Identifier> name,
 Function::Function(std::shared_ptr<ident::Identifier> name,
              std::vector<std::shared_ptr<param::Parameter> > params,
              std::vector<std::shared_ptr<ident::TypeIdentifier> > return_types,
-             std::shared_ptr<FunctionBody> body)
+             std::shared_ptr<stmt::Block> body)
       : name_(std::move(name)),
         params_(std::move(params)),
         return_type_(std::move(return_types)),
@@ -52,7 +52,7 @@ Function::Function(std::shared_ptr<ident::Identifier> name,
                std::shared_ptr<ident::TypeIdentifier>,
                std::vector<std::shared_ptr<ident::TypeIdentifier> >
              > > return_type,
-             std::shared_ptr<FunctionBody> body)
+             std::shared_ptr<stmt::Block> body)
       : name_(std::move(name)),
         params_(std::move(params)),
         return_type_(std::move(return_type)),
@@ -67,7 +67,7 @@ const std::optional<std::variant<
   std::vector<std::shared_ptr<ast::ident::TypeIdentifier> >
 > > &Function::return_type() const { return return_type_; }
 
-auto Function::body() const -> const std::shared_ptr<FunctionBody>& { return body_; }
+auto Function::body() const -> const std::shared_ptr<stmt::Block>& { return body_; }
 
 
 void Function::print(const int level) {
