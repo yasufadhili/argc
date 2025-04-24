@@ -97,6 +97,13 @@ namespace yy {
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
+%type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression;
+%type <std::shared_ptr<ast::expr::Unary>> unary_expression;
+%type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression;
+
+%type <std::shared_ptr<ast::expr::Constant>> constant;
+%type <std::shared_ptr<ast::expr::Constant>> boolean_constant;
+
 
 %parse-param  { std::shared_ptr<ast::prog::Program>& result }
 
@@ -268,6 +275,16 @@ identifier
 type_identifier
   : IDENT {
     $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
+  }
+;
+
+
+boolean_constant
+  : TRUE {
+    $$ = std::make_shared<ast::expr::Constant>(true, sym::TypeKind::BOOL);
+  }
+  | FALSE {
+    $$ = std::make_shared<ast::expr::Constant>(false, sym::TypeKind::BOOL);
   }
 ;
 
