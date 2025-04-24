@@ -49,3 +49,5 @@ parser.hh
 parser.cc
 lexer.cc
 location.hh
+
+*.log
