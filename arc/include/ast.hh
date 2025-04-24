@@ -82,7 +82,7 @@ namespace ast::expr {
   public:
     Unary(UnaryOp op, std::shared_ptr<Expression> operand);
     ~Unary() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class Constant final : public Expression {
@@ -92,7 +92,7 @@ namespace ast::expr {
     const_variant value;
     sym::TypeKind kind;
   public:
-    explicit Constant(const const_variant &, sym::TypeKind);
+    explicit Constant(const_variant , sym::TypeKind);
     ~Constant() override = default;
     void print(int level = 0) override;
   };

@@ -382,10 +382,24 @@ assignment
 
 
 expression
-  : arithmetic_expression { $$ = $1; }
-  | relational_expression { $$ = $1; }
-  | variable { $$ = $1; }
-  | constant { $$ = $1; }
+  : arithmetic_expression {
+    $$ = $1;
+  }
+  | relational_expression {
+    $$ = $1;
+  }
+  | unary_expression {
+    $$ = $1;
+  }
+  | boolean_expression {
+    $$ = $1;
+  }
+  | variable {
+    $$ = $1;
+  }
+  | constant {
+    $$ = $1;
+  }
 ;
 
 

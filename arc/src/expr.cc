@@ -25,10 +25,22 @@ Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand) : op(op), op
 
 void Unary::print(const int level) {
   print_indent(level);
-  std::cout << "Unary\n";
+  std::string op_str;
+  switch (op) {
+    case UnaryOp::NOT:
+      op_str = "!";
+      break;
+    case UnaryOp::NEG:
+      op_str =  "-";
+      break;
+    default:
+      op_str =  "";
+  }
+  std::cout << "Unary " << op_str << "\n";
+  operand->print(level + 1);
 }
 
-Constant::Constant(const const_variant &v, sym::TypeKind k) : value(v), kind(k) {
+Constant::Constant(const_variant v, sym::TypeKind k) : value(std::move(v)), kind(k) {
 }
 
 void Constant::print(const int level) {
