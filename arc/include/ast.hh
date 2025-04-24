@@ -30,7 +30,7 @@ namespace ast {
 
 namespace ast::ident {
 
-  class Identifier : Node{
+  class Identifier final : Node{
   public:
     explicit Identifier(const std::string& name) : name_(name) {}
     ~Identifier() override = default;
@@ -42,7 +42,7 @@ namespace ast::ident {
     std::string name_;
   };
 
-  class TypeIdentifier : Node {
+  class TypeIdentifier final : Node {
   public:
     explicit TypeIdentifier(const std::string& name) : name_(name) {}
     ~TypeIdentifier() override = default;
@@ -69,16 +69,15 @@ namespace ast::stmt {
 
 namespace ast::param {
 
-  class Parameter : Node {
+  class Parameter final : Node {
   public:
     Parameter(std::shared_ptr<ident::Identifier> name,
-             std::shared_ptr<ident::TypeIdentifier> type)
-        : name_(std::move(name)), type_(std::move(type)) {}
+             std::shared_ptr<ident::TypeIdentifier> type);
     ~Parameter() override = default;
 
     void print(int level) override;
-    const std::shared_ptr<ident::Identifier>& name() const { return name_; }
-    const std::shared_ptr<ident::TypeIdentifier>& type() const { return type_; }
+    const std::shared_ptr<ident::Identifier>& name() const;
+    const std::shared_ptr<ident::TypeIdentifier>& type() const;
 
   private:
     std::shared_ptr<ident::Identifier> name_;
