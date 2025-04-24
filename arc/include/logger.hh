@@ -32,7 +32,7 @@ namespace logger {
  * @param level_str The string to convert
  * @return The corresponding LogLevel or LogLevel::INFO if not found
  */
-  inline auto string_to_log_level(std::string &level_str) -> LogLevel;
+  inline auto string_to_log_level(const std::string &level_str) -> LogLevel;
 
   /**
    * @brief Represents a log message with its metadata
@@ -48,10 +48,10 @@ namespace logger {
 
     LogMessage(
       LogLevel lvl,
-      std::string msg,
-      std::string file_name,
+      const std::string &msg,
+      const std::string &file_name,
       size_t line_number,
-      std::string function_name
+      const std::string &function_name
     );
   };
 
