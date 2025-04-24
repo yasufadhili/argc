@@ -1,0 +1,12 @@
+
+
+def main () i32 {
+
+  var x i8 = 340
+  var y i8 = 29
+  var z
+
+  z = x + y
+  ret z
+
+}

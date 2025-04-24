@@ -49,27 +49,38 @@ namespace yy {
 
 
 
-%token RPAREN LPAREN
-%token LBRACE RBRACE
-%token PLUS MINUS
-%token TIMES DIVIDE
-%token MODULO
-%token <int> INTEGER
-%token <double> FLOAT
+%token RPAREN ")"
+%token LPAREN "("
+%token LBRACE "{"
+%token RBRACE "}"
+%token PLUS "+"
+%token MINUS "-"
+%token TIMES "*"
+%token DIVIDE "/"
+%token MODULO "%"
+%token <int> INTEGER  "integer"
+%token <double> FLOAT "float"
 %token END 0
-%token SEMICOLON
-%token COMMA
-%token VAR
-%token DEF
+%token SEMICOLON  ";"
+%token COMMA ","
+%token VAR  "variable declaration"
+%token DEF  "function definition"
 
-%token TRUE FALSE
-%token ASSIGN EQ NEQ GT LT GEQ LEQ
-%token NOT
+%token TRUE "true"
+%token FALSE "false"
+%token ASSIGN "assign"
+%token EQ "=="
+%token NEQ "!="
+%token GT ">"
+%token LT "<"
+%token GEQ ">="
+%token LEQ "<="
+%token NOT "!"
 
-%token <std::string> IDENT
-%token <std::string> TYPE_IDENT
-%token <std::string> STRING
-%token <char> CHAR
+%token <std::string> IDENT "identifier"
+%token <std::string> TYPE_IDENT "type identifier"
+%token <std::string> STRING "string"
+%token <char> CHAR "char"
 
 
 
@@ -534,6 +545,6 @@ type_identifier
 
 void yy::Parser::error(const location_type& loc, const std::string& msg)
 {
-    std::cout << "ERROR at "<< loc << ", message: " << msg << std::endl;
+    std::cout << "ERROR at "<< loc << ": " << msg << std::endl;
 }
 
