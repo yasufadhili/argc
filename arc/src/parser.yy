@@ -97,10 +97,25 @@ namespace yy {
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
+%type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
+%type <std::shared_ptr<ast::stmt::Assignment>> assignment;
+%type <std::shared_ptr<sym::Type>> type_specifier;
+
+%type <std::shared_ptr<ast::expr::Expression>> expression;
+
 %type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
+
+%type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
 %type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression;
 
+//%type <std::shared_ptr<sym::Type>> type_specifier;
+%type <std::shared_ptr<ast::expr::Variable>> variable;
+
+%type <std::shared_ptr<ast::expr::Expression>> factor;
+%type <std::shared_ptr<ast::expr::Expression>> term;
+
+%type <std::shared_ptr<ast::expr::Constant>> number;
 %type <std::shared_ptr<ast::expr::Constant>> constant;
 %type <std::shared_ptr<ast::expr::Constant>> boolean_constant;
 
@@ -265,16 +280,173 @@ function_body
 ;
 
 
-identifier
-  : IDENT {
-    $$ = std::make_shared<ast::ident::Identifier>($1);
+optional_initialiser
+  : %empty {
+    $$ = std::nullopt;
+  }
+  | ASSIGN expression {
+    $$ = $2;
   }
 ;
 
 
-type_identifier
+type_specifier
+  : TYPE_IDENT {
+      // Think validation should be done in semantic analysis
+      $$ = std::make_shared<sym::Type>(sym::TypeKind::PRIMITIVE, $1);
+  }
+;
+
+
+assignment
+  : IDENT ASSIGN expression {
+    $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+  }
+;
+
+
+expression
+  : arithmetic_expression { $$ = $1; }
+  | relational_expression { $$ = $1; }
+  | variable { $$ = $1; }
+  | constant { $$ = $1; }
+;
+
+
+boolean_expression
+  : TRUE {
+    $$ = std::make_shared<ast::expr::boolean::Boolean>(ast::expr::boolean::BooleanType::TRUE);
+  }
+  | FALSE {
+    $$ = std::make_shared<ast::expr::boolean::Boolean>( ast::expr::boolean::BooleanType::FALSE );
+  }
+;
+
+
+unary_expression
+  : NOT expression {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::expr::Unary::UnaryOp::NOT, $2
+    );
+  }
+  | MINUS expression %prec NOT {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::expr::Unary::UnaryOp::NEG, $2
+    );
+  }
+;
+
+
+relational_expression
+  : expression EQ expression        {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::EQ, $1, $3
+    );
+  }
+  | expression NEQ expression        {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::NEQ, $1, $3
+    );
+  }
+  | expression GT expression        {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::GT, $1, $3
+    );
+  }
+  | expression LT expression        {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::LT, $1, $3
+    );
+  }
+  | expression LEQ expression {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::LEQ, $1, $3
+    );
+  }
+  | expression GEQ expression {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::GEQ, $1, $3
+    );
+  }
+;
+
+
+arithmetic_expression
+  : term {
+    $$ = $1;
+  }
+  | arithmetic_expression PLUS term {
+    $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+      ast::expr::arith::ArithmeticType::ADD, $1, $3
+    );
+  }
+  | arithmetic_expression MINUS term  {
+    $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+      ast::expr::arith::ArithmeticType::SUB, $1, $3
+    );
+  }
+;
+
+
+term
+  : factor {
+    $$ = $1;
+  }
+  | term TIMES factor   {
+      $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+        ast::expr::arith::ArithmeticType::MUL, $1, $3
+      );
+    }
+  | term DIVIDE factor  {
+      $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+        ast::expr::arith::ArithmeticType::DIV, $1, $3
+      );
+    }
+;
+
+
+factor
+  : number {
+    $$ = $1;
+  }
+  | LPAREN expression RPAREN {
+    $$ = $2;
+  }
+;
+
+
+number
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+  | FLOAT {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+;
+
+
+variable
   : IDENT {
-    $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
+    $$ = std::make_shared<ast::expr::Variable>($1);
+  }
+;
+
+
+constant
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+  | FLOAT {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+  | STRING {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+  | CHAR {
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  }
+  | boolean_constant {
+    $$ = $1;
   }
 ;
 
@@ -285,6 +457,20 @@ boolean_constant
   }
   | FALSE {
     $$ = std::make_shared<ast::expr::Constant>(false, sym::TypeKind::BOOL);
+  }
+;
+
+
+identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
+  }
+;
+
+
+type_identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
   }
 ;
 

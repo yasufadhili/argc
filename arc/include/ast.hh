@@ -97,6 +97,20 @@ namespace ast::expr {
     void print(int level = 0) override;
   };
 
+  class Variable final : public Expression {
+    std::shared_ptr<ident::Identifier> identifier;
+    std::shared_ptr<sym::Type> type;
+  public:
+    //Variable(std::string name, std::shared_ptr<sym::Type> type)
+    //    : identifier(std::move(name)), var_type(std::move(type)) {}
+    Variable(const std::string&);
+    auto get_name() const -> std::string {
+      return identifier->name();
+    }
+
+    void print(int) override;
+  };
+
 }
 
 namespace ast::expr::arith {
@@ -157,6 +171,16 @@ namespace ast::stmt {
     ~Statement() override = default;
 
     void print(int level) override;
+  };
+
+  class Assignment final : public Statement {
+    //std::shared_ptr<expr::Variable> target;
+    std::string target;
+    std::shared_ptr<expr::Expression> value;
+  public:
+    Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
+
+    void print(int level = 0) override;
   };
 }
 
