@@ -11,5 +11,5 @@ void Identifier::print(const int level) {
 
 void TypeIdentifier::print(const int level) {
   print_indent(level);
-  std::cout << "Type Identifier " << '\n';
+  std::cout << "Type Identifier " << name_ << '\n';
 }
