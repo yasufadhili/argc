@@ -6,6 +6,7 @@
 #include <fstream>
 #include <functional>
 #include <memory>
+#include <iomanip>
 
 namespace logger {
   /**
@@ -116,7 +117,7 @@ namespace logger {
      * @param log_message The message to format
      * @return The formatted message
      */
-    auto format_message(const LogMessage &log_message) -> void;
+    auto format_message(const LogMessage &log_message) const -> std::string;
 
   protected:
     LogLevel min_level_{LogLevel::INFO};
