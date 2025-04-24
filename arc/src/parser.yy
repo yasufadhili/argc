@@ -443,15 +443,20 @@ term
     $$ = $1;
   }
   | term TIMES factor   {
-      $$ = std::make_shared<ast::expr::arith::Arithmetic>(
-        ast::expr::arith::ArithmeticType::MUL, $1, $3
-      );
-    }
+    $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+      ast::expr::arith::ArithmeticType::MUL, $1, $3
+    );
+  }
   | term DIVIDE factor  {
-      $$ = std::make_shared<ast::expr::arith::Arithmetic>(
-        ast::expr::arith::ArithmeticType::DIV, $1, $3
-      );
-    }
+    $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+      ast::expr::arith::ArithmeticType::DIV, $1, $3
+    );
+  }
+  | term MODULO factor  {
+    $$ = std::make_shared<ast::expr::arith::Arithmetic>(
+      ast::expr::arith::ArithmeticType::MOD, $1, $3
+    );
+  }
 ;
 
 
