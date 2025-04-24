@@ -76,3 +76,18 @@ void Return::print(const int level) {
     expression.value()->print(level + 1);
   }
 }
+
+Repeat::Repeat(std::optional<std::shared_ptr<expr::Expression> > times) : times_(std::move(times)) {
+
+}
+
+void Repeat::print(const int level) {
+  print_indent(level);
+  std::cout << "Repeat Statement \n";
+  if (times_.has_value()) {
+    times_.value()->print(level + 1);
+  } else {
+    print_indent(level);
+    std::cout << "Infinite \n";
+  }
+}

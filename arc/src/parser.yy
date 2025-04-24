@@ -67,6 +67,8 @@ namespace yy {
 %token DEF  "function definition"
 %token RETURN "return"
 
+%token REPEAT "repeat"
+
 %token TRUE "true"
 %token FALSE "false"
 %token ASSIGN "assign"
@@ -112,6 +114,8 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
+
+%type <std::shared_ptr<ast::stmt::Repeat>> repeat_statement;
 
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
@@ -324,6 +328,9 @@ statement
   | return_statement {
     $$ = $1;
   }
+  | repeat_statement {
+    $$ = $1;
+  }
 ;
 
 
@@ -354,6 +361,17 @@ return_statement
     $$ = std::make_shared<ast::stmt::Return>(std::nullopt);
   }
 ;
+
+
+repeat_statement
+  : REPEAT block_statement {
+    $$ = std::make_shared<ast::stmt::Repeat>(std::nullopt);
+  }
+  | REPEAT arithmetic_expression block_statement {
+    $$ = std::make_shared<ast::stmt::Repeat>($2);
+  }
+;
+
 
 
 optional_initialiser

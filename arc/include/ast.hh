@@ -234,6 +234,15 @@ namespace ast::stmt {
     void print(int) override;
   };
 
+  class Repeat final : public Statement {
+    std::optional<std::shared_ptr<expr::Expression>> times_;
+    std::shared_ptr<Block> body_;
+  public:
+    explicit Repeat(std::optional<std::shared_ptr<expr::Expression>> times);
+    ~Repeat() override = default;
+    void print(int) override;
+  };
+
 }
 
 
