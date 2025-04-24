@@ -87,12 +87,16 @@ namespace yy {
 
 
 
+// Operator precedence - from lowest to highest
 %precedence ASSIGN
+%left OR
+%left AND
 %left EQ NEQ
 %left GT LT GEQ LEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %right NOT
+%precedence UNARY_MINUS
 
 
 
