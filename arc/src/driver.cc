@@ -73,7 +73,7 @@ auto OptionParser::parse(config::Config &config) const -> bool {
         if (arg.length() > 2) {
           config.include_paths.push_back(arg.substr(2));
         } else if (++i < argc_) {
-          config.include_paths.push_back(argv_[i]);
+          config.include_paths.emplace_back(argv_[i]);
         } else {
           std::cerr << "Error: Include path missing after -I" << std::endl;
           return false;
