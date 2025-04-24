@@ -61,19 +61,19 @@ namespace ast::expr {
   class Expression : public Node {
   public:
     ~Expression() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class Binary : public Expression {
   public:
     ~Binary() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class Unary final : public Expression {
   public:
     enum struct UnaryOp {
-      NEG, NOT
+      NEG, NOT, LOGICAL_NOT
     };
   private:
     UnaryOp op;
@@ -94,7 +94,7 @@ namespace ast::expr {
   public:
     explicit Constant(const_variant , sym::TypeKind);
     ~Constant() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class Variable final : public Expression {
@@ -103,12 +103,40 @@ namespace ast::expr {
   public:
     //Variable(std::string name, std::shared_ptr<sym::Type> type)
     //    : identifier(std::move(name)), var_type(std::move(type)) {}
-    Variable(const std::string&);
+    explicit Variable(const std::string&);
     auto get_name() const -> std::string {
       return identifier->name();
     }
 
     void print(int) override;
+  };
+
+  enum struct BitwiseOp {
+    AND, OR, XOR, NOT, SHL, SHR
+  };
+
+  class Bitwise final : public Binary {
+    BitwiseOp op_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
+  public:
+    Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right);
+    ~Bitwise() override = default;
+    void print(int level) override;
+  };
+
+  enum struct LogicalOp {
+    AND, OR
+  };
+
+  class Logical final : public Binary {
+    LogicalOp op_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
+  public:
+    Logical(LogicalOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs);
+    ~Logical() override = default;
+    void print(int level) override;
   };
 
 }
@@ -126,7 +154,7 @@ namespace ast::expr::arith {
   public:
     Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Arithmetic() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
 }
@@ -142,7 +170,7 @@ namespace ast::expr::boolean {
   public:
     explicit Boolean(BooleanType);
     ~Boolean() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
 }
@@ -150,7 +178,7 @@ namespace ast::expr::boolean {
 namespace ast::expr::rel {
 
   enum struct RelationalType {
-    EQ, NEQ,  GT, LT, GEQ, LEQ
+    EQ, NEQ,  GT, LT, GEQ, LEQ, NONE
   };
 
   class Relational final : public Binary {
@@ -160,7 +188,7 @@ namespace ast::expr::rel {
   public:
     Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
     ~Relational() override = default;
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
 }
@@ -170,6 +198,13 @@ namespace ast::stmt {
   public:
     ~Statement() override = default;
 
+    void print(int level) override;
+  };
+
+  class EmptyStatement final : public Statement {
+  public:
+    EmptyStatement() = default;
+    ~EmptyStatement() override = default;
     void print(int level) override;
   };
 
@@ -183,7 +218,7 @@ namespace ast::stmt {
     auto add_statement(std::shared_ptr<Statement> stmt) -> void {
       statements.push_back(std::move(stmt));
     }
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class VariableDeclaration final : public Statement {
@@ -216,7 +251,7 @@ namespace ast::stmt {
   public:
     Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
 
-    void print(int level = 0) override;
+    void print(int level) override;
   };
 
   class ExpressionStatement final : public Statement {
@@ -268,69 +303,45 @@ namespace ast::param {
 
 namespace ast::func {
 
-  class FunctionBody final : Node {
+  class ReturnTypeInfo : public Node {
   public:
-    explicit FunctionBody(std::vector<std::shared_ptr<stmt::Statement> > statements);
-
-    ~FunctionBody() override = default;
-
+    ReturnTypeInfo() = default;
+    ~ReturnTypeInfo() override = default;
     void print(int level) override;
-    auto statements() const -> const std::vector<std::shared_ptr<stmt::Statement> >& ;
+  };
 
-  private:
-    std::vector<std::shared_ptr<stmt::Statement> > statements_;
+  class SingleReturnType final : public ReturnTypeInfo {
+    std::shared_ptr<ident::TypeIdentifier> id_;
+  public:
+    explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id);
+    ~SingleReturnType() override = default;
+    void print(int level) override;
+  };
+
+  class MultipleReturnType final: public ReturnTypeInfo {
+    std::vector<std::shared_ptr<ident::TypeIdentifier>> ids_;
+  public:
+    explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids);
+    ~MultipleReturnType() override = default;
+    void print(int level) override;
   };
 
 
   class Function final : Node {
   public:
-    // Constructor for function with no return type
-    Function(std::shared_ptr<ident::Identifier> name,
-             std::vector<std::shared_ptr<param::Parameter> > params,
-             std::shared_ptr<stmt::Block> body);
-
-    // Constructor for function with single return type
-    Function(std::shared_ptr<ident::Identifier> name,
-             std::vector<std::shared_ptr<param::Parameter> > params,
-             std::shared_ptr<ident::TypeIdentifier> return_type,
-             std::shared_ptr<stmt::Block> body);
-
-    // Constructor for function with multiple return types
-    Function(std::shared_ptr<ident::Identifier> name,
-             std::vector<std::shared_ptr<param::Parameter> > params,
-             std::vector<std::shared_ptr<ident::TypeIdentifier> > return_types,
-             std::shared_ptr<stmt::Block> body);
-
-    // Generic constructor that can handle optional return types
-    Function(std::shared_ptr<ident::Identifier> name,
-             std::vector<std::shared_ptr<param::Parameter> > params,
-             std::optional<std::variant<
-               std::shared_ptr<ident::TypeIdentifier>,
-               std::vector<std::shared_ptr<ident::TypeIdentifier> >
-             > > return_type,
-             std::shared_ptr<stmt::Block> body);
-
+    Function(
+      const std::shared_ptr<ident::Identifier> &name,
+      std::vector<std::shared_ptr<param::Parameter>> parameters,
+      const std::shared_ptr<ReturnTypeInfo> &return_type,
+      const std::shared_ptr<stmt::Block>& body
+    );
     ~Function() override = default;
-
-    const std::shared_ptr<ident::Identifier>& name() const;
-    const std::vector<std::shared_ptr<param::Parameter> >& params() const;
-
-    const std::optional<std::variant<
-      std::shared_ptr<ident::TypeIdentifier>,
-      std::vector<std::shared_ptr<ident::TypeIdentifier> >
-    > > &return_type() const;
-
-    auto body() const -> const std::shared_ptr<stmt::Block>&;
-
     void print(int level) override;
 
   private:
     std::shared_ptr<ident::Identifier> name_;
-    std::vector<std::shared_ptr<param::Parameter> > params_;
-    std::optional<std::variant<
-      std::shared_ptr<ident::TypeIdentifier>,
-      std::vector<std::shared_ptr<ident::TypeIdentifier> >
-    > > return_type_;
+    std::vector<std::shared_ptr<param::Parameter>> params_;
+    std::shared_ptr<ReturnTypeInfo> return_type_;
     std::shared_ptr<stmt::Block> body_;
   };
 
@@ -343,8 +354,8 @@ namespace ast::prog {
     std::vector<std::shared_ptr<func::Function> > functions_;
 
   public:
-    explicit Program(std::vector<std::shared_ptr<func::Function> >);
-
+    explicit Program(std::vector<std::shared_ptr<func::Function>>);
+    Program() = default;
     ~Program() override = default;
 
     void print(int level) override;

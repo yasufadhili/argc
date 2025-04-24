@@ -145,3 +145,27 @@ void Relational::print(const int level) {
   lhs->print(level + 1);
   rhs->print(level + 1);
 }
+
+
+Bitwise::Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right)
+  : op_(op), lhs_(std::move(left)), rhs_(std::move(right))
+{
+
+}
+
+void Bitwise::print(int level) {
+  print_indent(level);
+  std::cout << "Bitwise Expression \n";
+}
+
+
+Logical::Logical(LogicalOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+  : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {
+
+}
+
+
+void Logical::print(int level) {
+  print_indent(level);
+  std::cout << "Logical Expression \n";
+}

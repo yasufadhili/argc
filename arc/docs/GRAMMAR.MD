@@ -80,6 +80,10 @@ return_statement
     | RETURN
 ;
 
+assignment_statement
+    : IDENT ASSIGN expression   
+;
+
 repeat_statement
     : REPEAT block_statement
     | REPEAT expression block_statement
@@ -156,10 +160,6 @@ unary_expression
 
 variable
     : IDENT
-;
-
-assignment_statement
-    : IDENT ASSIGN expression   
 ;
 
 constant
