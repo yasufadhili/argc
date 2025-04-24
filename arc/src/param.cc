@@ -13,5 +13,6 @@ const std::shared_ptr<ast::ident::TypeIdentifier>& Parameter::type() const { ret
 void Parameter::print(const int level) {
   print_indent(level);
   std::cout << "Parameter \n";
+  name()->print(level + 2);
 }
 
