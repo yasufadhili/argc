@@ -285,6 +285,13 @@ function_body
 ;
 
 
+variable_declaration
+  : VAR IDENT type_specifier optional_initialiser {
+    $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+  }
+;
+
+
 optional_initialiser
   : %empty {
     $$ = std::nullopt;
