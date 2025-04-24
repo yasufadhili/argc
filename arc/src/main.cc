@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "include/logger.hh"
 #include "lexer.hh"
 #include "parser.hh"
 #include "include/ast.hh"
@@ -12,6 +13,15 @@
 
 
 auto main(const int argc, char* argv[]) -> int {
+
+
+  auto& logger { logger::Logger::instance() };
+  logger.set_level(logger::LogLevel::TRACE);
+
+  // Add console sink
+  auto console_sink { std::make_shared<::logger::ConsoleSink>() };
+  console_sink->set_level(logger::LogLevel::DEBUG); // Only show debug and above
+  logger.add_sink(console_sink);
 
   try {
 
