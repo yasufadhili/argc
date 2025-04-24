@@ -5,12 +5,13 @@
 
 %{
 
-
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <stack>
 
 #include "lexer.hh"
+#include "include/symbols.hh"
 
 using namespace yy;
 
@@ -61,13 +62,28 @@ include[ \t]*[\"<]            {
                                   return yy::Parser::make_END(loc);
                                 }
 
+"true"          {
+                  return yy::Parser::make_TRUE(loc);
+                }
+
+"false"         {
+                  return yy::Parser::make_FALSE(loc);
+                }
+
+"var"           {
+                  return yy::Parser::make_VAR(loc);
+                }
+
+"def"             {
+                    return yy::Parser::make_DEF(loc);
+                  }
 
 {INTEGER}       {
                   return yy::Parser::make_INTEGER(std::atof(YYText()), loc);
                 }
 
 {FLOAT}         {
-                  std::cout << "FLOAT: " << YYText() << std::endl;
+                  return yy::Parser::make_FLOAT(std::atof(YYText()), loc);
                 }
 
 
@@ -90,12 +106,12 @@ include[ \t]*[\"<]            {
                       processed += str[i];
                     }
                   }
-                  std::cout << "STRING: " << processed << std::endl;
+                  return yy::Parser::make_STRING(processed, loc);
                 }
 
 
 {IDENTIFIER}    {
-                  std::cout << "IDENT: " << YYText() << std::endl;
+                  return yy::Parser::make_IDENT(std::string(YYText()), loc);
                 }
 
 
@@ -111,12 +127,85 @@ include[ \t]*[\"<]            {
                       default: c = yytext[2]; break;
                     }
                   }
-                  std::cout << "CHAR: " << c << std::endl;
+                  return yy::Parser::make_CHAR(c, loc);
                 }
 
 "+"             {
                   return yy::Parser::make_PLUS(loc);
                 }
+
+"-"             {
+                  return yy::Parser::make_MINUS(loc);
+                }
+
+"*"             {
+                  return yy::Parser::make_TIMES(loc);
+                }
+
+"/"             {
+                  return yy::Parser::make_DIVIDE(loc);
+                }
+
+"%"             {
+                  return yy::Parser::make_MODULO(loc);
+                }
+
+"="             { 
+                  return yy::Parser::make_ASSIGN(loc); 
+                }
+
+"=="            { 
+                  return yy::Parser::make_EQ(loc); 
+                }
+
+"!="            { 
+                  return yy::Parser::make_NEQ(loc); 
+                }
+
+">"             { 
+                  return yy::Parser::make_GT(loc); 
+                }
+
+"<"             { 
+                  return yy::Parser::make_LT(loc); 
+                }
+
+">="            { 
+                  return yy::Parser::make_GEQ(loc); 
+                }
+
+"<="            { 
+                  return yy::Parser::make_LEQ(loc); 
+                }
+
+"!"             { 
+                  return yy::Parser::make_NOT(loc); 
+                }
+
+"{"             { 
+                  return yy::Parser::make_LBRACE(loc); 
+                }
+
+"}"             { 
+                  return yy::Parser::make_RBRACE(loc); 
+                }
+
+"("             { 
+                  return yy::Parser::make_LPAREN(loc); 
+                }
+
+")"             { 
+                  return yy::Parser::make_RPAREN(loc); 
+                }
+
+";"             { 
+                  return yy::Parser::make_SEMICOLON(loc); 
+                }
+
+","             {
+                  return yy::Parser::make_COMMA(loc);
+                }
+
 
 <<EOF>>         { 
                   if(!exit_file()) { 
@@ -143,7 +232,7 @@ void yy::Lexer::handle_inc_file()
 
 bool yy::Lexer::enter_file(std::string_view filename)
 {
-    //std::println("enter file: {}", filename);
+    
     std::cout << "Enter file: " << filename << std::endl;
 
     std::ifstream file{filename.data()};
@@ -180,4 +269,3 @@ bool yy::Lexer::exit_file()
     return true;
 }
 
-//yy::Lexer::~Lexer() = default;

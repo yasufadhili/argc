@@ -1,19 +1,19 @@
 ###############################################################################
-# Makefile for Argon Compiler
+# Makefile for the Argon Compiler
 ###############################################################################
 
 ROOT_DIR = $(shell pwd)
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -I$(ROOT_DIR)
+CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)
 
 # Flex and Bison
 FLEX = flex
 BISON = bison
 
 # Directories
-SRC_DIR = $(ROOT_DIR)
+SRC_DIR = $(ROOT_DIR)/src
 INCLUDE_DIR = include
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
@@ -53,7 +53,6 @@ $(TARGET): $(OBJ_FILES)
 # Bison rules
 $(BISON_CC) $(BISON_HH): $(BISON_SRC)
 	@echo "Generating parser with Bison"
-#@$(BISON) -d --defines=$(BISON_HH) -o $(BISON_CC) $<
 	@$(BISON) -Wcounterexamples -d -o $(BISON_CC) $<
 
 # Flex rules (depends on Bison output)
@@ -85,7 +84,7 @@ clean:
 distclean: clean
 	@echo "Removing build directories"
 	@rm -rf $(BUILD_DIR)
-	@rm -f parser.cc parser.hh location.hh
+	@rm -f ./src/parser.cc ./src/parser.hh ./src/location.hh
 
 # Rebuild target
 rebuild: clean all
