@@ -26,5 +26,6 @@ def add(a i64, b i64) i64 {}
 def some {}
 
 // For now just add support for this but it won't be used mainly or may be at all, cos it doesn't really make sense
+
 def several_returns(a u8, b i64, time i32) (i8, u32, i16) {}
 
