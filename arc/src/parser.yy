@@ -68,6 +68,7 @@ namespace yy {
 %token RETURN "return"
 
 %token REPEAT "repeat"
+%token MATCH "match"
 
 %token TRUE "true"
 %token FALSE "false"

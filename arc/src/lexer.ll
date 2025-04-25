@@ -86,6 +86,10 @@ include[ \t]*[\"<]            {
                     return yy::Parser::make_REPEAT(loc);
                   }
 
+"match"           {
+                    return yy::Parser::make_MATCH(loc);
+                  }
+
 {INTEGER}       {
                   return yy::Parser::make_INTEGER(std::atof(YYText()), loc);
                 }
