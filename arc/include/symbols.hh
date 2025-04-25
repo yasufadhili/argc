@@ -34,13 +34,12 @@ private:
   std::shared_ptr<Type> base_type_;
 
   // For arrays
-  size_t array_size_;
+  int array_size_;
 
   // For custom types like structs
   std::shared_ptr<SymbolTable> member_types_;
 public:
-  Type(TypeKind kind, const std::string& name);
-  virtual ~Type() = default;
+  Type(TypeKind kind, std::string  name);
 
   auto get_kind() const -> TypeKind { return kind_; }
   auto get_name() const -> std::string { return name_; }
@@ -50,19 +49,19 @@ public:
   auto get_base_type() const -> std::shared_ptr<Type> { return base_type_; }
 
   // For arrays
-  auto set_array_size(size_t array_size) -> void { array_size_ = array_size; }
-  auto get_array_size() const -> size_t { return array_size_; }
+  auto set_array_size (size_t array_size) -> void { array_size_ = array_size; }
+  auto get_array_size () const -> size_t { return array_size_; }
 
   // For structs and maybe classes in future
-  auto set_member_types(std::shared_ptr<SymbolTable> member_types) -> void { member_types_ = member_types; }
-  auto get_member_types() const -> std::shared_ptr<SymbolTable> { return member_types_; }
+  auto set_member_types (std::shared_ptr<SymbolTable> member_types) -> void { member_types_ = member_types; }
+  auto get_member_types () const -> std::shared_ptr<SymbolTable> { return member_types_; }
 
   // Type Checking Methods
-  virtual auto is_compatible_with(const Type& other) const -> bool;
-  virtual auto can_implicitly_cast_to(const Type& other) const -> bool;
+  virtual bool is_compatible_with (const Type& other) const;
+  virtual bool can_implicitly_cast_to (const Type& target) const;
 
   // Common type operations
-  static auto get_common_type(const Type& t1, const Type& t2) -> std::shared_ptr<Type>;
+  static auto get_common_type (const Type& t1, const Type& t2) -> std::shared_ptr<Type>;
 
   // Utility
   virtual auto to_string() const -> std::string;
@@ -78,8 +77,8 @@ public:
   static auto create_void_type() -> std::shared_ptr<Type>;
   static auto create_bool_type() -> std::shared_ptr<Type>;
   static auto create_string_type() -> std::shared_ptr<Type>;
-  static auto create_pointer_type(std::shared_ptr<Type> base_type) -> std::shared_ptr<Type>;
-  static auto create_array_type(std::shared_ptr<Type> element_type, size_t size) -> std::shared_ptr<Type>;
+  static auto create_pointer_type(const std::shared_ptr<Type>& base_type) -> std::shared_ptr<Type>;
+  static auto create_array_type(const std::shared_ptr<Type>& element_type, int size) -> std::shared_ptr<Type>;
 
 };
 
@@ -118,7 +117,7 @@ class Symbol {
   std::shared_ptr<SymbolTable> member_symbols_;
 
 public:
-  Symbol(std::string& name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, int line = 0, int column = 0, const std::string& filename = "");
+  Symbol(std::string  name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, int line = 0, int column = 0, std::string  filename = "");
 
   auto const get_name() const -> std::string { return name_; }
   auto get_kind() const -> SymbolKind { return kind_; }
@@ -136,11 +135,11 @@ public:
   auto set_access(AccessModifier new_access) -> bool { access_ = new_access; }
 
   // Function Specific
-  auto add_param(std::shared_ptr<Symbol> new_param) -> void;
+  auto add_param(const std::shared_ptr<Symbol>& new_param) -> void;
   auto const& get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
 
   // Complex Type Methods
-  auto set_members_symbols(std::shared_ptr<SymbolTable> new_members_symbols) -> void;
+  auto set_members_symbols(const std::shared_ptr<SymbolTable> &new_members_symbols) -> void;
   auto get_members_symbols() const -> std::shared_ptr<SymbolTable>;
 
   auto print(int indent) const -> void;
