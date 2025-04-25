@@ -153,12 +153,12 @@ class Scope {
   int scope_level_;
 
 public:
-  Scope (const std::string& name = "", int level = 0);
+  Scope (std::string  name = "", int level = 0);
 
   // Symbol management
-  auto add_symbol (std::shared_ptr<Symbol> symbol) -> bool;
+  auto add_symbol (const std::shared_ptr<Symbol>& symbol) -> bool;
   auto lookup_symbol (const std::string& name) const -> std::shared_ptr<Symbol>;
-  auto remove_symbol (const std::string& name) -> void;
+  auto remove_symbol (const std::string& name) -> bool;
 
   // Getters
   auto get_scope_level () const -> int { return scope_level_; }

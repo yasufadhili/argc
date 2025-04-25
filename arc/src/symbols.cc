@@ -7,6 +7,10 @@ using namespace sym;
 
 std::shared_ptr<SymbolTable> SymbolTable::instance_ = nullptr;
 
+//=============================================================================
+// Symbol Implementation
+//=============================================================================
+
 Symbol::Symbol(std::string name,
                const SymbolKind kind,
                std::shared_ptr<Type> type,
@@ -78,6 +82,11 @@ auto Symbol::print(const int indent) const -> void {
     member_symbols_->print();
   }
 }
+
+//=============================================================================
+// Type Implementation
+//=============================================================================
+
 
 Type::Type(const TypeKind kind, std::string name)
   : kind_(kind), name_(std::move(name)), array_size_(-1) {
@@ -260,4 +269,48 @@ auto Type::create_array_type(const std::shared_ptr<Type>& element_type, int size
   arrayType->set_array_size(size);
   return arrayType;
 }
+
+//=============================================================================
+// Scope Implementation
+//=============================================================================
+
+Scope::Scope(std::string  name, const int level)
+    : scope_name_(std::move(name)), scope_level_(level) {
+}
+
+auto Scope::add_symbol(const std::shared_ptr<Symbol>& symbol) -> bool {
+  const std::string& name = symbol->get_name();
+  // Check if symbol already exists in this scope
+  if (symbols_.find(name) != symbols_.end()) {
+    return false; // Symbol already exists
+  }
+
+  symbols_[name] = symbol;
+  return true;
+}
+
+auto Scope::lookup_symbol(const std::string &name) const -> std::shared_ptr<Symbol> {
+  auto it = symbols_.find(name);
+  if (it != symbols_.end()) {
+    return it->second;
+  }
+  return nullptr;
+}
+
+auto Scope::remove_symbol(const std::string &name) -> bool {
+  //return symbols_.erase(name) > 0 ? symbols_.erase(name) : nullptr;
+  return symbols_.erase(name) > 0;
+}
+
+auto Scope::get_scope_name() const -> std::string {
+  return scope_name_;
+}
+
+auto Scope::print() const -> void {
+  std::cout << "Scope: " << scope_name_ << " (level " << scope_level_ << ")" << std::endl;
+  for (const auto& pair : symbols_) {
+    pair.second->print(2);
+  }
+}
+
 
