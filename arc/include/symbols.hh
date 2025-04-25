@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
 #include <unordered_map>
 
 namespace sym {
@@ -114,10 +115,10 @@ class Symbol {
   std::vector<std::shared_ptr<Symbol>> params_;
 
   // For complex data type (structs)
-  std::shared_ptr<SymbolTable> members_symbols_;
+  std::shared_ptr<SymbolTable> member_symbols_;
 
 public:
-  Symbol(std::string name, std::shared_ptr<Type> type, bool is_defined, AccessModifier access, int line, int column, std::string filename);
+  Symbol(std::string& name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, int line = 0, int column = 0, const std::string& filename = "");
 
   auto const get_name() const -> std::string { return name_; }
   auto get_kind() const -> SymbolKind { return kind_; }
@@ -138,11 +139,11 @@ public:
   auto add_param(std::shared_ptr<Symbol> new_param) -> void;
   auto const& get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
 
-  // Complex Type Methids
+  // Complex Type Methods
   auto set_members_symbols(std::shared_ptr<SymbolTable> new_members_symbols) -> void;
   auto get_members_symbols() const -> std::shared_ptr<SymbolTable>;
 
-  auto print(int ident) const -> void;
+  auto print(int indent) const -> void;
 };
 
 
@@ -182,7 +183,7 @@ class SymbolTable {
   int current_scope_index_;
 
   // Singletom instance
-  static auto instance () -> std::shared_ptr<SymbolTable>;
+  static std::shared_ptr<SymbolTable> instance_;
 
 public:
   SymbolTable ();
