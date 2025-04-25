@@ -1,0 +1,13 @@
+
+def main {
+  return 3 + 3
+}
+
+def two {
+  return 4 * 4
+}
+
+def three () {
+
+  return
+}
