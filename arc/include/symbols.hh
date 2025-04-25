@@ -129,14 +129,14 @@ public:
   auto get_column() const -> int { return column_; }
   auto get_filename() const -> std::string { return filename_; }
 
-  auto set_defined(bool defined) -> bool { is_defined_ = defined; }
-  auto set_used(bool used) -> bool { is_used_ = used; }
-  auto set_type(std::shared_ptr<Type> new_type) -> bool { type_ = new_type; }
-  auto set_access(AccessModifier new_access) -> bool { access_ = new_access; }
+  auto set_defined(const bool defined) -> void { is_defined_ = defined; }
+  auto set_used(const bool used) -> void { is_used_ = used; }
+  auto set_type(std::shared_ptr<Type> new_type) -> void { type_ = std::move(new_type); }
+  auto set_access(const AccessModifier new_access) -> void { access_ = new_access; }
 
   // Function Specific
   auto add_param(const std::shared_ptr<Symbol>& new_param) -> void;
-  auto const& get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
+  auto const get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
 
   // Complex Type Methods
   auto set_members_symbols(const std::shared_ptr<SymbolTable> &new_members_symbols) -> void;
