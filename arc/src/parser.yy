@@ -383,7 +383,7 @@ optional_initialiser
 
 type_specifier
   : TYPE_IDENT {
-    $$ = std::make_shared<sym::Type>(sym::TypeKind::PRIMITIVE, $1);
+    $$ = std::make_shared<sym::Type>(sym::Type::TypeKind::PRIMITIVE, $1);
   }
 ;
 
@@ -563,16 +563,16 @@ variable
 
 constant
   : INTEGER {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | FLOAT {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | STRING {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | CHAR {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | boolean_constant {
     $$ = $1;
@@ -582,10 +582,10 @@ constant
 
 boolean_constant
   : TRUE {
-    $$ = std::make_shared<ast::expr::Constant>(true, sym::TypeKind::BOOL);
+    $$ = std::make_shared<ast::expr::Constant>(true, sym::Type::TypeKind::PRIMITIVE);
   }
   | FALSE {
-    $$ = std::make_shared<ast::expr::Constant>(false, sym::TypeKind::BOOL);
+    $$ = std::make_shared<ast::expr::Constant>(false, sym::Type::TypeKind::PRIMITIVE);
   }
 ;
 
