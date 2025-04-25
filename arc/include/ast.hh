@@ -11,6 +11,9 @@
 
 
 namespace ast {
+
+  class Visitor;
+
   class Node {
   protected:
     static void print_indent(const int level) {
@@ -21,7 +24,7 @@ namespace ast {
 
   public:
     virtual ~Node() = default;
-
+    virtual void accept(Visitor&) = 0;
     virtual void print(int level) = 0;
   };
 
@@ -32,9 +35,9 @@ namespace ast::ident {
 
   class Identifier final : Node{
   public:
-    explicit Identifier(const std::string& name) : name_(name) {}
+    explicit Identifier(std::string  name) : name_(std::move(name)) {}
     ~Identifier() override = default;
-
+    void accept(Visitor&) override;
     void print(int level) override;
     const std::string& name() const { return name_; }
 
@@ -46,7 +49,7 @@ namespace ast::ident {
   public:
     explicit TypeIdentifier(const std::string& name) : name_(name) {}
     ~TypeIdentifier() override = default;
-
+    void accept(Visitor&) override;
     void print(int level) override;
     const std::string& name() const { return name_; }
 
@@ -61,12 +64,14 @@ namespace ast::expr {
   class Expression : public Node {
   public:
     ~Expression() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
   class Binary : public Expression {
   public:
     ~Binary() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -83,6 +88,7 @@ namespace ast::expr {
     Unary(UnaryOp op, std::shared_ptr<Expression> operand);
     ~Unary() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
   class Constant final : public Expression {
@@ -94,6 +100,7 @@ namespace ast::expr {
   public:
     explicit Constant(const_variant , sym::Type::TypeKind);
     ~Constant() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -107,7 +114,7 @@ namespace ast::expr {
     auto get_name() const -> std::string {
       return identifier->name();
     }
-
+    void accept(Visitor&) override;
     void print(int) override;
   };
 
@@ -123,6 +130,7 @@ namespace ast::expr {
     Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right);
     ~Bitwise() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
   enum struct LogicalOp {
@@ -137,6 +145,7 @@ namespace ast::expr {
     Logical(LogicalOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs);
     ~Logical() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
 }
@@ -155,6 +164,7 @@ namespace ast::expr::arith {
     Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Arithmetic() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
 }
@@ -171,6 +181,7 @@ namespace ast::expr::boolean {
     explicit Boolean(BooleanType);
     ~Boolean() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
 }
@@ -189,6 +200,7 @@ namespace ast::expr::rel {
     Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
     ~Relational() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
 }
@@ -197,7 +209,7 @@ namespace ast::stmt {
   class Statement : public Node {
   public:
     ~Statement() override = default;
-
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -206,6 +218,7 @@ namespace ast::stmt {
     EmptyStatement() = default;
     ~EmptyStatement() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
   class Block final : public Statement {
@@ -219,6 +232,7 @@ namespace ast::stmt {
       statements.push_back(std::move(stmt));
     }
     void print(int level) override;
+    void accept(Visitor&) override;
   };
 
   class VariableDeclaration final : public Statement {
@@ -234,7 +248,7 @@ namespace ast::stmt {
     );
 
     void print(int level) override;
-
+    void accept(Visitor&) override;
     auto get_name() const -> std::string;
     auto get_type() const -> std::shared_ptr<sym::Type>;
     //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
@@ -250,7 +264,8 @@ namespace ast::stmt {
     std::shared_ptr<expr::Expression> value;
   public:
     Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
-
+    ~Assignment() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -258,6 +273,8 @@ namespace ast::stmt {
     std::shared_ptr<expr::Expression> expression;
   public:
     explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
+    ~ExpressionStatement() override = default;
+    void accept(Visitor&) override;
     void print(int) override;
   };
 
@@ -266,6 +283,7 @@ namespace ast::stmt {
   public:
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;
+    void accept(Visitor&) override;
     void print(int) override;
   };
 
@@ -275,6 +293,7 @@ namespace ast::stmt {
   public:
     explicit Repeat(std::optional<std::shared_ptr<expr::Expression>> times);
     ~Repeat() override = default;
+    void accept(Visitor&) override;
     void print(int) override;
   };
 
@@ -288,7 +307,7 @@ namespace ast::param {
     Parameter(std::shared_ptr<ident::Identifier> name,
              std::shared_ptr<ident::TypeIdentifier> type);
     ~Parameter() override = default;
-
+    void accept(Visitor&) override;
     void print(int level) override;
     const std::shared_ptr<ident::Identifier>& name() const;
     const std::shared_ptr<ident::TypeIdentifier>& type() const;
@@ -307,6 +326,7 @@ namespace ast::func {
   public:
     ReturnTypeInfo() = default;
     ~ReturnTypeInfo() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -315,6 +335,7 @@ namespace ast::func {
   public:
     explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id);
     ~SingleReturnType() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -323,6 +344,7 @@ namespace ast::func {
   public:
     explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids);
     ~MultipleReturnType() override = default;
+    void accept(Visitor&) override;
     void print(int level) override;
   };
 
@@ -337,6 +359,7 @@ namespace ast::func {
     );
     ~Function() override = default;
     void print(int level) override;
+    void accept(Visitor&) override;
 
   private:
     std::shared_ptr<ident::Identifier> name_;
@@ -357,7 +380,42 @@ namespace ast::prog {
     explicit Program(std::vector<std::shared_ptr<func::Function>>);
     Program() = default;
     ~Program() override = default;
-
+    void accept(Visitor&) override;
     void print(int level) override;
   };
+}
+
+namespace ast {
+
+class Visitor {
+public:
+
+  virtual ~Visitor() = default;
+  virtual void visit (prog::Program& p) { p.accept(*this);}
+  virtual void visit (func::Function& f) { f.accept(*this); }
+  virtual void visit (func::ReturnTypeInfo& rti) { rti.accept(*this); }
+  virtual void visit (func::SingleReturnType& rti) { rti.accept(*this); }
+  virtual void visit (func::MultipleReturnType& rti) { rti.accept(*this); }
+  virtual void visit (param::Parameter& p) { p.accept(*this); }
+  virtual void visit (stmt::Statement& s) { s.accept(*this); }
+  virtual void visit (stmt::Block& b) { b.accept(*this); }
+  virtual void visit (stmt::ExpressionStatement& s) { s.accept(*this); }
+  virtual void visit (stmt::Assignment& a) { a.accept(*this); }
+  virtual void visit (stmt::Repeat& r) { r.accept(*this); }
+  virtual void visit (stmt::Return& r) { r.accept(*this); }
+  virtual void visit (stmt::VariableDeclaration& vd) { vd.accept(*this); }
+  virtual void visit (stmt::EmptyStatement& es) { es.accept(*this); }
+  virtual void visit (expr::Expression& e) { e.accept(*this); }
+  virtual void visit (expr::arith::Arithmetic& e) { e.accept(*this); }
+  virtual void visit (expr::rel::Relational& e) { e.accept(*this); }
+  virtual void visit (expr::Variable& e) { e.accept(*this); }
+  virtual void visit (expr::Unary& e) { e.accept(*this); }
+  virtual void visit (expr::Logical& e) { e.accept(*this); }
+  virtual void visit (expr::Binary& e) { e.accept(*this); }
+  virtual void visit (expr::Constant& e) { e.accept(*this); }
+  virtual void visit (expr::Bitwise& e) { e.accept(*this); }
+  virtual void visit (expr::boolean::Boolean& e) { e.accept(*this); }
+
+};
+
 }
