@@ -194,15 +194,15 @@ public:
   auto get_current_scope () const -> std::shared_ptr<Scope>;
 
   // Symbol Operations
-  auto add_symbol (std::shared_ptr<Symbol> symbol) -> bool;
+  auto add_symbol (const std::shared_ptr<Symbol>& symbol) const -> bool;
   auto lookup_symbol (const std::string& name) const -> std::shared_ptr<Symbol>;
-  auto lookup_symbol_in_current_scope (const std::string& name) const -> std::shared_ptr<Scope>;
+  auto lookup_symbol_in_current_scope (const std::string& name) const -> std::shared_ptr<Symbol>;
 
   // Check if identifier is already defined in current scope
   auto is_declared_in_current_scope (const std::string& name) const -> bool;
 
   // Type Management
-  auto add_type (const std::string& name, std::shared_ptr<Type> type) -> bool;
+  auto add_type (const std::string& name, const std::shared_ptr<Type>& type) const -> bool;
   auto lookup_type (const std::string& name) const -> std::shared_ptr<Type>;
 
   // singleton access
@@ -212,8 +212,8 @@ public:
   auto print () const -> void;
 
   // Error reporting utility
-  auto report_error (const std::string& message) const -> void;
-  auto report_warning (const std::string& message) const -> void;
+  static auto report_error (const std::string& message) -> void;
+  static auto report_warning (const std::string& message) -> void;
 
   auto check_unused_symbols () const -> void;
 

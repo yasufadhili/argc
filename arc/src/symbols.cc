@@ -313,4 +313,142 @@ auto Scope::print() const -> void {
   }
 }
 
+//=============================================================================
+// SymbolTable Implementation
+//=============================================================================
+
+SymbolTable::SymbolTable() : current_scope_index_(-1){
+  enter_scope("global");
+}
+
+auto SymbolTable::enter_scope(const std::string &scope_name) -> void {
+  current_scope_index_++;
+  std::string actual_scope_name = scope_name.empty() ?
+                                "scope_" + std::to_string(current_scope_index_) : 
+                                scope_name;
+
+  const auto new_scope = std::make_shared<Scope>(actual_scope_name, current_scope_index_);
+    
+  // If we're re-entering an existing scope level
+  if (current_scope_index_ < scopes_.size()) {
+    scopes_[current_scope_index_] = new_scope;
+  } else {
+    scopes_.push_back(new_scope);
+  }
+}
+
+auto SymbolTable::exit_scope() -> void {
+  if (current_scope_index_ > 0) { // Always keep global scope
+    current_scope_index_--;
+  }
+}
+
+auto SymbolTable::get_current_scope() const -> std::shared_ptr<Scope> {
+  if (current_scope_index_ >= 0 && current_scope_index_ < scopes_.size()) {
+    return scopes_[current_scope_index_];
+  }
+  return nullptr;
+}
+
+auto SymbolTable::add_symbol(const std::shared_ptr<Symbol>& symbol) const -> bool {
+  const auto current_scope = get_current_scope();
+  if (!current_scope) {
+    report_error("No active scope when adding symbol: " + symbol->get_name());
+    return false;
+  }
+
+  return current_scope->add_symbol(symbol);
+}
+
+auto SymbolTable::lookup_symbol(const std::string &name) const -> std::shared_ptr<Symbol> {
+  // Start from current scope and work backwards
+  for (int i = current_scope_index_; i >= 0; i--) {
+    if (const auto symbol = scopes_[i]->lookup_symbol(name)) {
+      // Mark the symbol as used
+      symbol->set_used(true);
+      return symbol;
+    }
+  }
+
+  return nullptr;
+}
+
+auto SymbolTable::lookup_symbol_in_current_scope(const std::string &name) const -> std::shared_ptr<Symbol> {
+  const auto current_scope = get_current_scope();
+  if (!current_scope) return nullptr;
+
+  return current_scope->lookup_symbol(name);
+}
+
+auto SymbolTable::is_declared_in_current_scope(const std::string &name) const -> bool {
+  return lookup_symbol_in_current_scope(name) != nullptr;
+}
+
+auto SymbolTable::add_type(const std::string &name, const std::shared_ptr<Type>& type) const -> bool {
+  auto type_symbol = std::make_shared<Symbol>(
+        name,
+        SymbolKind::TYPE,
+        type,
+        true  // Type declarations are always defined
+    );
+    
+  return add_symbol(type_symbol);
+}
+
+auto SymbolTable::lookup_type(const std::string &name) const -> std::shared_ptr<Type> {
+  auto symbol = lookup_symbol(name);
+  if (symbol && symbol->get_kind() == SymbolKind::TYPE) {
+    return symbol->get_type();
+  }
+  return nullptr;
+}
+
+auto SymbolTable::get_instance() -> std::shared_ptr<SymbolTable> {
+  if (!instance_) {
+    instance_ = std::shared_ptr<SymbolTable>(new SymbolTable());
+        
+    // Initialize with built-in types
+    instance_->add_type("int", Type::create_integer_type());
+    instance_->add_type("float", Type::create_floating_point_type());
+    instance_->add_type("char", Type::create_char_type());
+    instance_->add_type("void", Type::create_void_type());
+    instance_->add_type("bool", Type::create_bool_type());
+    instance_->add_type("string", Type::create_string_type());
+  }
+    
+  return instance_;
+}
+
+auto SymbolTable::print() const -> void {
+  for (const auto& scope : scopes_) {
+    scope->print();
+    std::cout << std::endl;
+  }
+}
+
+auto SymbolTable::report_error(const std::string &message) -> void {
+  std::cerr << "Error: " << message << std::endl;
+}
+
+auto SymbolTable::report_warning(const std::string &message) -> void {
+  std::cerr << "Warning: " << message << std::endl;
+}
+
+auto SymbolTable::check_unused_symbols() const -> void {
+  for (const auto& scope : scopes_) {
+    for (auto it = scope->begin(); it != scope->end(); ++it) {
+      auto symbol = it->second;
+      if (!symbol->get_is_used() &&
+          symbol->get_kind() != SymbolKind::TYPE &&
+          symbol->get_kind() != SymbolKind::MODULE) {
+
+        report_warning("Unused symbol: " + symbol->get_name() +
+                    " at " + symbol->get_filename() + ":" +
+                    std::to_string(symbol->get_line()));
+          }
+    }
+  }
+}
+
+
 
