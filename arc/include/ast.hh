@@ -90,9 +90,9 @@ namespace ast::expr {
       int, double, bool, std::string, char
     >;
     const_variant value;
-    sym::TypeKind kind;
+    sym::Type::TypeKind kind;
   public:
-    explicit Constant(const_variant , sym::TypeKind);
+    explicit Constant(const_variant , sym::Type::TypeKind);
     ~Constant() override = default;
     void print(int level) override;
   };

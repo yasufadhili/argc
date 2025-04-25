@@ -40,7 +40,7 @@ void Unary::print(const int level) {
   operand->print(level + 1);
 }
 
-Constant::Constant(const_variant v, sym::TypeKind k) : value(std::move(v)), kind(k) {
+Constant::Constant(const_variant v, sym::Type::TypeKind k) : value(std::move(v)), kind(k) {
 }
 
 void Constant::print(const int level) {
@@ -61,7 +61,7 @@ void Constant::print(const int level) {
 Variable::Variable(const std::string &n) {
 }
 
-void Variable::print(const int level = 0) {
+void Variable::print(const int level) {
   print_indent(level);
   //std::cout << "Variable: " << identifier->get_name() << "\n";
   std::cout << "Variable: \n";

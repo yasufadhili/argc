@@ -13,6 +13,7 @@ class SymbolTable;
 
 class Type {
 
+public:
   enum class TypeKind {
     PRIMITIVE,
     ARRAY,
