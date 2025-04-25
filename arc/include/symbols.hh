@@ -230,7 +230,7 @@ public:
   SemanticError(const std::string& message, int line = 0, int column = 0, const std::string& fileName = "")
         : std::runtime_error(message), line_(line), column_(column), filename_(fileName) {}
 
-  const auto& get_filename () const -> std::string { return filename_; }
+  const auto get_filename () const -> std::string { return filename_; }
   auto get_line () const -> int { return line_; }
   auto get_column () const -> int { return column_; }
 
