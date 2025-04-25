@@ -1,4 +1,4 @@
-#pragma once
+
 #include "../include/checker.hh"
 
 using namespace checker;
