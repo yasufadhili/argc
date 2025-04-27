@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -64,6 +65,7 @@ namespace ast::expr {
 
   class Expression : public Node {
   public:
+    Expression() = default;
     ~Expression() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
@@ -155,14 +157,15 @@ namespace ast::expr::arith {
   };
 
   class Arithmetic final : public Binary {
-    ArithmeticType type;
-    std::shared_ptr<Expression> lhs;
-    std::shared_ptr<Expression> rhs;
+    ArithmeticType type_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
   public:
     Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Arithmetic() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    auto evaluate() -> std::shared_ptr<Expression>;
   };
 
 }
@@ -199,6 +202,7 @@ namespace ast::expr::rel {
     ~Relational() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    auto evaluate() -> bool;
   };
 
 }

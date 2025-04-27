@@ -1,9 +1,9 @@
 module main
 
-def printHello {
-  return 20
+def some_return {
+  ret 3 + 2
 }
 
-def _start {
+def main {
 
 }

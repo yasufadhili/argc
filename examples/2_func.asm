@@ -1,18 +1,19 @@
   .section .text
   .global _start
-  .type _start, @function
-printHello:
+_start:
+  call main
+  mov $60, %rax
+  xor %rdi, %rdi
+  syscall
+some_return:
   pushq %rbp
   movq %rsp, %rbp
   movq %rbp, %rsp
   popq %rbp
   ret
-_start:
+main:
   pushq %rbp
   movq %rsp, %rbp
-  mov $60, %rax
-  xor %rdi, %rdi
-  syscall
   movq %rbp, %rsp
   popq %rbp
   ret

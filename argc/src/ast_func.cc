@@ -22,14 +22,11 @@ void Function::print(const int level) {
 
 void Function::accept(Visitor &v) {
   v.emit(name_->name() + ":");
+  //v.emit("  pushq %rbp");
   v.emit("  pushq %rbp");
   v.emit("  movq %rsp, %rbp");
   body_->accept(v);
-  if (name_->name() == "_start") {
-    v.emit("  mov $60, %rax"); 
-    v.emit("  xor %rdi, %rdi");
-    v.emit("  syscall");
-  }
+  //v.emit("  xor %rdi, %rdi");
   v.emit("  movq %rbp, %rsp");
   v.emit("  popq %rbp");
   v.emit("  ret");

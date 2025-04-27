@@ -86,14 +86,14 @@ void Variable::accept(Visitor &v) {
 
 
 Arithmetic::Arithmetic(const ArithmeticType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
-  : type(t), lhs(std::move(l)), rhs(std::move(r)) {
+  : type_(t), lhs_(std::move(l)), rhs_(std::move(r)) {
 }
 
 
 void Arithmetic::print(const int level) {
   print_indent(level);
   char op;
-  switch (type) {
+  switch (type_) {
     case ArithmeticType::ADD:
       op = '+';
       break;
@@ -114,12 +114,12 @@ void Arithmetic::print(const int level) {
       break;
   }
   std::cout << "Arithmetic Expression: " << op << '\n';
-  lhs->print(level + 1);
-  rhs->print(level + 1);
+  lhs_->print(level + 1);
+  rhs_->print(level + 1);
 }
 
 void Arithmetic::accept(Visitor&v) {
-
+  
 }
 
 
@@ -178,7 +178,14 @@ void Relational::print(const int level) {
 }
 
 void Relational::accept(Visitor&v) {
+  v.emit("");
+}
 
+auto Relational::evaluate() -> bool {
+  if (type_ == RelationalType::NONE) {
+    return true;
+  }
+  return true;
 }
 
 
