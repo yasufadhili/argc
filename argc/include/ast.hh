@@ -399,15 +399,11 @@ class Visitor {
 
 public:
 
-  auto emit(std::string code) -> void {
-    output_ << code << "\n";
-  }
+  auto emit(std::string code) -> void;
 
   auto generate_label(int value) -> std::string;
 
-  auto get_output() -> std::stringstream& {
-    return output_;
-  }
+  auto get_output() -> std::stringstream&;
 
   virtual ~Visitor() = default;
   virtual void visit (std::shared_ptr<prog::Program>& p) { p->accept(*this);}
