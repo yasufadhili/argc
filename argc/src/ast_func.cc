@@ -20,9 +20,18 @@ void Function::print(const int level) {
 
 }
 
+void Function::accept(Visitor &) {
+
+}
+
+
 void ReturnTypeInfo::print(int level) {
   print_indent(level);
   std::cout << "Return TypeInfo \n";
+}
+
+void ReturnTypeInfo::accept(Visitor& v) {
+
 }
 
 SingleReturnType::SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id)
@@ -36,6 +45,10 @@ void SingleReturnType::print(const int level) {
   std::cout << "Single Return TypeInfo \n";
 }
 
+void SingleReturnType::accept(Visitor& v) {
+
+}
+
 MultipleReturnType::MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier> > ids)
   : ids_(std::move(ids)){
 
@@ -46,4 +59,7 @@ void MultipleReturnType::print(const int level) {
   std::cout << "Multiple Return TypeInfo \n";
 }
 
+void MultipleReturnType::accept(Visitor &) {
+
+}
 
