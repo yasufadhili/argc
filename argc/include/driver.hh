@@ -1,6 +1,6 @@
 #pragma once
 #include "config.hh"
-#include "../src/parser.hh"
+#include "parser.hh"
 #include "ast.hh"
 
 namespace driver {

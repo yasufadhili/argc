@@ -6,7 +6,7 @@ ROOT_DIR = $(shell pwd)
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)
+CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)/include -I$(SRC_DIR)
 
 # Installation prefix
 INSTALL_PREFIX ?= /usr/local
@@ -57,7 +57,7 @@ $(TARGET): $(OBJ_FILES)
 $(BISON_CC) $(BISON_HH): $(BISON_SRC)
 	@echo "Generating parser with Bison"
 	@$(BISON) -d -o $(BISON_CC) $<
-	#@$(BISON) -Wcounterexamples -d -o $(BISON_CC) $<
+#	@$(BISON) -Wcounterexamples -d -o $(BISON_CC) $<
 
 # Flex rules (depends on Bison output)
 $(FLEX_CC): $(FLEX_SRC) $(BISON_HH)

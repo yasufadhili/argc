@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 
-#include "include/ast.hh"
+#include "ast.hh"
 
 using namespace ast::stmt;
 

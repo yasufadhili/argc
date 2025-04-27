@@ -1,4 +1,4 @@
-#include "../include/config.hh"
+#include "config.hh"
 
 
 using namespace config;

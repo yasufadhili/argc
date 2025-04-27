@@ -6,8 +6,6 @@
 #include <fstream>
 #include <functional>
 #include <memory>
-#include <iostream>
-#include <iomanip>
 
 namespace logger {
   /**

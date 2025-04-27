@@ -1,6 +1,6 @@
 #include <utility>
 
-#include "include/ast.hh"
+#include "ast.hh"
 
 
 
@@ -20,7 +20,9 @@ void Program::print(const int level) {
 }
 
 void Program::accept(Visitor &v) {
-  
+  v.emit("  .section .data");
+  v.emit("  .global main");
+  v.emit("  .type main, @function");
 }
 
 

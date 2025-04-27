@@ -1,4 +1,4 @@
-#include "../include/analyser.hh"
+#include "analyser.hh"
 
 auto analyser::SemanticAnalyser::analyse(Node &node) -> bool {
   has_errors_ = false;

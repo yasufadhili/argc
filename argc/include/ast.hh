@@ -396,9 +396,14 @@ namespace ast {
 
 class Visitor {
   std::stringstream output_;
-  auto emit(std::string& code) -> void;
-  auto generate_label(int value) -> std::string;
+
 public:
+
+  auto emit(std::string code) -> void {
+    output_ << code << "\n";
+  }
+
+  auto generate_label(int value) -> std::string;
 
   auto get_output() -> std::stringstream& {
     return output_;

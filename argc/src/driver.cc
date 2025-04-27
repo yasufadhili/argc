@@ -2,12 +2,12 @@
 #include <filesystem>
 #include <iostream>
 
-#include "../include/driver.hh"
+#include "driver.hh"
 
 #include <fstream>
 
 #include "lexer.hh"
-#include "../include/stages.hh"
+#include "stages.hh"
 
 namespace fs = std::filesystem;
 using namespace driver;

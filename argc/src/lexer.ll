@@ -11,7 +11,7 @@
 #include <stack>
 
 #include "lexer.hh"
-#include "include/symbols.hh"
+#include "symbols.hh"
 
 using namespace yy;
 
@@ -64,8 +64,8 @@ COMMENT         \/\/[^\n]*
 "module"        {
     if (include_handler().is_module_declared()) {
         include_handler().report_error("Multiple module declarations in file");
-    } else if (loc_.begin.line > 1) {
-        include_handler().report_error("Module declaration must be the first statement in the file");
+    //} else if (loc_.begin.line > 1) {
+    //    include_handler().report_error("Module declaration must be the first statement in the file");
     }
     include_handler().set_module_declared(true);
     return yy::Parser::make_MODULE(loc_);

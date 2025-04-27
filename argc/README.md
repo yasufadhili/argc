@@ -45,7 +45,11 @@ To build the Argon Compiler, follow these steps:
    
    Use the provided `Makefile` to compile the `argc` binary:  
    ```bash
-   make
+   bear -- make
+   ```
+
+   ```bash
+   sudo bear -- make install
    ```
 
 3. **Run the Compiler**:  

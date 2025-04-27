@@ -5,11 +5,11 @@
 #include <string>
 #include <filesystem>
 
-#include "include/util_logger.hh"
+#include "util_logger.hh"
 #include "lexer.hh"
 #include "parser.hh"
-#include "include/ast.hh"
-#include "include/driver.hh"
+#include "ast.hh"
+#include "driver.hh"
 
 namespace fs = std::filesystem;
 
@@ -76,7 +76,9 @@ auto main(const int argc, char* argv[]) -> int {
       return 1;
     }
 
-    program->print(0);
+    if (config.verbose){
+      program->print(0);
+    }
 
     ast::Visitor visitor;
     visitor.visit(program);

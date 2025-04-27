@@ -1,5 +1,5 @@
 
-#include "../include/checker.hh"
+#include "checker.hh"
 
 using namespace checker;
 

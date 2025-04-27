@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/ast.hh"
+#include "ast.hh"
 
 using namespace ast;
 
