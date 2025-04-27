@@ -8,6 +8,9 @@ ROOT_DIR = $(shell pwd)
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)
 
+# Installation prefix
+INSTALL_PREFIX ?= /usr/local
+
 # Flex and Bison
 FLEX = flex
 BISON = bison
@@ -104,4 +107,15 @@ run: $(TARGET)
 	@$(TARGET)
 
 # Phony targets
-.PHONY: all clean distclean rebuild depend run
+.PHONY: all clean distclean rebuild depend run install uninstall
+
+# Install target
+install: $(TARGET)
+	@echo "Installing $(TARGET) to $(INSTALL_PREFIX)/bin"
+	@install -d $(INSTALL_PREFIX)/bin
+	@install -m 755 $(TARGET) $(INSTALL_PREFIX)/bin/argc
+
+# Uninstall target
+uninstall:
+	@echo "Removing $(INSTALL_PREFIX)/bin/argc"
+	@rm -f $(INSTALL_PREFIX)/bin/argc
