@@ -1,15 +1,15 @@
 
-# 🛠️ Argon Compiler (arc)
+# 🛠️ Argon Compiler (argc)
 
 Welcome to the **Argon Compiler**—the beating heart of the Argon programming language! ❤️ This is where your Argon code gets transformed into x86_64 assembly, ready to run on Linux systems. If you’re curious about how compilers work or want to tinker with Argon’s internals, you’re in the right place.
 
-## 🌟 What is `arc`?
+## 🌟 What is `argc`?
 
-`arc` is the official compiler for the Argon programming language. It takes your `.ar` source files, parses them, performs semantic analysis, and generates x86_64 assembly code. Think of it as the magical translator that turns your high-level ideas into low-level machine instructions. ✨
+`argc` is the official compiler for the Argon programming language. It takes your `.ar` source files, parses them, performs semantic analysis, and generates x86_64 assembly code. Think of it as the magical translator that turns your high-level ideas into low-level machine instructions. ✨
 
 ## 📂 What’s Inside?
 
-Here’s a quick overview of the `arc` directory:
+Here’s a quick overview of the `argc` directory:
 
 - **`src/`**: The source code for the compiler, written in C++ (with a sprinkle of C).  
   
@@ -17,11 +17,11 @@ Here’s a quick overview of the `arc` directory:
   
 - **`tests/`**: Unit tests and example programs to ensure the compiler works as expected.  
   
-- **`Makefile`**: Build instructions for compiling the `arc` binary.  
+- **`Makefile`**: Build instructions for compiling the `argc` binary.  
   
 - **`README.md`**: (You’re reading it!) Documentation for the Argon Compiler.  
 
-## 🚀 Features of `arc`
+## 🚀 Features of `argc`
 
 - 🛠️ **Modular Design**: Supports modular programming with Argon’s module system.  
   
@@ -38,21 +38,21 @@ To build the Argon Compiler, follow these steps:
    
    ```bash
    git clone https://github.com/yasufadhili/argon.git
-   cd argon/arc
+   cd argon/argc
    ```
 
 2. **Build the Compiler**:  
    
-   Use the provided `Makefile` to compile the `arc` binary:  
+   Use the provided `Makefile` to compile the `argc` binary:  
    ```bash
    make
    ```
 
 3. **Run the Compiler**:  
    
-   Once built, you can use the `arc` binary to compile Argon source files:  
+   Once built, you can use the `argc` binary to compile Argon source files:  
    ```bash
-   ./arc <source-file>
+   ./argc <source-file>
    ```
 
 ## 💡 Example Usage
@@ -70,7 +70,7 @@ def main() {
 
 ### Compile and Run
 ```bash
-./arc hello.ar
+./argc hello.ar
 nasm -f elf64 hello.asm -o hello.o
 ld hello.o -o hello
 ./hello
@@ -78,7 +78,7 @@ ld hello.o -o hello
 
 And voilà! Your Argon program is now running. 🎉
 
-## 🧩 How `arc` Works
+## 🧩 How `argc` Works
 
 Here’s a high-level overview of the compilation process:
 
@@ -89,19 +89,19 @@ Here’s a high-level overview of the compilation process:
 
 If you’re interested in the nitty-gritty details, check out the `src/` directory for the implementation of each stage.
 
-## 🧑‍💻 Contributing to `arc`
+## 🧑‍💻 Contributing to `argc`
 
 Want to improve the Argon Compiler? Awesome! Here’s how you can contribute:
 
 1. Fork the repository.  
    
-2. Make your changes in the `arc/` directory.  
+2. Make your changes in the `argc/` directory.  
 3. Write tests for your changes (please!).  
 4. Submit a pull request with a clear description of your updates.  
 
 ## 🌟 Future Plans
 
-Here are some features I’d love to add to `arc`:
+Here are some features I’d love to add to `argc`:
 
 - 🔄 **Better Optimisation**: Improve the generated assembly for faster execution.  
   
