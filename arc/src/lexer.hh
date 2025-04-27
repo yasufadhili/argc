@@ -1,6 +1,7 @@
 #pragma once
 
-#include "location.hh"
+#include "location.hh"  
+#include "include/include_handler.hh"
 #include <stack>
 #include <fstream>
 
@@ -12,27 +13,28 @@
 
 namespace yy {
 
-
 class Lexer : public yyFlexLexer {
-  std::stack<std::ifstream> files;
-  yy::location loc;
-  public:
+private:
+    IncludeHandler include_handler_;
+    yy::location loc_;
 
-      bool enter_file(std::string_view filename);
-      bool exit_file();
+public:
+    using yyFlexLexer::yyFlexLexer;
 
-      using yyFlexLexer::yyFlexLexer;
+    void initialize_location(yy::location::filename_type &f, yy::location::counter_type l = 1, yy::location::counter_type c = 1) {
+        loc_.initialize(&f, l, c);
+    }
 
-      void initialize_location(yy::location::filename_type &f, yy::location::counter_type l = 1, yy::location::counter_type c = 1)
-      {
-          loc.initialize(&f, l, c);
-      }
+    bool enter_file(const std::string& filename);
 
-  private:
-      void handle_inc_file();
+    bool exit_file();
 
-  public:
+    void handle_inc_file();
+
     yy::Parser::symbol_type lex();
+
+    const IncludeHandler& include_handler() const { return include_handler_; }
+    IncludeHandler& include_handler() { return include_handler_; }
 };
 
 }

@@ -69,6 +69,8 @@ namespace yy {
 
 %token MODULE "module"
 
+%token INCLUDE "include"
+
 %token REPEAT "repeat"
 %token MATCH "match"
 
@@ -186,8 +188,17 @@ module_definition_list
     $$ = std::vector<std::shared_ptr<ast::prog::Module>> { $1 };
   }
   | module_definition_list module_definition {
+    if (!$$.empty() && $$.back()->name() == $2->name()) {
+      for (const auto& func : $2->functions()) {
+        $$.back()->add_function(func);
+      }
+    } else {
+      $$ = $1;
+      $$.emplace_back($2);
+    }
+  }
+  | module_definition_list INCLUDE STRING SEMICOLON {
     $$ = $1;
-    $$.emplace_back($2);
   }
 ;
 

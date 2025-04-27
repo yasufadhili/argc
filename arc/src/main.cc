@@ -1,9 +1,9 @@
-
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 #include "include/util_logger.hh"
 #include "lexer.hh"
@@ -11,6 +11,7 @@
 #include "include/ast.hh"
 #include "include/driver.hh"
 
+namespace fs = std::filesystem;
 
 auto main(const int argc, char* argv[]) -> int {
 
@@ -47,13 +48,23 @@ auto main(const int argc, char* argv[]) -> int {
       return 1;
     }
 
-    std::fstream in(config.input_files.at(0));
+    // Convert input file to absolute path
+    fs::path input_path = fs::absolute(config.input_files.at(0));
+    std::ifstream in(input_path);
+    
     if (!in.is_open()) {
-      std::cerr << "Unable to open file '" << config.input_files.at(0) << "'" << std::endl;
+      std::cerr << "Unable to open file '" << input_path << "'" << std::endl;
       return 1;
     }
+
     yy::Lexer lexer{in, std::cerr};
     lexer.set_debug(false);
+
+    // Initialize the lexer with the first file
+    if (!lexer.enter_file(input_path.string())) {
+      std::cerr << "Failed to initialize lexer with input file" << std::endl;
+      return 1;
+    }
 
     std::shared_ptr<ast::prog::Program> program;
 

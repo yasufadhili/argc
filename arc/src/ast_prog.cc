@@ -4,7 +4,7 @@
 
 
 
-namespace ast::prog {
+using namespace ast::prog;
 
 
 Program::Program(std::vector<std::shared_ptr<Module>> modules) : modules_(std::move(modules)) {
@@ -16,10 +16,6 @@ void Program::print(const int level) {
   for (const auto& m : modules_) {
     m->print(level + 1);
   }
-
-}
-
-
 
 }
 
