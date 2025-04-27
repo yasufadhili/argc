@@ -120,7 +120,7 @@ class Symbol {
 public:
   Symbol(std::string  name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, int line = 0, int column = 0, std::string  filename = "");
 
-  auto const get_name() const -> std::string { return name_; }
+  auto get_name() const -> std::string { return name_; }
   auto get_kind() const -> SymbolKind { return kind_; }
   auto get_type() const -> std::shared_ptr<Type> { return type_; }
   auto get_access() const -> AccessModifier { return access_; }
@@ -137,7 +137,7 @@ public:
 
   // Function Specific
   auto add_param(const std::shared_ptr<Symbol>& new_param) -> void;
-  auto const get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
+  auto get_params() const -> const std::vector<std::shared_ptr<Symbol>> &;
 
   // Complex Type Methods
   auto set_members_symbols(const std::shared_ptr<SymbolTable> &new_members_symbols) -> void;
@@ -230,7 +230,7 @@ public:
   SemanticError(const std::string& message, int line = 0, int column = 0, const std::string& fileName = "")
         : std::runtime_error(message), line_(line), column_(column), filename_(fileName) {}
 
-  const auto get_filename () const -> std::string { return filename_; }
+  auto get_filename () const -> const std::string { return filename_; }
   auto get_line () const -> int { return line_; }
   auto get_column () const -> int { return column_; }
 
