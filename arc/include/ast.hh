@@ -377,10 +377,10 @@ namespace ast::prog {
   };
 
   class Program final : public Node {
-    std::vector<std::shared_ptr<func::Function> > functions_;
+    std::vector<std::shared_ptr<Module> > modules_;
 
   public:
-    explicit Program(std::vector<std::shared_ptr<func::Function>>);
+    explicit Program(std::vector<std::shared_ptr<Module>>);
     Program() = default;
     ~Program() override = default;
     void accept(Visitor&) override;

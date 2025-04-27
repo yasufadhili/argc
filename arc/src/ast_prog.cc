@@ -7,14 +7,14 @@
 namespace ast::prog {
 
 
-Program::Program(std::vector<std::shared_ptr<func::Function>> fns) : functions_(std::move(fns)) {
+Program::Program(std::vector<std::shared_ptr<Module>> modules) : modules_(std::move(modules)) {
 
 }
 
 void Program::print(const int level) {
   std::cout << "Program " << '\n';
-  for (const auto& fn : functions_) {
-    fn->print(level + 1);
+  for (const auto& m : modules_) {
+    m->print(level + 1);
   }
 
 }

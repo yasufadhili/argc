@@ -107,6 +107,10 @@ namespace yy {
 
 
 %type <std::shared_ptr<ast::prog::Program>> program;
+
+%type <std::vector<std::shared_ptr<ast::prog::Module>>> module_definition_list;
+%type <std::shared_ptr<ast::prog::Module>> module_definition;
+
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
 
@@ -170,15 +174,28 @@ namespace yy {
 
 
 program
-  : module_definition function_definition_list {
-    result = std::make_shared<ast::prog::Program>($2);
+  : module_definition_list {
+    result = std::make_shared<ast::prog::Program>($1);
     $$ = result;
   }
 ;
 
 
+module_definition_list
+  : module_definition {
+    $$ = std::vector<std::shared_ptr<ast::prog::Module>> { $1 };
+  }
+  | module_definition_list module_definition {
+    $$ = $1;
+    $$.emplace_back($2);
+  }
+;
+
+
 module_definition
-  : MODULE IDENT
+  : MODULE IDENT function_definition_list {
+    $$ = std::make_shared<ast::prog::Module>($2, $3);
+  }
 ;
 
 
