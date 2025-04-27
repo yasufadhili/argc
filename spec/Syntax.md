@@ -8,6 +8,8 @@
 5. [Functions](#functions)
 6. [Modules](#modules)
 7. [Memory Management](#memory-management)
+8. [Global Scope](#global-scope)
+9. [Assertions](#assertions)
 
 ## Lexical Elements
 
@@ -21,6 +23,7 @@ continue     for          import       return       var
 repeat       match        put          while        nil
 where        as           exit         enum         throws
 guard        super        is           in           rune
+global       assert
 ```
 
 ### Operators
@@ -311,6 +314,80 @@ var arr [3]i32
 arr[0] = 1  // Valid
 arr[3] = 4  // Runtime error
 ```
+
+## Global Scope
+
+### Global Variables
+
+1. **Declaration**
+   ```argon
+   // Single global variable
+   global var PI f64 = 3.14159
+
+   // Multiple global variables
+   global {
+       var MAX_SIZE i32 = 100
+       var MIN_SIZE i32 = 10
+   }
+   ```
+
+2. **Rules**
+   - Global variables must be explicitly marked with `global` keyword
+   - Global variables must be initialized
+   - Global variables can only be declared at module level
+   - Global variables are accessible throughout the module
+   - Global variables can be exported if their name starts with uppercase
+
+### Global Constants
+
+```argon
+// Global constant
+global const VERSION = "1.0.0"
+
+// Multiple global constants
+global {
+    const MAX_CONNECTIONS = 100
+    const TIMEOUT = 5000
+}
+```
+
+## Assertions
+
+### Assert Statement
+
+1. **Basic Assertion**
+   ```argon
+   assert x > 0
+   ```
+
+2. **Assertion with Message**
+   ```argon
+   assert x > 0, "x must be positive"
+   ```
+
+3. **Usage in Functions**
+   ```argon
+   def divide(a i32, b i32) i32 {
+       assert b != 0, "division by zero"
+       return a / b
+   }
+   ```
+
+### Assertion Rules
+
+1. **Compile-time Checks**
+   - Assertions are checked at compile time when possible
+   - Constant expressions are evaluated at compile time
+
+2. **Runtime Checks**
+   - Dynamic assertions are checked at runtime
+   - Failed assertions cause program termination
+   - Error messages are displayed on assertion failure
+
+3. **Usage Context**
+   - Can be used in any scope
+   - Can be used in function bodies
+   - Can be used in module initialization
 
 ## Notes on x86_64 Assembly Generation
 

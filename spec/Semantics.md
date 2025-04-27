@@ -10,6 +10,8 @@
 7. [Module System](#module-system)
 8. [Error Handling](#error-handling)
 9. [Concurrency Model](#concurrency-model)
+10. [Global Variables](#global-variables)
+11. [Assertions](#assertions)
 
 ## Type System
 
@@ -299,20 +301,210 @@ Argon's type system consists of several categories:
    - Null pointer dereference
    - Array bounds violation
    - Stack overflow
+   - Type assertion failure
+   - Assertion failure
+   - Invalid type conversion
+   - Invalid memory access
+   - System call failures
 
 2. **Recoverable Errors**
    ```argon
+   // Function that can throw errors
    def canThrow() throws str {
-       // Function that can throw errors
+       // Implementation
+   }
+
+   // Function with multiple error types
+   def complexOperation() throws (str, i32) {
+       // Implementation
    }
    ```
 
 ### Error Propagation
 
-1. **Error Handling**
+1. **Error Handling Syntax**
+   ```argon
+   // Basic error handling
+   def handleError() {
+       var result, err = canThrow()
+       if err != nil {
+           // Handle error
+       }
+   }
+
+   // Pattern matching for errors
+   def handleMultipleErrors() {
+       match complexOperation() {
+           case: (result, nil) {
+               // Success case
+           }
+           case: (nil, err) {
+               // Error case
+           }
+       }
+   }
+   ```
+
+2. **Error Propagation Rules**
    - Errors must be explicitly handled
-   - No automatic error propagation
-   - Error values must be checked
+   - Unhandled errors cause program termination
+   - Error values must be checked before use
+   - Error types must match exactly
+
+### Error Recovery
+
+1. **Defer Statements**
+   ```argon
+   def fileOperation() {
+       var file = openFile("data.txt")
+       defer file.close()  // Executed when function exits
+
+       // File operations
+       if error {
+           return  // File still gets closed
+       }
+   }
+   ```
+
+2. **Cleanup Patterns**
+   ```argon
+   def resourceHandler() {
+       var resource = acquireResource()
+       defer releaseResource(resource)
+
+       // Use resource
+       if error {
+           return  // Resource still gets released
+       }
+   }
+   ```
+
+### Error Context
+
+1. **Error Wrapping**
+   ```argon
+   def operation() throws str {
+       var result, err = subOperation()
+       if err != nil {
+           return "operation failed: " + err
+       }
+       return result
+   }
+   ```
+
+2. **Error Stack Traces**
+   - Stack traces are automatically generated
+   - Include file and line information
+   - Show error propagation path
+   - Include relevant context
+
+### Error Prevention
+
+1. **Type Safety**
+   ```argon
+   // Compile-time type checking
+   var x i32 = "string"  // Compile error
+
+   // Runtime type checking
+   var y any = 42
+   var z i32 = y.(i32)  // Runtime type assertion
+   ```
+
+2. **Bounds Checking**
+   ```argon
+   var arr [3]i32
+   arr[4] = 42  // Runtime bounds check error
+   ```
+
+3. **Null Safety**
+   ```argon
+   var ptr *i32
+   *ptr = 42  // Runtime null check error
+   ```
+
+### Error Reporting
+
+1. **Error Messages**
+   - Clear and descriptive
+   - Include relevant context
+   - Suggest possible fixes
+   - Follow consistent format
+
+2. **Error Logging**
+   ```argon
+   def logError(err str) {
+       // Log error to appropriate output
+       // Include timestamp
+       // Include severity level
+       // Include stack trace
+   }
+   ```
+
+### Error Handling Best Practices
+
+1. **Error Checking**
+   - Check errors immediately after operations
+   - Handle errors at the appropriate level
+   - Provide meaningful error messages
+   - Use appropriate error types
+
+2. **Resource Management**
+   - Use defer for cleanup
+   - Handle partial failures
+   - Clean up resources in error cases
+   - Maintain consistent state
+
+3. **Error Recovery**
+   - Implement retry logic where appropriate
+   - Provide fallback mechanisms
+   - Handle partial success cases
+   - Maintain data consistency
+
+### System-Level Error Handling
+
+1. **Signal Handling**
+   ```argon
+   // SIGSEGV: Memory access violations
+   // SIGILL: Illegal instructions
+   // SIGFPE: Floating-point exceptions
+   // SIGABRT: Program abort
+   ```
+
+2. **System Call Errors**
+   - File system errors
+   - Network errors
+   - Process errors
+   - Resource errors
+
+3. **Environment Errors**
+   - Memory allocation failures
+   - Stack overflow
+   - Resource exhaustion
+   - System call failures
+
+### Error Handling in Modules
+
+1. **Module-Level Errors**
+   ```argon
+   module network
+
+   // Module-level error type
+   type NetworkError enum {
+       TIMEOUT
+       CONNECTION_FAILED
+       PROTOCOL_ERROR
+   }
+
+   def connect() throws NetworkError {
+       // Implementation
+   }
+   ```
+
+2. **Error Visibility**
+   - Module-specific error types
+   - Error type exports
+   - Error handling utilities
+   - Error documentation
 
 ## Concurrency Model
 
@@ -331,6 +523,104 @@ Argon's type system consists of several categories:
 1. **Atomic Types**
    - Not supported in current version
    - Future versions may add atomic operations
+
+## Global Variables
+
+### Initialization Semantics
+
+1. **Initialization Order**
+   - Global variables are initialized before any function calls
+   - Initialization follows declaration order
+   - Circular dependencies between globals are detected at compile time
+
+2. **Initialization Rules**
+   ```argon
+   global var x i32 = 42        // Valid
+   global var y i32            // Invalid: must be initialized
+   
+   global {
+       var a = 10              // Type inferred
+       var b i32 = 20          // Explicit type
+   }
+   ```
+
+### Memory Semantics
+
+1. **Storage Duration**
+   - Global variables have static storage duration
+   - Memory is allocated at program startup
+   - Memory is deallocated at program termination
+
+2. **Thread Safety**
+   - Global variables are not thread-safe by default
+   - Access to global variables requires explicit synchronization
+   - Global constants are thread-safe
+
+3. **Visibility Rules**
+   - Global variables are module-scoped by default
+   - Exported globals (uppercase) are accessible from other modules
+   - Private globals (lowercase) are module-private
+
+## Assertions
+
+### Compile-time Semantics
+
+1. **Constant Folding**
+   ```argon
+   const x = 10
+   assert x > 0                // Evaluated at compile time
+   ```
+
+2. **Type Checking**
+   - Assertion condition must be boolean
+   - Assertion message must be string
+   - Compile-time assertions must be constant expressions
+
+### Runtime Semantics
+
+1. **Assertion Evaluation**
+   ```argon
+   var x = getUserInput()
+   assert x > 0, "Input must be positive"  // Evaluated at runtime
+   ```
+
+2. **Error Handling**
+   - Failed assertions terminate the program
+   - Error message is displayed to stderr
+   - Stack trace is included in error output
+
+3. **Performance Impact**
+   - Assertions are removed in release builds
+   - Runtime assertions have minimal overhead
+   - Compile-time assertions have no runtime cost
+
+### Assertion Contexts
+
+1. **Function Preconditions**
+   ```argon
+   def sqrt(x f64) f64 {
+       assert x >= 0, "Cannot take square root of negative number"
+       // Implementation
+   }
+   ```
+
+2. **Loop Invariants**
+   ```argon
+   var i = 0
+   while i < 10 {
+       assert i >= 0 && i < 10
+       // Loop body
+       i++
+   }
+   ```
+
+3. **Module Initialization**
+   ```argon
+   global {
+       const MAX_SIZE = 100
+       assert MAX_SIZE > 0
+   }
+   ```
 
 ## Notes on x86_64 Implementation
 
