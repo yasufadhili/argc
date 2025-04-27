@@ -10,12 +10,21 @@ void Statement::print(const int level) {
   std::cout << "Statement \n";
 }
 
+void Statement::accept(Visitor &) {
+
+}
+
+
 void Block::print(const int level) {
   Node::print_indent(level);
   std::cout << "Block Statement \n";
   for (const auto &stmt: statements) {
     if (stmt) stmt->print(level + 1);
   }
+}
+
+void Block::accept(Visitor& v) {
+
 }
 
 ExpressionStatement::ExpressionStatement(std::shared_ptr<expr::Expression> expr) : expression(std::move(expr)) {
@@ -25,6 +34,10 @@ void ExpressionStatement::print(const int level) {
   Node::print_indent(level);
   std::cout << "Expression Statement\n";
   expression->print(level + 1);
+}
+
+void ExpressionStatement::accept(Visitor& v) {
+
 }
 
 VariableDeclaration::VariableDeclaration(
@@ -46,6 +59,9 @@ void VariableDeclaration::print(const int level) {
   }
 }
 
+void VariableDeclaration::accept(Visitor &) {
+
+}
 
 Assignment::Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value)
   : target_(std::move(target_var)),
@@ -58,6 +74,9 @@ void Assignment::print(const int level) {
   value_->print(level + 1);
 }
 
+void Assignment::accept(Visitor& v) {
+
+}
 
 Return::Return(std::optional<std::shared_ptr<expr::Expression> > expr)
   : expression(std::move(expr))
@@ -71,6 +90,10 @@ void Return::print(const int level) {
   if (expression.has_value()) {
     expression.value()->print(level + 1);
   }
+}
+
+void Return::accept(Visitor& v) {
+
 }
 
 Repeat::Repeat(std::optional<std::shared_ptr<expr::Expression> > times) : times_(std::move(times)) {
@@ -88,7 +111,17 @@ void Repeat::print(const int level) {
   }
 }
 
+void Repeat::accept(Visitor &) {
+
+}
+
+
 void EmptyStatement::print(const int level) {
   Node::print_indent(level);
   std::cout << "Empty Statement\n";
 }
+
+void EmptyStatement::accept(Visitor &) {
+
+}
+
