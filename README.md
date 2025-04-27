@@ -27,8 +27,6 @@ This repository is divided into several subdirectories, each representing a key 
   
 - **[docs](docs/)**: Documentation for Argon, including the website.  
   
-- **[play](play/)**: The Argon Online Playground. A web-based editor to try Argon in your browser.  
-
 ## 📝 Why Argon Exists
 
 Argon was built for one reason: **to see if I could do it**. It’s a passion project, a learning tool, and a playground for experimentation. 
