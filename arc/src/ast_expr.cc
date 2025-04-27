@@ -40,7 +40,7 @@ void Unary::print(const int level) {
   operand->print(level + 1);
 }
 
-Constant::Constant(const_variant v, sym::TypeKind k) : value(std::move(v)), kind(k) {
+Constant::Constant(const_variant v, sym::Type::TypeKind k) : value(std::move(v)), kind(k) {
 }
 
 void Constant::print(const int level) {
@@ -61,7 +61,7 @@ void Constant::print(const int level) {
 Variable::Variable(const std::string &n) {
 }
 
-void Variable::print(const int level = 0) {
+void Variable::print(const int level) {
   print_indent(level);
   //std::cout << "Variable: " << identifier->get_name() << "\n";
   std::cout << "Variable: \n";
@@ -112,13 +112,13 @@ void Boolean::print(const int level) {
 
 
 Relational::Relational(const RelationalType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
-  : type(t), lhs(std::move(l)), rhs(std::move(r)) {
+  : type_(t), lhs_(std::move(l)), rhs_(std::move(r)) {
 }
 
 void Relational::print(const int level) {
   print_indent(level);
   std::string op;
-  switch (type) {
+  switch (type_) {
     case RelationalType::EQ:
       op = "==";
       break;
@@ -137,11 +137,40 @@ void Relational::print(const int level) {
     case RelationalType::LEQ:
       op = "<=";
       break;
+    case RelationalType::NONE:
+      op = "None";
+      break;
     default:
       op = "Unknown";
       break;
   }
   std::cout << "Relational Expression: " << op << '\n';
-  lhs->print(level + 1);
-  rhs->print(level + 1);
+  lhs_->print(level + 1);
+  if (rhs_) {
+    rhs_->print(level + 1);
+  }
+}
+
+
+Bitwise::Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right)
+  : op_(op), lhs_(std::move(left)), rhs_(std::move(right))
+{
+
+}
+
+void Bitwise::print(int level) {
+  print_indent(level);
+  std::cout << "Bitwise Expression \n";
+}
+
+
+Logical::Logical(LogicalOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+  : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {
+
+}
+
+
+void Logical::print(int level) {
+  print_indent(level);
+  std::cout << "Logical Expression \n";
 }

@@ -6,10 +6,10 @@ Welcome to the **Argon Language Specification** directory! This is where the mag
 
 This directory contains all the formal documentation and specifications for the Argon programming language. Here’s a quick overview of what you’ll find:
 
-- **`syntax.md`**: A detailed breakdown of Argon’s syntax, including keywords, operators, and grammar rules.  
+- **`Syntax.md`**: A detailed breakdown of Argon’s syntax, including keywords, operators, and grammar rules.  
 
-- **`semantics.md`**: The rules and behaviour of Argon’s constructs, including type systems, scoping, and memory management.  
-- **`modules.md`**: How Argon handles modularity, imports, and linking.  
+- **`Semantics.md`**: The rules and behaviour of Argon’s constructs, including type systems, scoping, and memory management.  
+- **`Modules.md`**: How Argon handles modularity, imports, and linking.  
 - **`examples/`**: A collection of annotated example programs to demonstrate various language features.  
 - **`roadmap.md`**: A wishlist of features and improvements for future versions of Argon (because dreaming is free).  
 
@@ -38,12 +38,5 @@ If you’re new to language specifications, here are some resources to help you 
 [The Dragon Book](): The classic textbook on compilers.
 
 [x86 Assembly Guide](): Learn the assembly language Argon compiles to.
-
-## 🧑‍💻 Contributing to the Spec
-I'm always looking to improve the Argon spec! If you’d like to contribute:
-
-- Fork the repository.
-- Make your changes.
-- Submit a pull request with a clear description of your updates.
 
 **Argon Spec: Because every toy language deserves a serious spec.**

@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "include/logger.hh"
+#include "include/util_logger.hh"
 #include "lexer.hh"
 #include "parser.hh"
 #include "include/ast.hh"

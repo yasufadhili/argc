@@ -68,6 +68,7 @@ namespace yy {
 %token RETURN "return"
 
 %token REPEAT "repeat"
+%token MATCH "match"
 
 %token TRUE "true"
 %token FALSE "false"
@@ -80,6 +81,9 @@ namespace yy {
 %token LEQ "<="
 %token NOT "!"
 
+%token BITWISE_AND
+%token BITWISE_OR
+
 %token <std::string> IDENT "identifier"
 %token <std::string> TYPE_IDENT "type identifier"
 %token <std::string> STRING "string"
@@ -87,12 +91,16 @@ namespace yy {
 
 
 
+// Operator precedence - from lowest to highest
 %precedence ASSIGN
+%left OR
+%left AND
 %left EQ NEQ
 %left GT LT GEQ LEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %right NOT
+%precedence UNARY_MINUS
 
 
 
@@ -100,10 +108,9 @@ namespace yy {
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
 
-%type <std::variant<std::shared_ptr<ast::ident::TypeIdentifier>,
-                   std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>>> function_returns;
-%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> function_returns_multiple_values;
-%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> function_returns_multiple_values_list;
+%type <std::shared_ptr<ast::func::ReturnTypeInfo>> function_return_type;
+%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> multiple_return_types;
+
 %type <std::vector<std::shared_ptr<ast::param::Parameter>>> parameter_list;
 %type <std::vector<std::shared_ptr<ast::param::Parameter>>> non_empty_parameter_list;
 %type <std::shared_ptr<ast::param::Parameter>> parameter;
@@ -112,33 +119,38 @@ namespace yy {
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
+%type <std::shared_ptr<ast::stmt::Statement>> declaration_statement;
+%type <std::shared_ptr<ast::stmt::Statement>> execution_statement;
+%type <std::shared_ptr<ast::stmt::Statement>> control_statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 
 %type <std::shared_ptr<ast::stmt::Repeat>> repeat_statement;
 
-%type <std::shared_ptr<ast::ident::Identifier>> identifier;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
-%type <std::shared_ptr<ast::stmt::Assignment>> assignment;
+%type <std::shared_ptr<ast::stmt::Assignment>> assignment_statement;
 %type <std::shared_ptr<sym::Type>> type_specifier;
 
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 
-%type <std::shared_ptr<ast::expr::boolean::Boolean>> boolean_expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
 
+%type <std::shared_ptr<ast::expr::Expression>> logical_expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
 %type <std::shared_ptr<ast::expr::rel::Relational>> relational_expression;
+%type <std::shared_ptr<ast::expr::Bitwise>> bitwise_expression;
 
 //%type <std::shared_ptr<sym::Type>> type_specifier;
 %type <std::shared_ptr<ast::expr::Variable>> variable;
 
+%type <std::shared_ptr<ast::ident::Identifier>> variable_identifier;
+
 %type <std::shared_ptr<ast::expr::Expression>> factor;
 %type <std::shared_ptr<ast::expr::Expression>> term;
+%type <std::shared_ptr<ast::expr::Expression>> primary;
 
-%type <std::shared_ptr<ast::expr::Constant>> number;
 %type <std::shared_ptr<ast::expr::Constant>> constant;
 %type <std::shared_ptr<ast::expr::Constant>> boolean_constant;
 
@@ -165,7 +177,7 @@ program
 
 function_definition_list
   : function_definition {
-    $$ = std::vector<std::shared_ptr<ast::func::Function>> { $1 } ;
+    $$ = std::vector<std::shared_ptr<ast::func::Function>> { $1 };
   }
   | function_definition_list function_definition {
     $$ = $1;
@@ -175,91 +187,47 @@ function_definition_list
 
 
 function_definition
-  : DEF identifier LPAREN RPAREN function_returns function_body {
-    if (std::holds_alternative<std::shared_ptr<ast::ident::TypeIdentifier>>($5)) {
-      $$ = std::make_shared<ast::func::Function>(
-        $2,
-        std::vector<std::shared_ptr<ast::param::Parameter>>{},
-        std::get<std::shared_ptr<ast::ident::TypeIdentifier>>($5),
-        $6
-      );
-    } else {
-      $$ = std::make_shared<ast::func::Function>(
-        $2,
-        std::vector<std::shared_ptr<ast::param::Parameter>>{},
-        std::get<std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>>($5),
-        $6
-      );
-    }
+  : DEF variable_identifier LPAREN RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, $5, $6);
   }
-  | DEF identifier LPAREN parameter_list RPAREN function_returns function_body {
-    if (std::holds_alternative<std::shared_ptr<ast::ident::TypeIdentifier>>($6)) {
-      $$ = std::make_shared<ast::func::Function>(
-        $2,
-        $4,
-        std::get<std::shared_ptr<ast::ident::TypeIdentifier>>($6),
-        $7
-      );
-    } else {
-      $$ = std::make_shared<ast::func::Function>(
-        $2,
-        $4,
-        std::get<std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>>($6),
-        $7
-      );
-    }
+  | DEF variable_identifier LPAREN parameter_list RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
   }
-  | DEF identifier function_body {
+  | DEF variable_identifier function_body {
     // No params, no return type
     $$ = std::make_shared<ast::func::Function>(
       $2,
       std::vector<std::shared_ptr<ast::param::Parameter>>{},
-      std::optional<std::variant<
-        std::shared_ptr<ast::ident::TypeIdentifier>,
-        std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>
-      >>{},
+      nullptr, // No return type
       $3
     );
   }
+  | DEF variable_identifier error function_body {
+    std::cerr << "Error: Invalid function parameter declaration" << std::endl;
+    // Recovery by assuming no parameters
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, nullptr, $4);
+  }
 ;
 
 
-function_returns
+function_return_type
   : type_identifier {
-    $$ = $1;
+    $$ = std::make_shared<ast::func::SingleReturnType>($1);
   }
-  | LPAREN type_identifier RPAREN {
-    $$ = $2;
-  }
-  | function_returns_multiple_values {
-    $$ = $1;
+  | LPAREN multiple_return_types RPAREN {
+    $$ = std::make_shared<ast::func::MultipleReturnType>($2);
   }
   | %empty {
-    // Default: no return type
-    $$ = std::variant<std::shared_ptr<ast::ident::TypeIdentifier>,
-          std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>>{};
+    $$ = nullptr; // No return type
   }
 ;
 
 
-function_returns_multiple_values
-  : LPAREN type_identifier COMMA type_identifier RPAREN {
-    $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $2, $4 };
-  }
-  | LPAREN type_identifier COMMA type_identifier COMMA type_identifier RPAREN {
-    $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $2, $4, $6 };
-  }
-  | LPAREN function_returns_multiple_values_list RPAREN {
-    $$ = $2;
-  }
-;
-
-
-function_returns_multiple_values_list
+multiple_return_types
   : type_identifier COMMA type_identifier {
     $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $1, $3 };
   }
-  | function_returns_multiple_values_list COMMA type_identifier {
+  | multiple_return_types COMMA type_identifier {
     $$ = $1;
     $$.push_back($3);
   }
@@ -288,7 +256,7 @@ non_empty_parameter_list
 
 
 parameter
-  : identifier type_identifier {
+  : variable_identifier type_identifier {
     $$ = std::make_shared<ast::param::Parameter>($1, $2);
   }
 ;
@@ -313,19 +281,48 @@ statement_list
 
 
 statement
+  : declaration_statement {
+    $$ = $1;
+  }
+  | execution_statement {
+    $$ = $1;
+  }
+  | control_statement {
+    $$ = $1;
+  }
+  | assignment_statement {
+    $$ = $1;
+  }
+  | error SEMICOLON {
+    std::cerr << "Error: Invalid statement syntax" << std::endl;
+    // Create a dummy statement for error recovery
+    $$ = std::make_shared<ast::stmt::EmptyStatement>();
+  }
+;
+
+
+declaration_statement
   : variable_declaration {
     $$ = $1;
   }
-  | expression {
+;
+
+
+execution_statement
+  : expression {
     $$ = std::make_shared<ast::stmt::ExpressionStatement>($1);
   }
-  | assignment {
-      $$ = $1;
+  | assignment_statement {
+    $$ = $1;
   }
   | block_statement {
     $$ = $1;
   }
-  | return_statement {
+;
+
+
+control_statement
+  : return_statement {
     $$ = $1;
   }
   | repeat_statement {
@@ -354,7 +351,7 @@ variable_declaration
 
 
 return_statement
-  : RETURN expression {
+  : RETURN arithmetic_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
   }
   | RETURN {
@@ -386,13 +383,12 @@ optional_initialiser
 
 type_specifier
   : TYPE_IDENT {
-      // Think validation should be done in semantic analysis
-      $$ = std::make_shared<sym::Type>(sym::TypeKind::PRIMITIVE, $1);
+    $$ = std::make_shared<sym::Type>(sym::Type::TypeKind::PRIMITIVE, $1);
   }
 ;
 
 
-assignment
+assignment_statement
   : IDENT ASSIGN expression {
     $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
   }
@@ -400,78 +396,78 @@ assignment
 
 
 expression
-  : arithmetic_expression {
+  : logical_expression {
     $$ = $1;
   }
-  | relational_expression {
-    $$ = $1;
-  }
-  | unary_expression {
-    $$ = $1;
-  }
-  | boolean_expression {
-    $$ = $1;
-  }
-  | variable {
-    $$ = $1;
-  }
-  | constant {
+  | bitwise_expression {
     $$ = $1;
   }
 ;
 
 
-boolean_expression
-  : TRUE {
-    $$ = std::make_shared<ast::expr::boolean::Boolean>(ast::expr::boolean::BooleanType::TRUE);
+logical_expression
+  : relational_expression {
+    $$ = $1;
   }
-  | FALSE {
-    $$ = std::make_shared<ast::expr::boolean::Boolean>( ast::expr::boolean::BooleanType::FALSE );
-  }
-;
-
-
-unary_expression
-  : NOT expression {
-    $$ = std::make_shared<ast::expr::Unary>(
-      ast::expr::Unary::UnaryOp::NOT, $2
+  | logical_expression AND relational_expression {
+    $$ = std::make_shared<ast::expr::Logical>(
+      ast::expr::LogicalOp::AND, $1, $3
     );
   }
-  | MINUS expression %prec NOT {
-    $$ = std::make_shared<ast::expr::Unary>(
-      ast::expr::Unary::UnaryOp::NEG, $2
+  | logical_expression OR relational_expression {
+    $$ = std::make_shared<ast::expr::Logical>(
+      ast::expr::LogicalOp::OR, $1, $3
+    );
+  }
+;
+
+
+bitwise_expression
+  : arithmetic_expression BITWISE_AND arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Bitwise>(
+      ast::expr::BitwiseOp::AND, $1, $3
+    );
+  }
+  | arithmetic_expression BITWISE_OR arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Bitwise>(
+      ast::expr::BitwiseOp::OR, $1, $3
     );
   }
 ;
 
 
 relational_expression
-  : expression EQ expression        {
+  : arithmetic_expression {
+    $$ = std::make_shared<ast::expr::rel::Relational>(
+      ast::expr::rel::RelationalType::NONE, $1, nullptr
+    );
+  }
+  | arithmetic_expression EQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::EQ, $1, $3
     );
   }
-  | expression NEQ expression        {
+  | arithmetic_expression NEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::NEQ, $1, $3
     );
   }
-  | expression GT expression        {
+  | arithmetic_expression GT arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::GT, $1, $3
     );
   }
-  | expression LT expression        {
+  | arithmetic_expression LT arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::LT, $1, $3
     );
   }
-  | expression LEQ expression {
+  | arithmetic_expression LEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::LEQ, $1, $3
     );
   }
-  | expression GEQ expression {
+  | arithmetic_expression GEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::rel::Relational>(
       ast::expr::rel::RelationalType::GEQ, $1, $3
     );
@@ -488,7 +484,7 @@ arithmetic_expression
       ast::expr::arith::ArithmeticType::ADD, $1, $3
     );
   }
-  | arithmetic_expression MINUS term  {
+  | arithmetic_expression MINUS term {
     $$ = std::make_shared<ast::expr::arith::Arithmetic>(
       ast::expr::arith::ArithmeticType::SUB, $1, $3
     );
@@ -500,17 +496,17 @@ term
   : factor {
     $$ = $1;
   }
-  | term TIMES factor   {
+  | term TIMES factor {
     $$ = std::make_shared<ast::expr::arith::Arithmetic>(
       ast::expr::arith::ArithmeticType::MUL, $1, $3
     );
   }
-  | term DIVIDE factor  {
+  | term DIVIDE factor {
     $$ = std::make_shared<ast::expr::arith::Arithmetic>(
       ast::expr::arith::ArithmeticType::DIV, $1, $3
     );
   }
-  | term MODULO factor  {
+  | term MODULO factor {
     $$ = std::make_shared<ast::expr::arith::Arithmetic>(
       ast::expr::arith::ArithmeticType::MOD, $1, $3
     );
@@ -519,21 +515,41 @@ term
 
 
 factor
-  : number {
+  : primary {
     $$ = $1;
   }
-  | LPAREN expression RPAREN {
+  | unary_expression {
+    $$ = $1;
+  }
+;
+
+
+primary
+  : constant  {
+    $$ = $1;
+  }
+  | variable {
+    $$ = $1;
+  }
+  | LPAREN arithmetic_expression RPAREN {
+    $$ = $2;
+  }
+  | LPAREN bitwise_expression RPAREN {
     $$ = $2;
   }
 ;
 
 
-number
-  : INTEGER {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+unary_expression
+  : NOT factor {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::expr::Unary::UnaryOp::NOT, $2
+    );
   }
-  | FLOAT {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+  | MINUS factor %prec UNARY_MINUS {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::expr::Unary::UnaryOp::NEG, $2
+    );
   }
 ;
 
@@ -547,16 +563,16 @@ variable
 
 constant
   : INTEGER {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | FLOAT {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | STRING {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | CHAR {
-    $$ = std::make_shared<ast::expr::Constant>($1, sym::TypeKind::PRIMITIVE);
+    $$ = std::make_shared<ast::expr::Constant>($1, sym::Type::TypeKind::PRIMITIVE);
   }
   | boolean_constant {
     $$ = $1;
@@ -566,15 +582,15 @@ constant
 
 boolean_constant
   : TRUE {
-    $$ = std::make_shared<ast::expr::Constant>(true, sym::TypeKind::BOOL);
+    $$ = std::make_shared<ast::expr::Constant>(true, sym::Type::TypeKind::PRIMITIVE);
   }
   | FALSE {
-    $$ = std::make_shared<ast::expr::Constant>(false, sym::TypeKind::BOOL);
+    $$ = std::make_shared<ast::expr::Constant>(false, sym::Type::TypeKind::PRIMITIVE);
   }
 ;
 
 
-identifier
+variable_identifier
   : IDENT {
     $$ = std::make_shared<ast::ident::Identifier>($1);
   }

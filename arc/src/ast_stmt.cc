@@ -91,3 +91,8 @@ void Repeat::print(const int level) {
     std::cout << "Infinite \n";
   }
 }
+
+void EmptyStatement::print(const int level) {
+  Node::print_indent(level);
+  std::cout << "Empty Statement\n";
+}
