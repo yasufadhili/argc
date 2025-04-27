@@ -13,3 +13,6 @@ void Parameter::print(const int level) {
   name_->print(level + 2);
 }
 
+void Parameter::accept(Visitor &) {
+
+}
