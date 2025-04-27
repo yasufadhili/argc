@@ -17,11 +17,9 @@ But let’s be honest: Argon is a toy language. It’s not here to compete with 
 
 This repository is divided into several subdirectories, each representing a key part of the Argon ecosystem:
 
-- **[arc](arc/)**: The Argon Compiler. The heart of the language.  
+- **[argc](argc/)**: The Argon Compiler. The heart of the language.  
   
 - **[arlib](arlib/)**: The Argon Standard Library. A collection of utilities (some better than others).  
-  
-- **[editors](editors/)**: Text editor/IDE support for Argon.  
   
 - **[spec](spec/)**: The Argon Language Specification. For those who love reading specs.  
   
@@ -62,8 +60,9 @@ Argon is a great way to dive into:
 Here are some resources to help you get started:
 
 - **[Argon Language Specification](spec/)**: Dive into the nitty-gritty details of the language.  
-- **[Argon Online Playground](play/)**: Try Argon in your browser.  
-- **[Compiler Construction Books](https://craftinginterpreters.com/)**: Learn how to build your own language.  
+
+- **[Compiler Construction Books](https://craftinginterpreters.com/)**: Learn how to build your own language. 
+
 - **[x86 Assembly Guide](https://cs.lmu.edu/~ray/notes/x86assembly/)**: Understand the assembly Argon compiles to.  
 
 ## 🛠️ Building and Running Argon
@@ -74,12 +73,20 @@ To build the Argon Compiler, clone this repository and follow these steps:
 # Clone the repository
 git clone https://github.com/yasufadhili/argon.git
 cd argon
+```
 
-# Build the compiler from ./arc
-make
+```bash
+# From the ./argc directory
+bear -- make
+```
 
-# Run the compiler
-./arc <source-file>
+```bash
+# From the ./argc directory
+bear -- make install
+```
+
+```bash
+argc <source.ar>
 ```
 
 ## 💡 Examples
@@ -100,10 +107,10 @@ def main() {
 Compile it with the Argon Compiler:
 
 ```bash
-./arc hello.ar
+argc hello.ar
 ```
 
-I know *.ar* is for archives, But hey, my language, my rules
+I know *.ar* is for argchives, But hey, my language, my rules
 
 ## 🧪 Contributing
 
