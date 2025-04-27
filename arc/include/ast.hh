@@ -111,9 +111,6 @@ namespace ast::expr {
     //Variable(std::string name, std::shared_ptr<sym::Type> type)
     //    : identifier(std::move(name)), var_type(std::move(type)) {}
     explicit Variable(const std::string&);
-    auto get_name() const -> std::string {
-      return identifier->name();
-    }
     void accept(Visitor&) override;
     void print(int) override;
   };
@@ -227,7 +224,6 @@ namespace ast::stmt {
     explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
       : statements(std::move(stmts)) {}
 
-    const auto& get_statements() const { return statements; }
     auto add_statement(std::shared_ptr<Statement> stmt) -> void {
       statements.push_back(std::move(stmt));
     }
@@ -249,8 +245,6 @@ namespace ast::stmt {
 
     void print(int level) override;
     void accept(Visitor&) override;
-    auto get_name() const -> std::string;
-    auto get_type() const -> std::shared_ptr<sym::Type>;
     //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
 
     //auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void;
@@ -309,8 +303,6 @@ namespace ast::param {
     ~Parameter() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
-    const std::shared_ptr<ident::Identifier>& name() const;
-    const std::shared_ptr<ident::TypeIdentifier>& type() const;
 
   private:
     std::shared_ptr<ident::Identifier> name_;
@@ -373,6 +365,17 @@ namespace ast::func {
 
 
 namespace ast::prog {
+
+  class Module final : public Node {
+    std::string name_;
+    std::vector<std::shared_ptr<func::Function> > functions_;
+  public:
+    Module(std::string name, std::vector<std::shared_ptr<func::Function>> functions);
+    ~Module() override = default;
+    void accept(Visitor&) override;
+    void print(int level) override;
+  };
+
   class Program final : public Node {
     std::vector<std::shared_ptr<func::Function> > functions_;
 

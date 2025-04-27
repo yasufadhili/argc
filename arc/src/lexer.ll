@@ -62,6 +62,10 @@ include[ \t]*[\"<]            {
                                   return yy::Parser::make_END(loc);
                                 }
 
+"module"          {
+                    return yy::Parser::make_MODULE(loc);
+                  }
+
 "true"          {
                   return yy::Parser::make_TRUE(loc);
                 }

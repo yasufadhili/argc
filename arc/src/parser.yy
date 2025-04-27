@@ -67,6 +67,8 @@ namespace yy {
 %token DEF  "function definition"
 %token RETURN "return"
 
+%token MODULE "module"
+
 %token REPEAT "repeat"
 %token MATCH "match"
 
@@ -168,10 +170,15 @@ namespace yy {
 
 
 program
-  : function_definition_list {
-    result = std::make_shared<ast::prog::Program>($1);
+  : module_definition function_definition_list {
+    result = std::make_shared<ast::prog::Program>($2);
     $$ = result;
   }
+;
+
+
+module_definition
+  : MODULE IDENT
 ;
 
 
