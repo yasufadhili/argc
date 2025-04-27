@@ -232,10 +232,10 @@ namespace ast::stmt {
   };
 
   class VariableDeclaration final : public Statement {
-    std::string name;
-    std::shared_ptr<sym::Type> type;
-    std::optional<std::shared_ptr<expr::Expression>> initialiser;
-    std::shared_ptr<sym::Symbol> symbol;
+    std::string name_;
+    std::shared_ptr<sym::Type> type_;
+    std::optional<std::shared_ptr<expr::Expression>> initialiser_;
+    std::shared_ptr<sym::Symbol> symbol_;
   public:
     VariableDeclaration(
       std::string name,
@@ -254,8 +254,8 @@ namespace ast::stmt {
 
   class Assignment final : public Statement {
     //std::shared_ptr<expr::Variable> target;
-    std::string target;
-    std::shared_ptr<expr::Expression> value;
+    std::string target_;
+    std::shared_ptr<expr::Expression> value_;
   public:
     Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
     ~Assignment() override = default;
