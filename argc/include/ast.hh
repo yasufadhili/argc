@@ -220,13 +220,13 @@ namespace ast::stmt {
   };
 
   class Block final : public Statement {
-    std::vector<std::shared_ptr<Statement>> statements;
+    std::vector<std::shared_ptr<Statement>> statements_;
   public:
     explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
-      : statements(std::move(stmts)) {}
+      : statements_(std::move(stmts)) {}
 
     auto add_statement(std::shared_ptr<Statement> stmt) -> void {
-      statements.push_back(std::move(stmt));
+      statements_.push_back(std::move(stmt));
     }
     void print(int level) override;
     void accept(Visitor&) override;
@@ -274,7 +274,7 @@ namespace ast::stmt {
   };
 
   class Return final : public Statement {
-    std::optional<std::shared_ptr<expr::Expression>> expression;
+    std::optional<std::shared_ptr<expr::Expression>> expression_;
   public:
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;

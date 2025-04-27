@@ -1,0 +1,9 @@
+module main
+
+def printHello {
+  return 20
+}
+
+def _start {
+
+}
