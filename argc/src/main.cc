@@ -81,6 +81,18 @@ auto main(const int argc, char* argv[]) -> int {
     ast::Visitor visitor;
     visitor.visit(program);
 
+    auto output = std::move(visitor.get_output());
+
+    fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
+    std::ofstream output_file { output_path.string() };
+    if (!output_file.is_open()) {
+      logger.log(logger::LogLevel::ERROR, "Failed to open output file");
+      return 1;
+    }
+
+    output_file << output.str();
+    output_file.close();
+
     return 0;
   } catch (const std::exception& e) {
     std::cerr << "Fatal error: " << e.what() << std::endl;

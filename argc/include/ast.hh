@@ -400,6 +400,10 @@ class Visitor {
   auto generate_label(int value) -> std::string;
 public:
 
+  auto get_output() -> std::stringstream& {
+    return output_;
+  }
+
   virtual ~Visitor() = default;
   virtual void visit (std::shared_ptr<prog::Program>& p) { p->accept(*this);}
   virtual void visit (std::shared_ptr<func::Function>& f) { f->accept(*this); }
