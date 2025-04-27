@@ -162,11 +162,13 @@
         </div>
         <div class="p-6 text-sm md:text-base">
           <div class="code-line"><span class="comment">// Define a simple function</span></div>
-          <div class="code-line"><span class="keyword">def</span> <span class="function">count_to</span>(<span class="number">n</span>) {</div>
-          <div class="code-line pl-8"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span>..<span class="number">n</span> {</div>
-          <div class="code-line pl-12"><span class="function">print</span>(<span class="string">"Count: "</span> + i)</div>
-          <div class="code-line pl-8">}</div>
-          <div class="code-line pl-8"><span class="keyword">return</span> <span class="string">"Done counting!"</span></div>
+          <div class="code-line"><span class="keyword">def</span> <span class="function">count_to</span>(n <span class="number">i32</span>) str {</div>
+          <div class="code-line pl-4"><span class="keyword">var</span> i <span class="number">i8</span> = 0</div>
+          <div class="code-line pl-4"><span class="keyword">for</span> i < 5 {</div>
+          <div class="code-line pl-8"><span class="function">print</span>(<span class="string">"Count: "</span> + <span class="function">str</span>(i))</div>
+          <div class="code-line pl-8">i++</div>
+          <div class="code-line pl-4">}</div>
+          <div class="code-line pl-4"><span class="keyword">return</span> <span class="string">"Done counting!"</span></div>
           <div class="code-line">}</div>
           <div class="code-line"></div>
           <div class="code-line"><span class="comment">// Try it out!</span></div>
@@ -212,9 +214,11 @@
             <h3 class="text-xl font-bold mb-4 text-blue-400">Fibonacci Sequence</h3>
             <div class="code-block">
               <div class="p-4 text-sm">
-                <div class="code-line"><span class="keyword">def</span> <span class="function">fibonacci</span>(<span class="number">n</span>) {</div>
-                <div class="code-line pl-4"><span class="keyword">if</span> n <= 1 <span class="keyword">return</span> n</div>
-                <div class="code-line pl-4"><span class="keyword">return</span> <span class="function">fibonacci</span>(n-1) + <span class="function">fibonacci</span>(n-2)</div>
+                <div class="code-line"><span class="keyword">def</span> <span class="function">fibonacci</span>(n i32) i32 {</div>
+                <div class="code-line pl-4"><span class="keyword">if</span> n <= <span class="number">1</span> {</div>
+                <div class="code-line pl-8"><span class="keyword">return</span> n</div>
+                <div class="code-line pl-4">}</div>
+                <div class="code-line pl-4"><span class="keyword">return</span> <span class="function">fibonacci</span>(n-<span class="number">1</span>) + <span class="function">fibonacci</span>(n-<span class="number">2</span>)</div>
                 <div class="code-line">}</div>
               </div>
             </div>
@@ -226,10 +230,12 @@
             <h3 class="text-xl font-bold mb-4 text-blue-400">String Manipulation</h3>
             <div class="code-block">
               <div class="p-4 text-sm">
-                <div class="code-line"><span class="keyword">def</span> <span class="function">reverse_string</span>(<span class="string">str</span>) {</div>
-                <div class="code-line pl-4"><span class="keyword">var</span> result = <span class="string">""</span></div>
-                <div class="code-line pl-4"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">len</span>(str)-1..0 {</div>
+                <div class="code-line"><span class="keyword">def</span> <span class="function">reverse_string</span>(str str) str {</div>
+                <div class="code-line pl-4"><span class="keyword">var</span> result str = <span class="string">""</span></div>
+                <div class="code-line pl-4"><span class="keyword">var</span> i i32 = <span class="function">len</span>(str)-<span class="number">1</span></div>
+                <div class="code-line pl-4"><span class="keyword">for</span> i >= <span class="number">0</span> {</div>
                 <div class="code-line pl-8">result += str[i]</div>
+                <div class="code-line pl-8">i--</div>
                 <div class="code-line pl-4">}</div>
                 <div class="code-line pl-4"><span class="keyword">return</span> result</div>
                 <div class="code-line">}</div>
@@ -243,12 +249,14 @@
             <h3 class="text-xl font-bold mb-4 text-blue-400">List Operations</h3>
             <div class="code-block">
               <div class="p-4 text-sm">
-                <div class="code-line"><span class="keyword">def</span> <span class="function">filter_even</span>(<span class="number">numbers</span>) {</div>
-                <div class="code-line pl-4"><span class="keyword">var</span> result = []</div>
-                <div class="code-line pl-4"><span class="keyword">for</span> n <span class="keyword">in</span> numbers {</div>
-                <div class="code-line pl-8"><span class="keyword">if</span> n % 2 == 0 {</div>
-                <div class="code-line pl-12">result.<span class="function">push</span>(n)</div>
+                <div class="code-line"><span class="keyword">def</span> <span class="function">filter_even</span>(numbers []i32) []i32 {</div>
+                <div class="code-line pl-4"><span class="keyword">var</span> result []i32 = []</div>
+                <div class="code-line pl-4"><span class="keyword">var</span> i i32 = <span class="number">0</span></div>
+                <div class="code-line pl-4"><span class="keyword">for</span> i < <span class="function">len</span>(numbers) {</div>
+                <div class="code-line pl-8"><span class="keyword">if</span> numbers[i] % <span class="number">2</span> == <span class="number">0</span> {</div>
+                <div class="code-line pl-12">result.<span class="function">push</span>(numbers[i])</div>
                 <div class="code-line pl-8">}</div>
+                <div class="code-line pl-8">i++</div>
                 <div class="code-line pl-4">}</div>
                 <div class="code-line pl-4"><span class="keyword">return</span> result</div>
                 <div class="code-line">}</div>
@@ -262,14 +270,23 @@
             <h3 class="text-xl font-bold mb-4 text-blue-400">Object Creation</h3>
             <div class="code-block">
               <div class="p-4 text-sm">
-                <div class="code-line"><span class="keyword">struct</span> <span class="function">Person</span> {</div>
-                <div class="code-line pl-4"><span class="keyword">def</span> <span class="function">init</span>(name, age) {</div>
-                <div class="code-line pl-8"><span class="keyword">this</span>.name = name</div>
-                <div class="code-line pl-8"><span class="keyword">this</span>.age = age</div>
+                <div class="code-line"><span class="keyword">type</span> <span class="function">Person</span> <span class="keyword">struct</span> {</div>
+                <div class="code-line pl-4">name str</div>
+                <div class="code-line pl-4">age i32</div>
+                <div class="code-line pl-4">isOnline bool</div>
+                <div class="code-line">}</div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="keyword">def</span> <span class="function">init_person</span>(name str, age i32) Person {</div>
+                <div class="code-line pl-4"><span class="keyword">var</span> p Person = {</div>
+                <div class="code-line pl-8">name: name,</div>
+                <div class="code-line pl-8">age: age,</div>
+                <div class="code-line pl-8">isOnline: false</div>
                 <div class="code-line pl-4">}</div>
-                <div class="code-line pl-4"><span class="keyword">def</span> <span class="function">greet</span>() {</div>
-                <div class="code-line pl-8"><span class="keyword">return</span> <span class="string">"Hello, "</span> + <span class="keyword">this</span>.name</div>
-                <div class="code-line pl-4">}</div>
+                <div class="code-line pl-4"><span class="keyword">return</span> p</div>
+                <div class="code-line">}</div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="keyword">def</span> <span class="function">greet</span>(p Person) str {</div>
+                <div class="code-line pl-4"><span class="keyword">return</span> <span class="string">"Hello, "</span> + p.name</div>
                 <div class="code-line">}</div>
               </div>
             </div>
