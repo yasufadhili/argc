@@ -1,3 +1,0 @@
-def main() i32
-
-def two() (i32, i64)
