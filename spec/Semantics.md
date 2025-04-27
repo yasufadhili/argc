@@ -484,27 +484,245 @@ Argon's type system consists of several categories:
 
 ### Error Handling in Modules
 
-1. **Module-Level Errors**
+1. **Module-Level Error Types**
    ```argon
    module network
 
-   // Module-level error type
+   // Base error type for the module
    type NetworkError enum {
        TIMEOUT
        CONNECTION_FAILED
        PROTOCOL_ERROR
+       INVALID_STATE
+       RESOURCE_EXHAUSTED
    }
 
-   def connect() throws NetworkError {
+   // Error with additional context
+   type ConnectionError struct {
+       code NetworkError
+       message str
+       details map[str]any
+   }
+
+   // Function that returns module-specific error
+   def connect(host str, port i32) throws ConnectionError {
        // Implementation
    }
    ```
 
-2. **Error Visibility**
-   - Module-specific error types
-   - Error type exports
-   - Error handling utilities
-   - Error documentation
+2. **Error Type Hierarchy**
+   ```argon
+   module database
+
+   // Base error type
+   type DBError enum {
+       CONNECTION_FAILED
+       QUERY_FAILED
+       TRANSACTION_FAILED
+   }
+
+   // Specific error types
+   type ConnectionError struct {
+       base DBError
+       host str
+       port i32
+   }
+
+   type QueryError struct {
+       base DBError
+       query str
+       params []any
+   }
+   ```
+
+3. **Error Visibility and Export**
+   ```argon
+   module http
+
+   // Exported error type (uppercase)
+   type HTTPError enum {
+       BAD_REQUEST
+       UNAUTHORIZED
+       FORBIDDEN
+       NOT_FOUND
+   }
+
+   // Private error type (lowercase)
+   type connectionError struct {
+       code i32
+       message str
+   }
+   ```
+
+4. **Module Error Handlers**
+   ```argon
+   module file_system
+
+   // Error handler interface
+   type ErrorHandler interface {
+       handle(error) bool
+   }
+
+   // Default error handler
+   type DefaultHandler struct {
+       logFile str
+   }
+
+   def (h DefaultHandler) handle(err error) bool {
+       // Log error to file
+       // Return true if error was handled
+   }
+   ```
+
+5. **Module Error Recovery**
+   ```argon
+   module transaction
+
+   // Transaction error recovery
+   def executeWithRecovery(tx Transaction) throws TransactionError {
+       defer {
+           if error {
+               tx.rollback()
+           }
+       }
+       
+       // Transaction operations
+   }
+   ```
+
+6. **Module Error Context**
+   ```argon
+   module api
+
+   // Error with context
+   type APIError struct {
+       code i32
+       message str
+       context map[str]any
+       stackTrace []str
+   }
+
+   def newAPIError(code i32, message str) APIError {
+       return APIError{
+           code: code,
+           message: message,
+           context: make(map[str]any),
+           stackTrace: getStackTrace()
+       }
+   }
+   ```
+
+7. **Module Error Utilities**
+   ```argon
+   module error_utils
+
+   // Error wrapping
+   def wrapError(err error, context str) error {
+       return Error{
+           cause: err,
+           context: context,
+           timestamp: time.now()
+       }
+   }
+
+   // Error classification
+   def isRecoverable(err error) bool {
+       match err {
+           case: NetworkError {
+               return true
+           }
+           case: DBError {
+               return false
+           }
+       }
+   }
+   ```
+
+8. **Module Error Documentation**
+   ```argon
+   module documentation
+
+   // Error documentation
+   type ErrorDoc struct {
+       code i32
+       description str
+       possibleCauses []str
+       suggestedFixes []str
+   }
+
+   // Generate error documentation
+   def documentError(err error) ErrorDoc {
+       // Implementation
+   }
+   ```
+
+9. **Module Error Testing**
+   ```argon
+   module error_test
+
+   // Error test cases
+   def testErrorHandling() {
+       // Test error creation
+       var err = newError("test")
+       assert err != nil
+
+       // Test error wrapping
+       var wrapped = wrapError(err, "context")
+       assert wrapped.context == "context"
+
+       // Test error recovery
+       var recovered = recoverFromError(err)
+       assert recovered == true
+   }
+   ```
+
+10. **Module Error Metrics**
+    ```argon
+    module metrics
+
+    // Error metrics collection
+    type ErrorMetrics struct {
+        count i32
+        types map[str]i32
+        recoveryRate f64
+    }
+
+    def collectErrorMetrics() ErrorMetrics {
+       // Implementation
+    }
+    ```
+
+### Module Error Handling Best Practices
+
+1. **Error Type Design**
+   - Use enums for simple error codes
+   - Use structs for errors with additional context
+   - Implement error interfaces for flexibility
+   - Provide clear error messages
+
+2. **Error Handling Patterns**
+   - Use defer for cleanup
+   - Implement error recovery strategies
+   - Provide error context
+   - Log errors appropriately
+
+3. **Error Documentation**
+   - Document all error types
+   - Provide usage examples
+   - Include recovery strategies
+   - Document error codes
+
+4. **Error Testing**
+   - Test error creation
+   - Test error handling
+   - Test error recovery
+   - Test error propagation
+
+5. **Error Monitoring**
+   - Collect error metrics
+   - Monitor error rates
+   - Track error patterns
+   - Implement alerts
 
 ## Concurrency Model
 
