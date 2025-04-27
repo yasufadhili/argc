@@ -6,6 +6,7 @@
 #include <string>
 #include <filesystem>
 
+#include "config.hh"
 #include "util_logger.hh"
 #include "lexer.hh"
 #include "parser.hh"
@@ -103,13 +104,13 @@ auto main(const int argc, char* argv[]) -> int {
     assemble_cmd << "as -o ";
     assemble_cmd << obj_path << " " << output_path;
 
-    std::stringstream link_cmd;
-    link_cmd << "ld -o " << config.output_file << " " << obj_path;
-
     // Not Safe, Could use posix_spawn or a wrapper library
     if (std::system(assemble_cmd.str().c_str()) != 0) {
         throw std::runtime_error("Assembly failed.");
     }
+
+    std::stringstream link_cmd;
+    link_cmd << "ld -o " << config.output_file << " " << obj_path;
 
     if (std::system(link_cmd.str().c_str()) != 0) {
         throw std::runtime_error("Linking failed.");
