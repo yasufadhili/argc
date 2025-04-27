@@ -9,7 +9,9 @@ Module::Module(std::string name, std::vector<std::shared_ptr<func::Function>> fu
 
 
 void Module::accept(Visitor& v) {
-
+  for (auto const& f : functions_) {
+    f->accept(v);
+  }
 }
 
 void Module::print(const int level) {

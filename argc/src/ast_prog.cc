@@ -23,6 +23,9 @@ void Program::accept(Visitor &v) {
   v.emit("  .section .data");
   v.emit("  .global main");
   v.emit("  .type main, @function");
+  for (auto const& m : modules_) {
+    m->accept(v);
+  }
 }
 
 

@@ -93,7 +93,7 @@ void Return::print(const int level) {
 }
 
 void Return::accept(Visitor& v) {
-
+  v.emit("ret");
 }
 
 Repeat::Repeat(std::optional<std::shared_ptr<expr::Expression> > times) : times_(std::move(times)) {

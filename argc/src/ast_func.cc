@@ -20,8 +20,8 @@ void Function::print(const int level) {
 
 }
 
-void Function::accept(Visitor &) {
-
+void Function::accept(Visitor &v) {
+  v.emit("  ret");
 }
 
 
