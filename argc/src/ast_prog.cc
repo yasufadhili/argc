@@ -2,8 +2,6 @@
 
 #include "ast.hh"
 
-
-
 using namespace ast::prog;
 
 
@@ -20,9 +18,9 @@ void Program::print(const int level) {
 }
 
 void Program::accept(Visitor &v) {
-  v.emit("  .section .data");
-  v.emit("  .global main");
-  v.emit("  .type main, @function");
+  v.emit("  .section .text");
+  v.emit("  .global _start");
+  v.emit("  .type _start, @function");
   for (auto const& m : modules_) {
     m->accept(v);
   }

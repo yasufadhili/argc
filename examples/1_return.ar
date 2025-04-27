@@ -2,7 +2,7 @@
 module main
 
 
-def main {
+def _start {
 
 }
 
