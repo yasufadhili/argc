@@ -12,8 +12,9 @@ void Module::accept(Visitor& v) {
 
 }
 
-void Module::print(int level) {
-  std::cout << std::string(level * 2, ' ') << "Module: " << name_ << std::endl;
+void Module::print(const int level) {
+  print_indent(level);
+  std::cout << "Module: " << name_ << std::endl;
   for (const auto& func : functions_) {
     func->print(level + 1);
   }

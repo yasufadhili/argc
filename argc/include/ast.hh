@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <optional>
+#include <sstream>
 
 #include "symbols.hh"
 
@@ -394,33 +395,36 @@ namespace ast::prog {
 namespace ast {
 
 class Visitor {
+  std::stringstream output_;
+  auto emit(std::string& code) -> void;
+  auto generate_label(int value) -> std::string;
 public:
 
   virtual ~Visitor() = default;
-  virtual void visit (prog::Program& p) { p.accept(*this);}
-  virtual void visit (func::Function& f) { f.accept(*this); }
-  virtual void visit (func::ReturnTypeInfo& rti) { rti.accept(*this); }
-  virtual void visit (func::SingleReturnType& rti) { rti.accept(*this); }
-  virtual void visit (func::MultipleReturnType& rti) { rti.accept(*this); }
-  virtual void visit (param::Parameter& p) { p.accept(*this); }
-  virtual void visit (stmt::Statement& s) { s.accept(*this); }
-  virtual void visit (stmt::Block& b) { b.accept(*this); }
-  virtual void visit (stmt::ExpressionStatement& s) { s.accept(*this); }
-  virtual void visit (stmt::Assignment& a) { a.accept(*this); }
-  virtual void visit (stmt::Repeat& r) { r.accept(*this); }
-  virtual void visit (stmt::Return& r) { r.accept(*this); }
-  virtual void visit (stmt::VariableDeclaration& vd) { vd.accept(*this); }
-  virtual void visit (stmt::EmptyStatement& es) { es.accept(*this); }
-  virtual void visit (expr::Expression& e) { e.accept(*this); }
-  virtual void visit (expr::arith::Arithmetic& e) { e.accept(*this); }
-  virtual void visit (expr::rel::Relational& e) { e.accept(*this); }
-  virtual void visit (expr::Variable& e) { e.accept(*this); }
-  virtual void visit (expr::Unary& e) { e.accept(*this); }
-  virtual void visit (expr::Logical& e) { e.accept(*this); }
-  virtual void visit (expr::Binary& e) { e.accept(*this); }
-  virtual void visit (expr::Constant& e) { e.accept(*this); }
-  virtual void visit (expr::Bitwise& e) { e.accept(*this); }
-  virtual void visit (expr::boolean::Boolean& e) { e.accept(*this); }
+  virtual void visit (std::shared_ptr<prog::Program>& p) { p->accept(*this);}
+  virtual void visit (std::shared_ptr<func::Function>& f) { f->accept(*this); }
+  virtual void visit (std::shared_ptr<func::ReturnTypeInfo>& rti) { rti->accept(*this); }
+  virtual void visit (std::shared_ptr<func::SingleReturnType>& rti) { rti->accept(*this); }
+  virtual void visit (std::shared_ptr<func::MultipleReturnType>& rti) { rti->accept(*this); }
+  virtual void visit (std::shared_ptr<param::Parameter>& p) { p->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::Statement>& s) { s->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::Block>& b) { b->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::ExpressionStatement>& s) { s->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::Assignment>& a) { a->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::Repeat>& r) { r->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::Return>& r) { r->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::VariableDeclaration>& vd) { vd->accept(*this); }
+  virtual void visit (std::shared_ptr<stmt::EmptyStatement>& es) { es->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Expression>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::arith::Arithmetic>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::rel::Relational>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Variable>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Unary>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Logical>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Binary>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Constant>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::Bitwise>& e) { e->accept(*this); }
+  virtual void visit (std::shared_ptr<expr::boolean::Boolean>& e) { e->accept(*this); }
 
 };
 

@@ -60,9 +60,9 @@ auto main(const int argc, char* argv[]) -> int {
     yy::Lexer lexer{in, std::cerr};
     lexer.set_debug(false);
 
-    // Initialize the lexer with the first file
+    // Initialise the lexer with the first file
     if (!lexer.enter_file(input_path.string())) {
-      std::cerr << "Failed to initialize lexer with input file" << std::endl;
+      std::cerr << "Failed to initialise lexer with input file" << std::endl;
       return 1;
     }
 
@@ -77,6 +77,9 @@ auto main(const int argc, char* argv[]) -> int {
     }
 
     program->print(0);
+
+    ast::Visitor visitor;
+    visitor.visit(program);
 
     return 0;
   } catch (const std::exception& e) {

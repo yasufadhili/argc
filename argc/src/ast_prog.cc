@@ -19,4 +19,8 @@ void Program::print(const int level) {
 
 }
 
+void Program::accept(Visitor &v) {
+  
+}
+
 
