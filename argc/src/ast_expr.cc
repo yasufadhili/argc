@@ -14,6 +14,11 @@ void Expression::print(const int level) {
   std::cout << "Expression\n";
 }
 
+void Expression::accept(Visitor &) {
+
+}
+
+
 void Binary::print(const int level) {
   print_indent(level);
   std::cout << "Binary\n";
@@ -40,6 +45,10 @@ void Unary::print(const int level) {
   operand->print(level + 1);
 }
 
+void Unary::accept(Visitor& v) {
+
+}
+
 Constant::Constant(const_variant v, sym::Type::TypeKind k) : value(std::move(v)), kind(k) {
 }
 
@@ -58,6 +67,10 @@ void Constant::print(const int level) {
   }
 }
 
+void Constant::accept(Visitor&v) {
+
+}
+
 Variable::Variable(const std::string &n) {
 }
 
@@ -65,6 +78,10 @@ void Variable::print(const int level) {
   print_indent(level);
   //std::cout << "Variable: " << identifier->get_name() << "\n";
   std::cout << "Variable: \n";
+}
+
+void Variable::accept(Visitor &v) {
+
 }
 
 
@@ -101,6 +118,10 @@ void Arithmetic::print(const int level) {
   rhs->print(level + 1);
 }
 
+void Arithmetic::accept(Visitor&v) {
+
+}
+
 
 Boolean::Boolean(const BooleanType t) : type(t) {
 }
@@ -109,6 +130,11 @@ void Boolean::print(const int level) {
   print_indent(level);
   std::cout << "Boolean\n";
 }
+
+void Boolean::accept(Visitor &) {
+
+}
+
 
 
 Relational::Relational(const RelationalType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
@@ -151,6 +177,10 @@ void Relational::print(const int level) {
   }
 }
 
+void Relational::accept(Visitor&v) {
+
+}
+
 
 Bitwise::Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right)
   : op_(op), lhs_(std::move(left)), rhs_(std::move(right))
@@ -161,6 +191,10 @@ Bitwise::Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr
 void Bitwise::print(int level) {
   print_indent(level);
   std::cout << "Bitwise Expression \n";
+}
+
+void Bitwise::accept(Visitor&v) {
+
 }
 
 
@@ -174,3 +208,8 @@ void Logical::print(int level) {
   print_indent(level);
   std::cout << "Logical Expression \n";
 }
+
+void Logical::accept(Visitor &v) {
+
+}
+

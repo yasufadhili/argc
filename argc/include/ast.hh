@@ -72,7 +72,7 @@ namespace ast::expr {
   class Binary : public Expression {
   public:
     ~Binary() override = default;
-    void accept(Visitor&) override;
+    void accept(Visitor&) override = 0;
     void print(int level) override;
   };
 
