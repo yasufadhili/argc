@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <optional>
-#include <sstream>
+#include <sstream> 
 
 #include "symbols.hh"
 
@@ -69,6 +69,7 @@ namespace ast::expr {
     ~Expression() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    virtual int evaluate();
   };
 
   class Binary : public Expression {
@@ -76,6 +77,7 @@ namespace ast::expr {
     ~Binary() override = default;
     void accept(Visitor&) override = 0;
     void print(int level) override;
+    int evaluate() override;
   };
 
   class Unary final : public Expression {
@@ -92,19 +94,21 @@ namespace ast::expr {
     ~Unary() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
   class Constant final : public Expression {
     using  const_variant = std::variant<
       int, double, bool, std::string, char
     >;
-    const_variant value;
-    sym::Type::TypeKind kind;
+    const_variant value_;
+    sym::Type::TypeKind kind_;
   public:
     explicit Constant(const_variant , sym::Type::TypeKind);
     ~Constant() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    int evaluate() override;
   };
 
   class Variable final : public Expression {
@@ -131,6 +135,7 @@ namespace ast::expr {
     ~Bitwise() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    auto evaluate() -> int;
   };
 
   enum struct LogicalOp {
@@ -146,6 +151,7 @@ namespace ast::expr {
     ~Logical() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -165,7 +171,7 @@ namespace ast::expr::arith {
     ~Arithmetic() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
-    auto evaluate() -> std::shared_ptr<Expression>;
+    int evaluate() override;
   };
 
 }
@@ -183,6 +189,7 @@ namespace ast::expr::boolean {
     ~Boolean() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -202,7 +209,7 @@ namespace ast::expr::rel {
     ~Relational() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
-    auto evaluate() -> bool;
+    int evaluate() override;
   };
 
 }
