@@ -9,7 +9,16 @@ Module::Module(std::string name, std::vector<std::shared_ptr<func::Function>> fu
 
 
 void Module::accept(Visitor& v) {
-
+  if (name_ == "main") {
+    v.emit("_start:");
+    v.emit("  call main");
+    v.emit("  mov $60, %rax"); 
+    v.emit("  xor %rdi, %rdi");
+    v.emit("  syscall");
+  }
+  for (auto const& f : functions_) {
+    f->accept(v);
+  }
 }
 
 void Module::print(const int level) {

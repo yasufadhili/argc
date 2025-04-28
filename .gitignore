@@ -53,3 +53,6 @@ location.hh
 *.log
 
 compile_commands.json
+
+*.out
+*.o

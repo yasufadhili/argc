@@ -1,12 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
 #include <iostream>
 #include <optional>
-#include <sstream>
+#include <sstream> 
 
 #include "symbols.hh"
 
@@ -64,9 +65,11 @@ namespace ast::expr {
 
   class Expression : public Node {
   public:
+    Expression() = default;
     ~Expression() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    virtual int evaluate();
   };
 
   class Binary : public Expression {
@@ -74,6 +77,7 @@ namespace ast::expr {
     ~Binary() override = default;
     void accept(Visitor&) override = 0;
     void print(int level) override;
+    int evaluate() override;
   };
 
   class Unary final : public Expression {
@@ -90,19 +94,21 @@ namespace ast::expr {
     ~Unary() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
   class Constant final : public Expression {
     using  const_variant = std::variant<
       int, double, bool, std::string, char
     >;
-    const_variant value;
-    sym::Type::TypeKind kind;
+    const_variant value_;
+    sym::Type::TypeKind kind_;
   public:
     explicit Constant(const_variant , sym::Type::TypeKind);
     ~Constant() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    int evaluate() override;
   };
 
   class Variable final : public Expression {
@@ -129,6 +135,7 @@ namespace ast::expr {
     ~Bitwise() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    auto evaluate() -> int;
   };
 
   enum struct LogicalOp {
@@ -144,6 +151,7 @@ namespace ast::expr {
     ~Logical() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -155,14 +163,15 @@ namespace ast::expr::arith {
   };
 
   class Arithmetic final : public Binary {
-    ArithmeticType type;
-    std::shared_ptr<Expression> lhs;
-    std::shared_ptr<Expression> rhs;
+    ArithmeticType type_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
   public:
     Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Arithmetic() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -180,6 +189,7 @@ namespace ast::expr::boolean {
     ~Boolean() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -199,6 +209,7 @@ namespace ast::expr::rel {
     ~Relational() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    int evaluate() override;
   };
 
 }
@@ -220,13 +231,13 @@ namespace ast::stmt {
   };
 
   class Block final : public Statement {
-    std::vector<std::shared_ptr<Statement>> statements;
+    std::vector<std::shared_ptr<Statement>> statements_;
   public:
     explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
-      : statements(std::move(stmts)) {}
+      : statements_(std::move(stmts)) {}
 
     auto add_statement(std::shared_ptr<Statement> stmt) -> void {
-      statements.push_back(std::move(stmt));
+      statements_.push_back(std::move(stmt));
     }
     void print(int level) override;
     void accept(Visitor&) override;
@@ -274,7 +285,7 @@ namespace ast::stmt {
   };
 
   class Return final : public Statement {
-    std::optional<std::shared_ptr<expr::Expression>> expression;
+    std::optional<std::shared_ptr<expr::Expression>> expression_;
   public:
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;

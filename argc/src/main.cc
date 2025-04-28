@@ -2,9 +2,11 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <filesystem>
 
+#include "config.hh"
 #include "util_logger.hh"
 #include "lexer.hh"
 #include "parser.hh"
@@ -95,7 +97,27 @@ auto main(const int argc, char* argv[]) -> int {
     output_file << output.str();
     output_file.close();
 
+    fs::path obj_path = fs::absolute(config.input_files.at(0)).replace_extension(".o");
+    
+    // Poorly implmented just for testing
+    std::stringstream assemble_cmd;
+    assemble_cmd << "as -o ";
+    assemble_cmd << obj_path << " " << output_path;
+
+    // Not Safe, Could use posix_spawn or a wrapper library
+    if (std::system(assemble_cmd.str().c_str()) != 0) {
+        throw std::runtime_error("Assembly failed.");
+    }
+
+    std::stringstream link_cmd;
+    link_cmd << "ld -o " << config.output_file << " " << obj_path;
+
+    if (std::system(link_cmd.str().c_str()) != 0) {
+        throw std::runtime_error("Linking failed.");
+    }
+
     return 0;
+
   } catch (const std::exception& e) {
     std::cerr << "Fatal error: " << e.what() << std::endl;
     return 1;

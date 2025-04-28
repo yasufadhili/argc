@@ -20,8 +20,16 @@ void Function::print(const int level) {
 
 }
 
-void Function::accept(Visitor &) {
-
+void Function::accept(Visitor &v) {
+  v.emit(name_->name() + ":");
+  //v.emit("  pushq %rbp");
+  //v.emit("  pushq %rbp");
+  //v.emit("  movq %rsp, %rbp");
+  body_->accept(v);
+  //v.emit("  xor %rdi, %rdi");
+  //v.emit("  movq %rbp, %rsp");
+  //v.emit("  popq %rbp");
+  //v.emit("  ret");
 }
 
 

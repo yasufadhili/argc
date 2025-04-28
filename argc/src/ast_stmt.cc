@@ -1,6 +1,8 @@
 #include <iostream>
+#include <memory>
+#include <string>
 #include <utility>
-
+ 
 #include "ast.hh"
 
 using namespace ast::stmt;
@@ -10,21 +12,22 @@ void Statement::print(const int level) {
   std::cout << "Statement \n";
 }
 
-void Statement::accept(Visitor &) {
-
+void Statement::accept(Visitor &v) {
 }
 
 
 void Block::print(const int level) {
   Node::print_indent(level);
   std::cout << "Block Statement \n";
-  for (const auto &stmt: statements) {
+  for (const auto &stmt: statements_) {
     if (stmt) stmt->print(level + 1);
   }
 }
 
 void Block::accept(Visitor& v) {
-
+  for (const auto& s: statements_) {
+    s->accept(v);
+  }
 }
 
 ExpressionStatement::ExpressionStatement(std::shared_ptr<expr::Expression> expr) : expression(std::move(expr)) {
@@ -79,7 +82,7 @@ void Assignment::accept(Visitor& v) {
 }
 
 Return::Return(std::optional<std::shared_ptr<expr::Expression> > expr)
-  : expression(std::move(expr))
+  : expression_(std::move(expr))
 {
 
 }
@@ -87,13 +90,17 @@ Return::Return(std::optional<std::shared_ptr<expr::Expression> > expr)
 void Return::print(const int level) {
   print_indent(level);
   std::cout << "Return Statement\n";
-  if (expression.has_value()) {
-    expression.value()->print(level + 1);
+  if (expression_.has_value()) {
+    expression_.value()->print(level + 1);
   }
 }
 
 void Return::accept(Visitor& v) {
-
+  if (!expression_.has_value()) {
+    v.emit("  ret");
+  }
+  v.emit("  mov $" + std::to_string( expression_.value()->evaluate()) + ", %rax");
+  v.emit("  ret");
 }
 
 Repeat::Repeat(std::optional<std::shared_ptr<expr::Expression> > times) : times_(std::move(times)) {

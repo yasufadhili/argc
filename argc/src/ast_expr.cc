@@ -1,5 +1,6 @@
 #include <iostream>
 #include <utility>
+#include <variant>
 
 #include "ast.hh"
 
@@ -18,10 +19,18 @@ void Expression::accept(Visitor &) {
 
 }
 
+int Expression::evaluate() {
+
+}
+
 
 void Binary::print(const int level) {
   print_indent(level);
   std::cout << "Binary\n";
+}
+
+int Binary::evaluate() {
+
 }
 
 Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand) : op(op), operand(std::move(operand)) {
@@ -49,26 +58,37 @@ void Unary::accept(Visitor& v) {
 
 }
 
-Constant::Constant(const_variant v, sym::Type::TypeKind k) : value(std::move(v)), kind(k) {
+int Unary::evaluate() {
+
+}
+
+Constant::Constant(const_variant v, sym::Type::TypeKind k) : value_(std::move(v)), kind_(k) {
 }
 
 void Constant::print(const int level) {
   print_indent(level);
   std::cout << "Constant: ";
 
-  if (std::holds_alternative<int>(value)) {
-    std::cout << std::get<int>(value) << " -> int" << '\n';
-  } else if (std::holds_alternative<double>(value)) {
-    std::cout << std::get<double>(value) << " -> double" << '\n';
-  } else if (std::holds_alternative<std::string>(value)) {
-    std::cout << std::get<std::string>(value) << " -> str" << '\n';
-  } else if (std::holds_alternative<char>(value)) {
-    std::cout << std::get<char>(value) << " -> char" << '\n';
+  if (std::holds_alternative<int>(value_)) {
+    std::cout << std::get<int>(value_) << " -> int" << '\n';
+  } else if (std::holds_alternative<double>(value_)) {
+    std::cout << std::get<double>(value_) << " -> double" << '\n';
+  } else if (std::holds_alternative<std::string>(value_)) {
+    std::cout << std::get<std::string>(value_) << " -> str" << '\n';
+  } else if (std::holds_alternative<char>(value_)) {
+    std::cout << std::get<char>(value_) << " -> char" << '\n';
   }
 }
 
 void Constant::accept(Visitor&v) {
 
+}
+
+auto Constant::evaluate() -> int {
+  if (std::holds_alternative<int>(value_)) {
+    return std::get<int>(value_);
+  }
+  return 0;
 }
 
 Variable::Variable(const std::string &n) {
@@ -86,14 +106,14 @@ void Variable::accept(Visitor &v) {
 
 
 Arithmetic::Arithmetic(const ArithmeticType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
-  : type(t), lhs(std::move(l)), rhs(std::move(r)) {
+  : type_(t), lhs_(std::move(l)), rhs_(std::move(r)) {
 }
 
 
 void Arithmetic::print(const int level) {
   print_indent(level);
   char op;
-  switch (type) {
+  switch (type_) {
     case ArithmeticType::ADD:
       op = '+';
       break;
@@ -114,12 +134,30 @@ void Arithmetic::print(const int level) {
       break;
   }
   std::cout << "Arithmetic Expression: " << op << '\n';
-  lhs->print(level + 1);
-  rhs->print(level + 1);
+  lhs_->print(level + 1);
+  rhs_->print(level + 1);
 }
 
 void Arithmetic::accept(Visitor&v) {
+  
+}
 
+int Arithmetic::evaluate() {
+  switch (type_) {
+    case ArithmeticType::ADD:
+      return lhs_->evaluate() + rhs_->evaluate();
+    case ArithmeticType::SUB:
+      return lhs_->evaluate() - rhs_->evaluate();
+    case ArithmeticType::MUL:
+      return lhs_->evaluate() * rhs_->evaluate();
+    case ArithmeticType::DIV:
+      return lhs_->evaluate() / rhs_->evaluate();
+    case ArithmeticType::MOD:
+      return lhs_->evaluate() % rhs_->evaluate();
+    default:
+      return 0;
+  }
+  return 0;
 }
 
 
@@ -135,7 +173,9 @@ void Boolean::accept(Visitor &) {
 
 }
 
+int Boolean::evaluate() {
 
+}
 
 Relational::Relational(const RelationalType t, std::shared_ptr<Expression> l, std::shared_ptr<Expression> r)
   : type_(t), lhs_(std::move(l)), rhs_(std::move(r)) {
@@ -178,7 +218,31 @@ void Relational::print(const int level) {
 }
 
 void Relational::accept(Visitor&v) {
+  v.emit("");
+}
 
+int Relational::evaluate() {
+  if (type_ == RelationalType::NONE) {
+    return true;
+  }
+  switch (type_) {
+    case RelationalType::EQ:
+      return lhs_->evaluate() == rhs_->evaluate();
+    case RelationalType::NEQ:
+      return lhs_->evaluate() != rhs_->evaluate();
+    case RelationalType::LT:
+      return lhs_->evaluate() < rhs_->evaluate();
+    case RelationalType::GT:
+      return lhs_->evaluate() > rhs_->evaluate();
+    case RelationalType::GEQ:
+      return lhs_->evaluate() >= rhs_->evaluate();
+    case RelationalType::LEQ:
+      return lhs_->evaluate() <= rhs_->evaluate();
+    case RelationalType::NONE:
+      return 1;
+    default:
+      return 0;
+  }
 }
 
 
@@ -194,6 +258,10 @@ void Bitwise::print(int level) {
 }
 
 void Bitwise::accept(Visitor&v) {
+
+}
+
+int Bitwise::evaluate() {
 
 }
 
@@ -213,3 +281,6 @@ void Logical::accept(Visitor &v) {
 
 }
 
+int Logical::evaluate() {
+
+}
