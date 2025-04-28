@@ -64,6 +64,11 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::Statement>& s) {
+  // Base statement doesn't do anything special
+  // Specific statement types have their own implementations
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::Return>& r) {
   if (!current_function_return_type) {
     std::string err = "Return statement outside of function";
