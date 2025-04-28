@@ -278,12 +278,13 @@ namespace ast::stmt {
   };
 
   class ExpressionStatement final : public Statement {
-    std::shared_ptr<expr::Expression> expression;
+    std::shared_ptr<expr::Expression> expression_;
   public:
     explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
     ~ExpressionStatement() override = default;
     void accept(Visitor&) override;
     void print(int) override;
+    auto expression() -> std::shared_ptr<expr::Expression>& { return expression_; }
   };
 
   class Return final : public Statement {
@@ -304,6 +305,8 @@ namespace ast::stmt {
     ~Repeat() override = default;
     void accept(Visitor&) override;
     void print(int) override;
+    auto times() -> std::optional<std::shared_ptr<expr::Expression>>& { return times_; }
+    auto body() -> std::shared_ptr<Block>& { return body_; }
   };
 
 }
