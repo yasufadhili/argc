@@ -64,6 +64,43 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::Assignment>& a) {
+  std::string target_name = a->target();
+  
+  // Look up target variable
+  auto target_symbol = symbol_table_->lookup_symbol(target_name);
+  if (!target_symbol) {
+    std::string err = "Undefined variable: " + target_name;
+    report_error(err, *a);
+    return;
+  }
+  
+  // Check if target is a variable
+  if (target_symbol->get_kind() != sym::SymbolKind::VAR &&
+    target_symbol->get_kind() != sym::SymbolKind::PARAM) {
+    std::string err = target_name + " is not a variable";
+    report_error(err, *a);
+    return;
+  }
+  
+  // Analyse the value expression
+  auto value_expr = a->value();
+  visit(value_expr);
+  
+  // Check type compatibility
+  auto target_type = target_symbol->get_type();
+  auto value_type = value_expr->type();
+  
+  if (!checker::check_assignment_compatibility(target_type, value_type)) {
+    std::string err = "Cannot assign value of type " + value_type->get_name() +
+                      " to variable " + target_name + " of type " + target_type->get_name();
+    report_error(err, *a);
+  }
+  
+  // Mark the target as used
+  target_symbol->set_used(true);
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::ExpressionStatement>& s) {
   // Just visit the expression
   visit(s->expression());
