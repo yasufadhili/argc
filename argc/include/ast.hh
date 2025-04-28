@@ -115,14 +115,16 @@ namespace ast::expr {
   };
 
   class Variable final : public Expression {
-    std::shared_ptr<ident::Identifier> identifier;
-    std::shared_ptr<sym::Type> type;
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::shared_ptr<sym::Type> type_;
   public:
     //Variable(std::string name, std::shared_ptr<sym::Type> type)
     //    : identifier(std::move(name)), var_type(std::move(type)) {}
     explicit Variable(const std::string&);
     void accept(Visitor&) override;
     void print(int) override;
+    auto identifier() -> std::shared_ptr<ident::Identifier>& { return identifier_; }
+    auto type() -> std::shared_ptr<sym::Type>& { return type_; }
   };
 
   enum struct BitwiseOp {
