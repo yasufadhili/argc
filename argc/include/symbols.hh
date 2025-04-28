@@ -4,11 +4,9 @@
 #include <vector>
 #include <string>
 #include <utility>
-#include <iostream>
 #include <unordered_map>
 
 namespace sym {
-
 
 class SymbolTable;
 
