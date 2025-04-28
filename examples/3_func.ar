@@ -1,0 +1,11 @@
+module main
+
+def main {
+
+  var x i32 = 45 * 4
+  vay y i32 =
+ kll
+
+  ret 0
+
+}

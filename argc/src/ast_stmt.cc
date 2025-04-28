@@ -1,7 +1,8 @@
 #include <iostream>
 #include <memory>
+#include <string>
 #include <utility>
-
+ 
 #include "ast.hh"
 
 using namespace ast::stmt;
@@ -96,9 +97,10 @@ void Return::print(const int level) {
 
 void Return::accept(Visitor& v) {
   if (!expression_.has_value()) {
-    v.emit("ret");
+    v.emit("  ret");
   }
-  
+  v.emit("  mov $" + std::to_string( expression_.value()->evaluate()) + ", %rax");
+  v.emit("  ret");
 }
 
 Repeat::Repeat(std::optional<std::shared_ptr<expr::Expression> > times) : times_(std::move(times)) {
