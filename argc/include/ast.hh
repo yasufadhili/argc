@@ -400,6 +400,7 @@ namespace ast::prog {
     ~Program() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    auto modules() -> std::vector<std::shared_ptr<Module>> { return modules_; }
   };
 }
 
