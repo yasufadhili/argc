@@ -63,6 +63,29 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Bitwise>& e) {
+  // Visit operands
+  visit(e->lhs());
+  visit(e->rhs());
+  
+  auto lhs_type = e->lhs()->type();
+  auto rhs_type = e->rhs()->type();
+  
+  // Bitwise operations require integral types
+  if (!lhs_type->is_integral_type()) {
+    std::string err = "Left operand of bitwise operator must be an integral type";
+    report_error(err, *e);
+  }
+  
+  if (!rhs_type->is_integral_type()) {
+    std::string err = "Right operand of bitwise operator must be an integral type";
+    report_error(err, *e);
+  }
+  
+  // Result type is typically the "larger" of the two types
+  e->set_type(sym::Type::get_common_type(*lhs_type, *rhs_type));
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::boolean::Boolean>& e) {
   // Boolean literals always have boolean type
   e->set_type(sym::Type::create_bool_type());
