@@ -38,9 +38,17 @@ void SemanticAnalyser::visit(std::shared_ptr<prog::Module>& m) {
 
 void SemanticAnalyser::visit(std::shared_ptr<func::Function>& f) {
   std::string fn_name { f->name()->name() };
-  auto fn_symbol { symbol_table_->lookup_symbol(f->name()->name()) };
-  if (fn_symbol->get_is_defined() && f->body()!=nullptr) {
-    LOG_ERROR(fn_name + " is already defined");
+  auto fn_symbol { symbol_table_->lookup_symbol(fn_name) };
+  
+  if (!fn_symbol) {
+    std::string err = "Function " + fn_name + " not found in symbol table";
+    report_error(err, *f);
+    return;
+  }
+  
+  if (fn_symbol->get_is_defined() && f->body() != nullptr) {
+    std::string err = fn_name + " is already defined";
+    report_error(err, *f);
     return;
   }
 
@@ -48,14 +56,25 @@ void SemanticAnalyser::visit(std::shared_ptr<func::Function>& f) {
     fn_symbol->set_defined(true);
   }
 
+  // Save the current function return type
+  current_function_return_type = fn_symbol->get_type();
+
   // Enter function scope for params and body
   symbol_table_->enter_scope(fn_name);
 
-  //f->body()->accept(*this);
-  visit(f->body());
+  // Add parameters to symbol table
+  for (const auto& param : fn_symbol->get_params()) {
+    symbol_table_->add_symbol(param);
+  }
+
+  if (f->body() != nullptr) {
+    visit(f->body());
+  }
 
   symbol_table_->exit_scope();
-
+  
+  // Reset the current function return type
+  current_function_return_type = nullptr;
 }
 
 void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {

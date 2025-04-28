@@ -378,7 +378,11 @@ namespace ast::func {
   };
 
 
-  class Function final : Node {
+  class Function final : public Node {
+    std::shared_ptr<ident::Identifier> name_;
+    std::vector<std::shared_ptr<param::Parameter>> params_;
+    std::shared_ptr<ReturnTypeInfo> return_type_;
+    std::shared_ptr<stmt::Block> body_;
   public:
     Function(
       const std::shared_ptr<ident::Identifier> &name,
@@ -391,12 +395,6 @@ namespace ast::func {
     void accept(Visitor&) override;
     auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
     auto body() -> std::shared_ptr<stmt::Block>& { return body_; }
-
-  private:
-    std::shared_ptr<ident::Identifier> name_;
-    std::vector<std::shared_ptr<param::Parameter>> params_;
-    std::shared_ptr<ReturnTypeInfo> return_type_;
-    std::shared_ptr<stmt::Block> body_;
   };
 
 
