@@ -64,12 +64,15 @@ namespace ast::ident {
 namespace ast::expr {
 
   class Expression : public Node {
+    std::shared_ptr<sym::Type> type_;
   public:
     Expression() = default;
     ~Expression() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
     virtual int evaluate();
+    auto type() const -> std::shared_ptr<sym::Type> { return type_; }
+    auto set_type(std::shared_ptr<sym::Type> type) -> void { type_ = std::move(type); }
   };
 
   class Binary : public Expression {
