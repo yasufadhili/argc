@@ -64,6 +64,45 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::VariableDeclaration>& vd) {
+  std::string var_name = vd->name();
+  
+  if (symbol_table_->is_declared_in_current_scope(var_name)) {
+    std::string err = "Variable " + var_name + " already declared in this scope";
+    report_error(err, *vd);
+    return;
+  }
+  
+  // Get type
+  auto var_type = vd->type();
+  
+  if (vd->initialiser()) {
+    auto init_expr = vd->initialiser().value();
+    visit(init_expr);
+    
+    auto init_type = init_expr->type();
+    
+    // Check type compatibility
+    if (!checker::check_assignment_compatibility(var_type, init_type)) {
+      std::string err = "Cannot initialise variable " + var_name + 
+                        " of type " + var_type->get_name() + 
+                        " with expression of type " + init_type->get_name();
+      report_error(err, *vd);
+    }
+  }
+  
+  // Create and add symbol
+  auto symbol = std::make_shared<sym::Symbol>(
+    var_name,
+    sym::SymbolKind::VAR,
+    var_type,
+    true  // is defined
+  );
+  
+  symbol_table_->add_symbol(symbol);
+  vd->set_symbol(symbol);
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::Assignment>& a) {
   std::string target_name = a->target();
   
