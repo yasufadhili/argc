@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "analyser.hh"
 #include "config.hh"
 #include "util_logger.hh"
 #include "lexer.hh"
@@ -183,6 +184,17 @@ auto main(const int argc, char* argv[]) -> int {
 
     if (config.verbose){
       program->print(0);
+    }
+
+    analyser::SemanticAnalyser analyser;
+    analyser.visit(program);
+
+    bool s { analyser.analyse(*program) };
+    
+    if (s) {
+      logger.log(logger::LogLevel::INFO, "Success analyse");
+    } else {
+      logger.log(logger::LogLevel::ERROR, "Failed analyse");
     }
 
     ast::Visitor visitor;
