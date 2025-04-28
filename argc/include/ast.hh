@@ -418,6 +418,7 @@ public:
 
   virtual ~Visitor() = default;
   virtual void visit (std::shared_ptr<prog::Program>& p) { p->accept(*this);}
+  virtual void visit (std::shared_ptr<prog::Module>& m) { m->accept(*this);}
   virtual void visit (std::shared_ptr<func::Function>& f) { f->accept(*this); }
   virtual void visit (std::shared_ptr<func::ReturnTypeInfo>& rti) { rti->accept(*this); }
   virtual void visit (std::shared_ptr<func::SingleReturnType>& rti) { rti->accept(*this); }

@@ -26,7 +26,7 @@ public:
   auto analyse(Node& node) -> bool;
 private:
   auto report_error(std::string& message, const Node& node) -> void { /** TODO */ };
-  auto report_warning(std::string& message, const Node& node) -> void { /** TODO  */};
+  auto report_warning(std::string& message, const Node& node) -> void { /** TODO */};
 public:
   void visit(std::shared_ptr<prog::Program>&) override = 0;
   void visit(std::shared_ptr<prog::Module>&) override = 0;
