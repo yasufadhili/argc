@@ -260,7 +260,7 @@ namespace ast::stmt {
     }
     void print(int level) override;
     void accept(Visitor&) override;
-    auto statements() const -> const std::vector<std::shared_ptr<Statement>>& { return statements_; }
+    auto statements() -> std::vector<std::shared_ptr<Statement>>& { return statements_; }
   };
 
   class VariableDeclaration final : public Statement {
