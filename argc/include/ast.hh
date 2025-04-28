@@ -364,6 +364,8 @@ namespace ast::func {
     ~Function() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto body() const -> std::shared_ptr<stmt::Block> { return body_; }
 
   private:
     std::shared_ptr<ident::Identifier> name_;
