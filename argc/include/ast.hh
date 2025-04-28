@@ -216,6 +216,9 @@ namespace ast::expr::rel {
     void print(int level) override;
     void accept(Visitor&) override;
     int evaluate() override;
+    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
+    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
+    auto type() -> RelationalType { return type_; }
   };
 
 }
