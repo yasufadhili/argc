@@ -175,6 +175,9 @@ namespace ast::expr::arith {
     void print(int level) override;
     void accept(Visitor&) override;
     int evaluate() override;
+    auto lhs() const -> std::shared_ptr<Expression> { return lhs_; }
+    auto rhs() const -> std::shared_ptr<Expression> { return rhs_; }
+    auto type() const -> ArithmeticType { return type_; }
   };
 
 }
