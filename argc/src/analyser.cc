@@ -31,6 +31,12 @@ void SemanticAnalyser::visit(std::shared_ptr<prog::Program>& p) {
 
 void SemanticAnalyser::visit(std::shared_ptr<prog::Module>& m) {
   auto module_sym = symbol_table_->lookup_symbol(m->name());
+  if (!module_sym) {
+    std::string err = "Module " + m->name() + " not found in symbol table";
+    report_error(err, *m);
+    return;
+  }
+  
   for (auto& fn : m->functions()) {
     visit(fn);
   }
