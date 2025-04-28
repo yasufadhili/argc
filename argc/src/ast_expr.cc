@@ -33,14 +33,14 @@ int Binary::evaluate() {
 
 }
 
-Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand) : op(op), operand(std::move(operand)) {
+Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand) : op_(op), operand_(std::move(operand)) {
 }
 
 
 void Unary::print(const int level) {
   print_indent(level);
   std::string op_str;
-  switch (op) {
+  switch (op_) {
     case UnaryOp::NOT:
       op_str = "!";
       break;
@@ -51,7 +51,7 @@ void Unary::print(const int level) {
       op_str =  "";
   }
   std::cout << "Unary " << op_str << "\n";
-  operand->print(level + 1);
+  operand_->print(level + 1);
 }
 
 void Unary::accept(Visitor& v) {
