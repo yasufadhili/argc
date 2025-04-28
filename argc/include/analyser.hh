@@ -1,6 +1,7 @@
 #pragma once
 #include "ast.hh"
 #include "symbols.hh"
+#include "util_logger.hh"
 #include <memory>
 
 using namespace ast;
@@ -31,6 +32,8 @@ public:
   void visit(std::shared_ptr<prog::Program>&) override = 0;
   void visit(std::shared_ptr<prog::Module>&) override = 0;
   void visit(std::shared_ptr<func::Function>&) override = 0;
+  void visit(std::shared_ptr<stmt::Statement>&) override = 0;
+  void visit(std::shared_ptr<stmt::Block>&) override = 0;
   void visit(std::shared_ptr<stmt::Return>&) override = 0;
   
 };
