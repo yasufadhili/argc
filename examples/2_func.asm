@@ -5,15 +5,6 @@ _start:
   mov $60, %rax
   xor %rdi, %rdi
   syscall
-some_return:
-  pushq %rbp
-  movq %rsp, %rbp
-  movq %rbp, %rsp
-  popq %rbp
-  ret
 main:
-  pushq %rbp
-  movq %rsp, %rbp
-  movq %rbp, %rsp
-  popq %rbp
+  mov $100, %rax
   ret
