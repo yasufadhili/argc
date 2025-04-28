@@ -63,6 +63,33 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Logical>& e) {
+  visit(e->lhs());
+  visit(e->rhs());
+  
+  // Both operands should be implicitly convertible to boolean
+  auto lhs_type = e->lhs()->type();
+  auto rhs_type = e->rhs()->type();
+  
+  bool lhs_valid = lhs_type->get_kind() == sym::Type::TypeKind::PRIMITIVE && 
+                  lhs_type->get_name() == "bool";
+  bool rhs_valid = rhs_type->get_kind() == sym::Type::TypeKind::PRIMITIVE && 
+                  rhs_type->get_name() == "bool";
+                  
+  if (!lhs_valid) {
+    std::string err = "Left operand of logical operator must be boolean";
+    report_error(err, *e);
+  }
+  
+  if (!rhs_valid) {
+    std::string err = "Right operand of logical operator must be boolean";
+    report_error(err, *e);
+  }
+  
+  // Result type is boolean
+  e->set_type(sym::Type::create_bool_type());
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::Constant>& e) {
   // Constants already have their type set during parsing
   // Nothing to do here for analysis
