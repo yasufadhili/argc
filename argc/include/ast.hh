@@ -143,6 +143,9 @@ namespace ast::expr {
     void print(int level) override;
     void accept(Visitor&) override;
     auto evaluate() -> int;
+    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
+    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
+    auto op() const -> BitwiseOp { return op_; }
   };
 
   enum struct LogicalOp {
