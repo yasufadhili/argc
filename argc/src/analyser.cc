@@ -63,6 +63,32 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Variable>& e) {
+  // Look up the variable in the symbol table
+  std::string var_name = e->identifier()->name();
+  auto symbol = symbol_table_->lookup_symbol(var_name);
+  
+  if (!symbol) {
+    std::string err = "Undefined variable: " + var_name;
+    report_error(err, *e);
+    return;
+  }
+  
+  // Check if it's a variable or parameter
+  if (symbol->get_kind() != sym::SymbolKind::VAR && 
+    symbol->get_kind() != sym::SymbolKind::PARAM) {
+    std::string err = var_name + " is not a variable";
+    report_error(err, *e);
+    return;
+  }
+  
+  // Mark as used
+  symbol->set_used(true);
+  
+  // Set the type
+  e->set_type(symbol->get_type());
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::Unary>& e) {
   visit(e->operand());
   
