@@ -63,6 +63,42 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Unary>& e) {
+  visit(e->operand());
+  
+  auto op_type = e->operand()->type();
+  
+  // Check operation validity based on operator type
+  switch (e->op()) {
+    case expr::Unary::UnaryOp::NEG:
+      // Negation requires numeric type
+      if (!op_type->is_numeric_type()) {
+        std::string err = "Unary negation requires numeric operand";
+        report_error(err, *e);
+        return;
+      }
+      // Result type is the same as operand type
+      e->set_type(op_type);
+      break;
+        
+    case expr::Unary::UnaryOp::NOT:
+      // Bitwise NOT requires integral type
+      if (!op_type->is_integral_type()) {
+        std::string err = "Bitwise NOT requires integral operand";
+        report_error(err, *e);
+        return;
+      }
+      // Result type is the same as operand type
+      e->set_type(op_type);
+      break;
+        
+    case expr::Unary::UnaryOp::LOGICAL_NOT:
+      // Result type is always boolean
+      e->set_type(sym::Type::create_bool_type());
+      break;
+  }
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::Logical>& e) {
   visit(e->lhs());
   visit(e->rhs());
