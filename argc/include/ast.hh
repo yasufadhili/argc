@@ -89,8 +89,8 @@ namespace ast::expr {
       NEG, NOT, LOGICAL_NOT
     };
   private:
-    UnaryOp op;
-    std::shared_ptr<Expression> operand;
+    UnaryOp op_;
+    std::shared_ptr<Expression> operand_;
 
   public:
     Unary(UnaryOp op, std::shared_ptr<Expression> operand);
@@ -98,6 +98,8 @@ namespace ast::expr {
     void print(int level) override;
     void accept(Visitor&) override;
     int evaluate() override;
+    auto op() const -> UnaryOp { return op_; }
+    auto operand() -> std::shared_ptr<Expression>& { return operand_; }
   };
 
   class Constant final : public Expression {
