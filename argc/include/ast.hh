@@ -387,7 +387,7 @@ namespace ast::prog {
     void accept(Visitor&) override;
     void print(int level) override;
     const std::string& name() const { return name_; }
-    const std::vector<std::shared_ptr<func::Function>>& functions() const { return functions_; }
+    auto functions() -> std::vector<std::shared_ptr<func::Function>>& { return functions_; }
     void add_function(const std::shared_ptr<func::Function>& func);
   };
 
