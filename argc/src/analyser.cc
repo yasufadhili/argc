@@ -64,6 +64,10 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Expression>& e) {
+  // Base expression doesn't do anything special
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::Binary>& e) {
   // Base binary expression doesn't do anything special
 }
