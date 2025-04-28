@@ -1,5 +1,6 @@
 #include "analyser.hh"
 #include "ast.hh"
+#include "checker.hh"
 #include "symbols.hh"
 #include "util_logger.hh"
 #include <memory>
@@ -61,6 +62,40 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->enter_scope();
   
   symbol_table_->exit_scope();
+}
+
+void SemanticAnalyser::visit(std::shared_ptr<expr::rel::Relational>& e) {
+  visit(e->lhs());
+  visit(e->rhs());
+  
+  auto lhs_type = e->lhs()->type();
+  auto rhs_type = e->rhs()->type();
+  
+  // Convert relational type to string operator
+  std::string op;
+  switch (e->type()) {
+    case expr::rel::RelationalType::EQ: op = "=="; break;
+    case expr::rel::RelationalType::NEQ: op = "!="; break;
+    case expr::rel::RelationalType::GT: op = ">"; break;
+    case expr::rel::RelationalType::LT: op = "<"; break;
+    case expr::rel::RelationalType::GEQ: op = ">="; break;
+    case expr::rel::RelationalType::LEQ: op = "<="; break;
+    case expr::rel::RelationalType::NONE: 
+      std::string err = "Invalid relational operator";
+      report_error(err, *e);
+      return;
+  }
+  
+  // Check if comparison is valid
+  if (!checker::check_operator_compatibility(lhs_type, rhs_type, op)) {
+    std::string err = "Cannot compare " + lhs_type->get_name() + 
+                      " and " + rhs_type->get_name() + " with operator " + op;
+    report_error(err, *e);
+    return;
+  }
+  
+  // Result type is always boolean
+  e->set_type(sym::Type::create_bool_type());
 }
 
 void SemanticAnalyser::visit(std::shared_ptr<expr::Variable>& e) {
