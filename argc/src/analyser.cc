@@ -64,6 +64,34 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::Return>& r) {
+  if (!current_function_return_type) {
+    std::string err = "Return statement outside of function";
+    report_error(err, *r);
+    return;
+  }
+  
+  // Check if a return value is provided
+  if (r->expression()) {
+    auto expr = r->expression().value();
+    visit(expr);
+    
+    auto expr_type = expr->type();
+    
+    // Check if the expression type is compatible with the function return type
+    if (!checker::check_assignment_compatibility(current_function_return_type, expr_type)) {
+      std::string err = "Return expression type incompatible with function return type";
+      report_error(err, *r);
+    }
+  } else {
+    // If no expression, check if function returns void
+    if (current_function_return_type->get_kind() != sym::Type::TypeKind::VOID) {
+      std::string err = "Function with non-void return type must return a value";
+      report_error(err, *r);
+    }
+  }
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::VariableDeclaration>& vd) {
   std::string var_name = vd->name();
   
