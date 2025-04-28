@@ -57,7 +57,7 @@ void SemanticAnalyser::visit(std::shared_ptr<func::Function>& f) {
 
 }
 
-void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& s) {
+void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->enter_scope();
   
   symbol_table_->exit_scope();

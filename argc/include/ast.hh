@@ -241,6 +241,7 @@ namespace ast::stmt {
     }
     void print(int level) override;
     void accept(Visitor&) override;
+    auto statements() const -> const std::vector<std::shared_ptr<Statement>>& { return statements_; }
   };
 
   class VariableDeclaration final : public Statement {
@@ -257,11 +258,11 @@ namespace ast::stmt {
 
     void print(int level) override;
     void accept(Visitor&) override;
-    //auto get_initialiser() const -> std::shared_ptr<expr::Expression>;
-
-    //auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void;
-    //auto get_symbol() const -> std::shared_ptr<sym::Symbol>;
-
+    auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void { symbol_ = std::move(sym); }
+    auto get_symbol() const -> std::shared_ptr<sym::Symbol> { return symbol_; }
+    auto name() const -> const std::string& { return name_; }
+    auto type() const -> std::shared_ptr<sym::Type> { return type_; }
+    auto initialiser() -> const std::optional<std::shared_ptr<expr::Expression>>& { return initialiser_; }
   };
 
   class Assignment final : public Statement {
@@ -291,6 +292,7 @@ namespace ast::stmt {
     ~Return() override = default;
     void accept(Visitor&) override;
     void print(int) override;
+    auto expression() -> std::optional<std::shared_ptr<expr::Expression>>& { return expression_; }
   };
 
   class Repeat final : public Statement {
