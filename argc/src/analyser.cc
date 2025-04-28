@@ -63,6 +63,11 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::Constant>& e) {
+  // Constants already have their type set during parsing
+  // Nothing to do here for analysis
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::Bitwise>& e) {
   // Visit operands
   visit(e->lhs());
