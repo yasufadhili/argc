@@ -64,6 +64,35 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<expr::arith::Arithmetic>& e) {
+  visit(e->lhs());
+  visit(e->rhs());
+  
+  auto lhs_type = e->lhs()->type();
+  auto rhs_type = e->rhs()->type();
+  
+  // Convert arithmetic type to string operator
+  std::string op;
+  switch (e->type()) {
+    case expr::arith::ArithmeticType::ADD: op = "+"; break;
+    case expr::arith::ArithmeticType::SUB: op = "-"; break;
+    case expr::arith::ArithmeticType::MUL: op = "*"; break;
+    case expr::arith::ArithmeticType::DIV: op = "/"; break;
+    case expr::arith::ArithmeticType::MOD: op = "%"; break;
+  }
+  
+  // Check if operator can be applied to these types
+  if (!checker::check_operator_compatibility(lhs_type, rhs_type, op)) {
+    std::string err = "Operator " + op + " cannot be applied to " + 
+                      lhs_type->get_name() + " and " + rhs_type->get_name();
+    report_error(err, *e);
+    return;
+  }
+  
+  // Set result type
+  e->set_type(checker::get_result_type(lhs_type, rhs_type, op));
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<expr::rel::Relational>& e) {
   visit(e->lhs());
   visit(e->rhs());
