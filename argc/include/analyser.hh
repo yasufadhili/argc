@@ -26,8 +26,13 @@ public:
   SemanticAnalyser();
   auto analyse(Node& node) -> bool;
 private:
-  auto report_error(std::string& message, const Node& node) -> void { /** TODO */ };
-  auto report_warning(std::string& message, const Node& node) -> void { /** TODO */};
+  auto report_error(std::string& message, const Node& node) -> void { 
+    LOG_ERROR(message);
+    error_occured_ = true;
+   };
+  auto report_warning(std::string& message, const Node& node) -> void {
+    LOG_WARNING(message);
+  };
 public:
   // Program structure
   void visit(std::shared_ptr<prog::Program>&) override;
