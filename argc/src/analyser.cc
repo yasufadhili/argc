@@ -62,3 +62,8 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   
   symbol_table_->exit_scope();
 }
+
+void SemanticAnalyser::visit(std::shared_ptr<expr::boolean::Boolean>& e) {
+  // Boolean literals always have boolean type
+  e->set_type(sym::Type::create_bool_type());
+}
