@@ -64,6 +64,23 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::Repeat>& r) {
+  // Check the condition expression if it exists
+  if (r->times()) {
+    auto times_expr = r->times().value();
+    visit(times_expr);
+    
+    // Check if the expression is of integer type
+    auto times_type = times_expr->type();
+    if (!times_type->is_integral_type()) {
+      std::string err = "Repeat count must be an integer expression";
+      report_error(err, *r);
+    }
+  }
+  
+  visit(r->body());
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::EmptyStatement>& es) {
   // Nothing to do for empty statements
 }
