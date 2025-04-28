@@ -266,7 +266,6 @@ namespace ast::stmt {
   };
 
   class Assignment final : public Statement {
-    //std::shared_ptr<expr::Variable> target;
     std::string target_;
     std::shared_ptr<expr::Expression> value_;
   public:
@@ -274,6 +273,8 @@ namespace ast::stmt {
     ~Assignment() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
+    auto target() -> std::string& { return target_; }
+    auto value() -> std::shared_ptr<expr::Expression>& { return value_; }
   };
 
   class ExpressionStatement final : public Statement {
