@@ -64,6 +64,11 @@ void SemanticAnalyser::visit(std::shared_ptr<stmt::Block>& b) {
   symbol_table_->exit_scope();
 }
 
+void SemanticAnalyser::visit(std::shared_ptr<stmt::ExpressionStatement>& s) {
+  // Just visit the expression
+  visit(s->expression());
+}
+
 void SemanticAnalyser::visit(std::shared_ptr<stmt::Repeat>& r) {
   // Check the condition expression if it exists
   if (r->times()) {
