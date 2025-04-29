@@ -48,6 +48,9 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
+"`"             {
+                  return yy::Parser::make_BACK_TICK(loc_);
+                }
 
 <<EOF>>         { 
                     if (!exit_file()) 

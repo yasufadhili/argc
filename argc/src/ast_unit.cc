@@ -1,18 +1,21 @@
 #include <iostream>
-
-#include "include/ast.hh"
+#include <memory>
+#include "../include/ast.hh"
 
 using namespace ast::unit;
 
-TranslationUnit::TranslationUnit()= default;
-
-void TranslationUnit::accept(analyser::SemanticAnalyser &) {
+TranslationUnit::TranslationUnit(std::shared_ptr<stmt::Asm> a) {
 
 }
 
-void TranslationUnit::accept(codegen::x86_64_CodeGenerator &) {
+void TranslationUnit::accept(SemanticAnalyser &) {
 
 }
+
+void TranslationUnit::accept(x86_64_CodeGenerator &) {
+
+}
+
 
 void TranslationUnit::print(const int level) {
   print_indent(level);

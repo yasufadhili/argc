@@ -80,7 +80,7 @@ namespace ast::mod {
 namespace ast::unit {
   class TranslationUnit final : public Node {
   public:
-    TranslationUnit();
+    TranslationUnit(std::shared_ptr<stmt::Asm> a);
     ~TranslationUnit() override = default;
     void accept(SemanticAnalyser &) override;
     void accept(x86_64_CodeGenerator &) override;

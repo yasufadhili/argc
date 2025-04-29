@@ -55,6 +55,8 @@ namespace yy {
 %token LBRACE
 %token RBRACE
 
+%token BACK_TICK
+
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
 
@@ -71,16 +73,16 @@ namespace yy {
 %%
 
 translation_unit
-  : %empty  {
-    unit = std::make_shared<ast::unit::TranslationUnit>();
+  : asm_statement {
+    unit = std::make_shared<ast::unit::TranslationUnit>($1);
     $$ = unit;
   }
 ;
 
 
 asm_statement
-  : KW_ASM LBRACE RBRACE {
-    $$ = std::make_shared<ast::stmt::Asm>();
+  : KW_ASM BACK_TICK BACK_TICK {
+    $$ = std::make_shared<ast::stmt::Asm>("");
   }
 ;
 
