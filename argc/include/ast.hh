@@ -46,7 +46,9 @@ public:
 }
 
 namespace ast::expr {
-  class Expression : public Node {};
+  class Expression : public Node {
+
+  };
 }
 
 namespace ast::stmt {
