@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "lexer.hh"
+#include "include/util_logger.hh"
 
 namespace fs = std::filesystem;
 using namespace driver;
@@ -191,12 +192,12 @@ auto driver::validate_input_files(const config::Config &config) -> bool {
   std::set<std::string> valid_extensions{".ar", ".arg", ".argon"};
   for (const auto &file: config.input_files) {
     if (!fs::exists(file)) {
-      std::cerr << "Error: Input file '" << file << "' does not exist" << std::endl;
+      LOG_ERROR("Error: Input file '" + file + "' does not exist");
       return false;
     }
     std::string extension{fs::path(file).extension().string()};
     if (valid_extensions.find(extension) == valid_extensions.end()) {
-      std::cerr << "Warning: File '" << file << "' has unrecognised extension '" << extension << "'" << std::endl;
+      LOG_ERROR("Warning: File '" + file + "' has unrecognised extension '" + extension + "'");
     }
   }
   return true;
@@ -209,11 +210,9 @@ auto driver::cleanup_temp_files(const config::Config &config) -> void {
       if (fs::exists(file)) {
         try {
           fs::remove(file);
-          if (config.verbose) {
-            std::cout << "Removed temporary file: " << file << std::endl;
-          }
+            LOG_INFO_IF(config.verbose, "Removed temporary file: " + file);
         } catch (const std::exception &e) {
-          std::cerr << "Warning: Failed to remove temporary file '" << file << "': " << e.what() << std::endl;
+          LOG_WARNING("Failed to remove temporary file '" + file);
         }
       }
     }
