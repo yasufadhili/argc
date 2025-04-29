@@ -14,8 +14,7 @@ void Asm::accept(SemanticAnalyser &) {
 
 }
 
-void Asm::accept(x86_64_CodeGenerator &) {
-
+void Asm::accept(x86_64_CodeGenerator &g) {
 }
 
 void Asm::print(const int level) {

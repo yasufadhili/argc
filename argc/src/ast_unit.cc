@@ -14,7 +14,6 @@ void TranslationUnit::accept(SemanticAnalyser &) {
 }
 
 void TranslationUnit::accept(x86_64_CodeGenerator &) {
-
 }
 
 
