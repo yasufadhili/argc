@@ -51,7 +51,8 @@ namespace yy {
 %token END 0
 
 
-//%parse-param  { std::shared_ptr<ast::prog::Program>& result }
+%parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
+
 
 
 

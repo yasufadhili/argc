@@ -56,5 +56,21 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
+  std::shared_ptr<ast::unit::TranslationUnit> translation_unit;
+
+  yy::Parser parser { lexer, translation_unit };
+  if (config.debug) {
+    parser.set_debug_level(1);
+  }
+
+  if (!parser.parse()) {
+    LOG_ERROR("Failed to parse translation unit");
+    return EXIT_FAILURE;
+  }
+
+  if (config.verbose) {
+    translation_unit->print(0);
+  }
+
   return 0;
 }
