@@ -108,6 +108,8 @@ public:
   auto emit(const std::string&code)-> void {
     output_ << code << "\n";
   }
+public:
+  void generate(std::shared_ptr<unit::TranslationUnit>&);
 };
 
 }
