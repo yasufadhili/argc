@@ -102,13 +102,13 @@ struct SematicError {
 class SemanticAnalyser final {
   std::vector<SematicError> errors_;
 public:
-  virtual ~SemanticAnalyser() = default;
+  ~SemanticAnalyser() = default;
   SemanticAnalyser() = default;
   auto analyse(std::shared_ptr<unit::TranslationUnit>&) -> bool;
   auto get_errors() -> std::vector<SematicError> { return errors_; }
   auto add_error(const std::string& msg) -> void ;
 public:
-  virtual void visit(std::shared_ptr<unit::TranslationUnit>&);
+  void visit(std::shared_ptr<unit::TranslationUnit>&);
 };
 }
 
@@ -117,14 +117,15 @@ namespace ast {
 class x86_64_CodeGenerator final{
   std::stringstream output_;
 public:
-  virtual ~x86_64_CodeGenerator() = default;
+  ~x86_64_CodeGenerator() = default;
   auto get_output() -> std::stringstream & { return output_; }
   auto emit(const std::string&code)-> void {
     output_ << code << "\n";
   }
 public:
-  virtual void generate(std::shared_ptr<unit::TranslationUnit>&);
-  virtual void generate(const std::shared_ptr<stmt::Asm>&);
+  void generate(std::shared_ptr<unit::TranslationUnit>&u) {
+    u->accept(*this);
+  }
 };
 
 }
