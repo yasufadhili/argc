@@ -4,6 +4,8 @@
 using namespace ast;
 
 void x86_64_CodeGenerator::generate(std::shared_ptr<unit::TranslationUnit> &u) {
-
+  emit("  .section .text");
+  emit("  global _start");
+  emit("_start:");
 }
 

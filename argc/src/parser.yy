@@ -53,7 +53,7 @@ namespace yy {
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
 
-
+%type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
 
 %start translation_unit
@@ -64,7 +64,10 @@ namespace yy {
 %%
 
 translation_unit
-  : %empty
+  : %empty  {
+    unit = std::make_shared<ast::unit::TranslationUnit>();
+    $$ = unit;
+  }
 ;
 
 
