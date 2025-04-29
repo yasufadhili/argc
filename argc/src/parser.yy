@@ -50,7 +50,7 @@ namespace yy {
 
 %token END 0
 
-%token KW_ASM
+%token ASM
 
 %token LBRACE
 %token RBRACE
@@ -81,7 +81,7 @@ translation_unit
 
 
 asm_statement
-  : KW_ASM BACK_TICK BACK_TICK {
+  : ASM BACK_TICK BACK_TICK {
     $$ = std::make_shared<ast::stmt::Asm>("");
   }
 ;

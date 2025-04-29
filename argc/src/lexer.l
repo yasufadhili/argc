@@ -48,6 +48,10 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
+"asm"           {
+                  return yy::Parser::make_ASM(loc_);
+                }
+
 "`"             {
                   return yy::Parser::make_BACK_TICK(loc_);
                 }
