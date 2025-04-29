@@ -63,8 +63,6 @@ namespace yy {
 
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
-%type <std::shared_ptr<ast::stmt::Asm>> asm_statement;
-
 
 %start translation_unit
 
@@ -74,16 +72,9 @@ namespace yy {
 %%
 
 translation_unit
-  : asm_statement {
-    unit = std::make_shared<ast::unit::TranslationUnit>($1);
+  : %empty {
+    unit = std::make_shared<ast::unit::TranslationUnit>();
     $$ = unit;
-  }
-;
-
-
-asm_statement
-  : ASM STRING_LITERAL {
-    $$ = std::make_shared<ast::stmt::Asm>($2);
   }
 ;
 

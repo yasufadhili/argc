@@ -49,31 +49,6 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
-"asm"           {
-                  return yy::Parser::make_ASM(loc_);
-                }
-
-{STRING_LIT}    {
-                  std::string str(yytext + 1, yyleng - 2);
-                  std::string processed;
-                  for (size_t i = 0; i < str.length(); ++i) {
-                    if (str[i] == '\\' && i + 1 < str.length()) {
-                      ++i;
-                      switch (str[i]) {
-                        case 'n': processed += '\n'; break;
-                        case 't': processed += '\t'; break;
-                        case '\\': processed += '\\'; break;
-                        case '\"': processed += '\"'; break;
-                        case '\'': processed += '\''; break;
-                        default: processed += str[i]; break;
-                      }
-                    } else {
-                      processed += str[i];
-                    }
-                  }
-                  return yy::Parser::make_STRING_LITERAL(processed, loc_);
-                }
-
 <<EOF>>         { 
                     if (!exit_file()) 
                     { 
