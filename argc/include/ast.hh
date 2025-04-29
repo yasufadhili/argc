@@ -59,16 +59,6 @@ namespace ast::expr {
 
 namespace ast::stmt {
   class Statement : public Node {};
-  class Asm final: public Statement {
-    std::string asm_;
-  public:
-    explicit Asm(std::string);
-    ~Asm() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
-    void print(int level) override;
-    auto assembly() const -> std::string { return asm_; };
-  };
 }
 
 namespace ast::func {

@@ -83,7 +83,7 @@ auto main(const int argc, char* argv[]) -> int {
 
   if (config.verbose) {
     LOG_INFO("Semantic Analysis successful");
-    LOG_INFO("Generating x86-64 Assembly code");
+    LOG_INFO("Generating Assembly code");
   }
 
   ast::CodeGenerator code_generator;
