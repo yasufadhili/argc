@@ -12,7 +12,7 @@ namespace logger {
  * @brief Log severity levels
  */
   enum class LogLevel {
-    TRACE = 0, // Detailed tracing information
+    TRACE, // Detailed tracing information
     DEBUG, // Debugging information
     INFO, // General information
     WARNING, // Warnings
@@ -42,7 +42,7 @@ namespace logger {
     LogLevel level;
     std::string message;
     std::string file_name;
-    size_t line_number;
+    int line_number;
     std::string function_name;
     std::thread::id thread_id;
 
@@ -50,7 +50,7 @@ namespace logger {
       LogLevel lvl,
       const std::string &msg,
       const std::string &file_name,
-      size_t line_number,
+      int line_number,
       const std::string &function_name
     );
   };
@@ -229,7 +229,7 @@ namespace logger {
      */
     auto trace(const std::string& message,
                const std::string& file_name = "",
-               size_t line_number = 0,
+               int line_number = 0,
                const std::string& function_name = "") -> void;
 
     /**
@@ -237,7 +237,7 @@ namespace logger {
      */
     auto debug(const std::string& message,
                const std::string& file_name = "",
-               size_t line_number = 0,
+               int line_number = 0,
                const std::string& function_name = "") -> void;
 
     /**
@@ -245,7 +245,7 @@ namespace logger {
      */
     auto info(const std::string& message,
               const std::string& file_name = "",
-              size_t line_number = 0,
+              int line_number = 0,
               const std::string& function_name = "") -> void;
 
     /**
@@ -253,7 +253,7 @@ namespace logger {
      */
     auto warning(const std::string& message,
               const std::string& file_name = "",
-              size_t line_number = 0,
+              int line_number = 0,
               const std::string& function_name = "") -> void;
 
     /**
@@ -261,7 +261,7 @@ namespace logger {
      */
     auto error(const std::string& message,
               const std::string& file_name = "",
-              size_t line_number = 0,
+              int line_number = 0,
               const std::string& function_name = "") -> void;
 
     /**
@@ -269,7 +269,7 @@ namespace logger {
      */
     auto fatal(const std::string& message,
               const std::string& file_name = "",
-              size_t line_number = 0,
+              int line_number = 0,
               const std::string& function_name = "") -> void;
 
     /**
@@ -287,8 +287,7 @@ namespace logger {
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    //LogLevel global_level_{LogLevel::INFO};
-    LogLevel global_level_;
+    LogLevel global_level_{LogLevel::TRACE};
     std::vector<std::shared_ptr<LogSink>> sinks_;
     std::mutex mutex_;
 

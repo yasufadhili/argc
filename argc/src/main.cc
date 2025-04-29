@@ -17,6 +17,8 @@ auto main() -> int {
   logger.trace("This is an trace message");
 
   LOG_INFO_IF(5 > 1, "Five is greater");
+  LOG_DEBUG("Debug");
+  LOG_TRACE("Trace");
 
   return 0;
 }

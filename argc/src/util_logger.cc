@@ -34,7 +34,7 @@ auto logger::string_to_log_level(const std::string &level_str) -> LogLevel {
 LogMessage::LogMessage(const LogLevel lvl,
                        const std::string &msg,
                        const std::string &file_name,
-                       const size_t line_number,
+                       const int line_number,
                        const std::string &function_name) : timestamp(std::chrono::system_clock::now()),
                                                            level(lvl),
                                                            message(msg),
@@ -47,7 +47,7 @@ LogMessage::LogMessage(const LogLevel lvl,
 auto LogSink::format_message(const LogMessage &log_message) const -> std::string {
   std::ostringstream result;
 
-  size_t i = 0;
+  int i = 0;
   while (i < format_.size()) {
     if (format_[i] == '%' && i + 1 < format_.size()) {
       switch (format_[i + 1]) {
@@ -125,7 +125,7 @@ auto LogSink::set_format(const std::string &format) -> void {
 }
 
 auto LogSink::should_log(const LogLevel level) const -> bool {
-  return level <= min_level_;
+  return level >= min_level_;
 }
 
 
@@ -197,7 +197,7 @@ void FunctionSink::write(const LogMessage &log_message) {
 }
 
 Logger::Logger()
-    : global_level_(LogLevel::INFO) {
+    : global_level_(LogLevel::TRACE) {
 }
 
 Logger::~Logger() {
@@ -262,27 +262,27 @@ auto Logger::log(const LogLevel level, const std::string &message, const std::st
   }
 }
 
-auto Logger::trace(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::trace(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::TRACE, message, file_name, line_number, function_name);
 }
 
-auto Logger::debug(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::debug(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::DEBUG, message, file_name, line_number, function_name);
 }
 
-auto Logger::info(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::info(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::INFO, message, file_name, line_number, function_name);
 }
 
-auto Logger::warning(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::warning(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::WARNING, message, file_name, line_number, function_name);
 }
 
-auto Logger::error(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::error(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::ERROR, message, file_name, line_number, function_name);
 }
 
-auto Logger::fatal(const std::string &message, const std::string &file_name, size_t line_number, const std::string &function_name) -> void {
+auto Logger::fatal(const std::string &message, const std::string &file_name, int line_number, const std::string &function_name) -> void {
   log(LogLevel::FATAL, message, file_name, line_number, function_name);
 }
 
