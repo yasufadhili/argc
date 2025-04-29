@@ -1,6 +1,8 @@
 #pragma once
 
 #include <utility>
+#include <vector>
+#include <iostream>
 #include <sstream>
 
 namespace ast {
@@ -91,7 +93,7 @@ public:
   SemanticAnalyser() = default;
   auto analyse(std::shared_ptr<unit::TranslationUnit>&) -> bool;
   auto get_errors() -> std::vector<SematicError> { return errors_; }
-  auto add_error(const std::string& msg);
+  auto add_error(const std::string& msg) -> void ;
 public:
   void visit(std::shared_ptr<unit::TranslationUnit>&);
 };
