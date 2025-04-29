@@ -21,6 +21,30 @@ public:
 
 }
 
+namespace ast::ident {
+class Identifier final : public Node {
+  std::string name_;
+public:
+  explicit Identifier(std::string);
+  ~Identifier() override = default;
+  void accept(analyser::SemanticAnalyser &) override;
+  void accept(codegen::x86_64_CodeGenerator &) override;
+  void print(int level) override;
+  auto name() const -> std::string { return name_; };
+};
+
+class TypeIdentifier final : public Node {
+  std::string name_;
+public:
+  explicit TypeIdentifier(std::string);
+  ~TypeIdentifier() override = default;
+  void accept(analyser::SemanticAnalyser &) override;
+  void accept(codegen::x86_64_CodeGenerator &) override;
+  void print(int level) override;
+  auto name() const -> std::string { return name_; };
+};
+}
+
 namespace ast::expr {
   class Expression : public Node {};
 }
