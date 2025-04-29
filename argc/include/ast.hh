@@ -92,6 +92,8 @@ public:
   auto analyse(std::shared_ptr<unit::TranslationUnit>&) -> bool;
   auto get_errors() -> std::vector<SematicError> { return errors_; }
   auto add_error(const std::string& msg);
+public:
+  void visit(std::shared_ptr<unit::TranslationUnit>&);
 };
 }
 

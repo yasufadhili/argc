@@ -72,5 +72,18 @@ auto main(const int argc, char* argv[]) -> int {
     translation_unit->print(0);
   }
 
+  ast::SemanticAnalyser analyser;
+  bool analysis_result { analyser.analyse(translation_unit) };
+
+  if (!analysis_result) {
+    LOG_ERROR("Semantic analysis failed with " + std::to_string(analyser.get_errors().size()) + " errors");
+    return EXIT_FAILURE;
+  }
+
+  if (config.verbose) {
+    LOG_INFO("Semantic Analysis successful");
+    LOG_INFO("Generating code");
+  }
+
   return 0;
 }
