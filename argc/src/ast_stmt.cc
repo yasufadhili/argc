@@ -30,13 +30,13 @@ void Block::accept(Visitor& v) {
   }
 }
 
-ExpressionStatement::ExpressionStatement(std::shared_ptr<expr::Expression> expr) : expression(std::move(expr)) {
+ExpressionStatement::ExpressionStatement(std::shared_ptr<expr::Expression> expr) : expression_(std::move(expr)) {
 }
 
 void ExpressionStatement::print(const int level) {
   Node::print_indent(level);
   std::cout << "Expression Statement\n";
-  expression->print(level + 1);
+  expression_->print(level + 1);
 }
 
 void ExpressionStatement::accept(Visitor& v) {

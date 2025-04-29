@@ -1,6 +1,8 @@
 
 #include "symbols.hh"
 
+#include <iostream>
+
 
 using namespace sym;
 
