@@ -66,6 +66,7 @@ namespace ast::mod {
 namespace ast::unit {
   class TranslationUnit final : public Node {
   public:
+    TranslationUnit();
     ~TranslationUnit() override = default;
     void accept(analyser::SemanticAnalyser &) override;
     void accept(codegen::x86_64_CodeGenerator &) override;
