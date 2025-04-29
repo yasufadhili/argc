@@ -1,9 +1,12 @@
 #pragma once
 
-#include "analyser.hh"
-#include "codegen.hh"
+#include <utility>
+#include <sstream>
 
 namespace ast {
+
+class SemanticAnalyser;
+class x86_64_CodeGenerator;
 
 class Node {
 protected:
@@ -14,8 +17,8 @@ protected:
   }
 public:
   virtual ~Node() = default;
-  virtual void accept(analyser::SemanticAnalyser&) = 0;
-  virtual void accept(codegen::x86_64_CodeGenerator&) = 0;
+  virtual void accept(SemanticAnalyser&) = 0;
+  virtual void accept(x86_64_CodeGenerator&) = 0;
   virtual void print(int level) = 0;
 };
 
@@ -27,8 +30,8 @@ class Identifier final : public Node {
 public:
   explicit Identifier(std::string);
   ~Identifier() override = default;
-  void accept(analyser::SemanticAnalyser &) override;
-  void accept(codegen::x86_64_CodeGenerator &) override;
+  void accept(SemanticAnalyser &) override;
+  void accept(x86_64_CodeGenerator &) override;
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -38,8 +41,8 @@ class TypeIdentifier final : public Node {
 public:
   explicit TypeIdentifier(std::string);
   ~TypeIdentifier() override = default;
-  void accept(analyser::SemanticAnalyser &) override;
-  void accept(codegen::x86_64_CodeGenerator &) override;
+  void accept(SemanticAnalyser &) override;
+  void accept(x86_64_CodeGenerator &) override;
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -68,8 +71,39 @@ namespace ast::unit {
   public:
     TranslationUnit();
     ~TranslationUnit() override = default;
-    void accept(analyser::SemanticAnalyser &) override;
-    void accept(codegen::x86_64_CodeGenerator &) override;
+    void accept(SemanticAnalyser &) override;
+    void accept(x86_64_CodeGenerator &) override;
     void print(int level) override;
   };
+}
+
+namespace ast {
+
+struct SematicError {
+  std::string message;
+  explicit SematicError(std::string msg)
+    : message(std::move(msg)) {}
+};
+
+class SemanticAnalyser {
+  std::vector<SematicError> errors_;
+public:
+  SemanticAnalyser() = default;
+  auto analyse(std::shared_ptr<unit::TranslationUnit>&) -> bool;
+  auto get_errors() -> std::vector<SematicError> { return errors_; }
+  auto add_error(const std::string& msg);
+};
+}
+
+namespace ast {
+
+class x86_64_CodeGenerator {
+  std::stringstream output_;
+public:
+  auto get_output() -> std::stringstream & { return output_; }
+  auto emit(const std::string&code)-> void {
+    output_ << code << "\n";
+  }
+};
+
 }
