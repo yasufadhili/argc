@@ -86,8 +86,8 @@ auto main(const int argc, char* argv[]) -> int {
     LOG_INFO("Generating x86-64 Assembly code");
   }
 
-  ast::x86_64_CodeGenerator x86_64_code_generator;
-  x86_64_code_generator.generate(translation_unit);
+  ast::CodeGenerator code_generator;
+  code_generator.generate(translation_unit);
 
   fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
   std::ofstream output_file { output_path.string() };
@@ -96,7 +96,7 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  output_file << x86_64_code_generator.get_output().str();
+  output_file << code_generator.get_output().str();
   output_file.close();
 
   if (config.verbose){

@@ -9,7 +9,7 @@
 namespace ast {
 
 class SemanticAnalyser;
-class x86_64_CodeGenerator;
+class CodeGenerator;
 
 class Node {
 protected:
@@ -21,7 +21,7 @@ protected:
 public:
   virtual ~Node() = default;
   virtual void accept(SemanticAnalyser&) = 0;
-  virtual void accept(x86_64_CodeGenerator&) = 0;
+  virtual void accept(CodeGenerator&) = 0;
   virtual void print(int level) = 0;
 };
 
@@ -34,7 +34,7 @@ public:
   explicit Identifier(std::string);
   ~Identifier() override = default;
   void accept(SemanticAnalyser &) override;
-  void accept(x86_64_CodeGenerator &) override;
+  void accept(CodeGenerator &) override;
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -45,7 +45,7 @@ public:
   explicit TypeIdentifier(std::string);
   ~TypeIdentifier() override = default;
   void accept(SemanticAnalyser &) override;
-  void accept(x86_64_CodeGenerator &) override;
+  void accept(CodeGenerator &) override;
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -65,7 +65,7 @@ namespace ast::stmt {
     explicit Asm(std::string);
     ~Asm() override = default;
     void accept(SemanticAnalyser &) override;
-    void accept(x86_64_CodeGenerator &) override;
+    void accept(CodeGenerator &) override;
     void print(int level) override;
     auto assembly() const -> std::string { return asm_; };
   };
@@ -85,7 +85,7 @@ namespace ast::unit {
     TranslationUnit() = default;
     ~TranslationUnit() override = default;
     void accept(SemanticAnalyser &) override;
-    void accept(x86_64_CodeGenerator &) override;
+    void accept(CodeGenerator &) override;
     void print(int level) override;
   };
 }
@@ -113,10 +113,10 @@ public:
 
 namespace ast {
 
-class x86_64_CodeGenerator final{
+class CodeGenerator final{
   std::stringstream output_;
 public:
-  ~x86_64_CodeGenerator() = default;
+  ~CodeGenerator() = default;
   auto get_output() -> std::stringstream & { return output_; }
   auto emit(const std::string&code)-> void {
     output_ << code << "\n";
