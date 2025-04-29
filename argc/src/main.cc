@@ -63,7 +63,7 @@ auto main(const int argc, char* argv[]) -> int {
     parser.set_debug_level(1);
   }
 
-  if (!parser.parse()) {
+  if (parser.parse() != 0) {
     LOG_ERROR("Failed to parse translation unit");
     return EXIT_FAILURE;
   }
