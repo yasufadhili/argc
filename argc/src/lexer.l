@@ -29,7 +29,7 @@ IDENTIFIER      [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER         {DIGIT}+
 FLOAT           {DIGIT}+\.{DIGIT}+([eE][+-]?{DIGIT}+)?
 STRING          \"([^\"\n\\]|\\[\"\\'nt])*\"
-STRING_LIT      \`([^\"\n\\]|\\[\"\\'nt])*\`
+STRING_LIT      \`([]|\\[\"\\'nt])*\`
 CHAR            \'([^'\n\\]|\\[\"\\'nt])\'
 COMMENT         \/\/[^\n]*
 

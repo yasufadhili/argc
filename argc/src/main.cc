@@ -69,6 +69,7 @@ auto main(const int argc, char* argv[]) -> int {
   }
 
   if (config.verbose) {
+    LOG_INFO("Code Structure: ");
     translation_unit->print(0);
   }
 

@@ -67,6 +67,7 @@ namespace ast::stmt {
     void accept(SemanticAnalyser &) override;
     void accept(x86_64_CodeGenerator &) override;
     void print(int level) override;
+    auto assembly() const -> std::string { return asm_; };
   };
 }
 
