@@ -51,6 +51,7 @@ namespace yy {
 %token END 0
 
 %token ASM
+%token <std::string> STRING_LITERAL
 
 %token LBRACE
 %token RBRACE
@@ -81,8 +82,8 @@ translation_unit
 
 
 asm_statement
-  : ASM BACK_TICK BACK_TICK {
-    $$ = std::make_shared<ast::stmt::Asm>("");
+  : ASM STRING_LITERAL {
+    $$ = std::make_shared<ast::stmt::Asm>($2);
   }
 ;
 
