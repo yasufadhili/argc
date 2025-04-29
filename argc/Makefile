@@ -6,7 +6,7 @@ ROOT_DIR = $(shell pwd)
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)/include -I$(SRC_DIR)
+CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
 
 # Installation prefix
 INSTALL_PREFIX ?= /usr/local
