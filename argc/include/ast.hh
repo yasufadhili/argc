@@ -15,6 +15,8 @@
 namespace ast {
 
   class Visitor;
+  class SemanticAnalyser;
+  class CodeGenerator;
 
   class Node {
   protected:
@@ -27,6 +29,8 @@ namespace ast {
   public:
     virtual ~Node() = default;
     virtual void accept(Visitor&) = 0;
+    virtual void accept(SemanticAnalyser&) = 0;
+    virtual void accept(CodeGenerator&) = 0;
     virtual void print(int level) = 0;
   };
 
@@ -35,23 +39,27 @@ namespace ast {
 
 namespace ast::ident {
 
-  class Identifier final : Node{
+  class Identifier final : public Node{
   public:
-    explicit Identifier(std::string  name) : name_(std::move(name)) {}
+    explicit Identifier(std::string name) : name_(std::move(name)) {}
     ~Identifier() override = default;
     void accept(Visitor&) override;
     void print(int level) override;
     const std::string& name() const { return name_; }
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
 
   private:
     std::string name_;
   };
 
-  class TypeIdentifier final : Node {
+  class TypeIdentifier final : public Node {
   public:
     explicit TypeIdentifier(const std::string& name) : name_(name) {}
     ~TypeIdentifier() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     const std::string& name() const { return name_; }
 
@@ -69,6 +77,8 @@ namespace ast::expr {
     Expression() = default;
     ~Expression() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     virtual int evaluate();
     auto type() const -> std::shared_ptr<sym::Type> { return type_; }
@@ -79,6 +89,8 @@ namespace ast::expr {
   public:
     ~Binary() override = default;
     void accept(Visitor&) override = 0;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     int evaluate() override;
   };
@@ -97,6 +109,8 @@ namespace ast::expr {
     ~Unary() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     int evaluate() override;
     auto op() const -> UnaryOp { return op_; }
     auto operand() -> std::shared_ptr<Expression>& { return operand_; }
@@ -112,6 +126,8 @@ namespace ast::expr {
     explicit Constant(const_variant , sym::Type::TypeKind);
     ~Constant() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     int evaluate() override;
   };
@@ -124,6 +140,8 @@ namespace ast::expr {
     //    : identifier(std::move(name)), var_type(std::move(type)) {}
     explicit Variable(const std::string&);
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int) override;
     auto identifier() -> std::shared_ptr<ident::Identifier>& { return identifier_; }
     auto type() -> std::shared_ptr<sym::Type>& { return type_; }
@@ -142,6 +160,8 @@ namespace ast::expr {
     ~Bitwise() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     auto evaluate() -> int;
     auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
     auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
@@ -161,6 +181,8 @@ namespace ast::expr {
     ~Logical() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     int evaluate() override;
     auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
     auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
@@ -184,6 +206,8 @@ namespace ast::expr::arith {
     ~Arithmetic() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     int evaluate() override;
     auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
     auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
@@ -205,6 +229,8 @@ namespace ast::expr::boolean {
     ~Boolean() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     int evaluate() override;
   };
 
@@ -225,6 +251,8 @@ namespace ast::expr::rel {
     ~Relational() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     int evaluate() override;
     auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
     auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
@@ -246,6 +274,8 @@ namespace ast::stmt {
     EmptyStatement() = default;
     ~EmptyStatement() override = default;
     void print(int level) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void accept(Visitor&) override;
   };
 
@@ -260,6 +290,8 @@ namespace ast::stmt {
     }
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     auto statements() -> std::vector<std::shared_ptr<Statement>>& { return statements_; }
   };
 
@@ -277,6 +309,8 @@ namespace ast::stmt {
 
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void { symbol_ = std::move(sym); }
     auto get_symbol() const -> std::shared_ptr<sym::Symbol> { return symbol_; }
     auto name() const -> const std::string& { return name_; }
@@ -291,6 +325,8 @@ namespace ast::stmt {
     Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
     ~Assignment() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     auto target() -> std::string& { return target_; }
     auto value() -> std::shared_ptr<expr::Expression>& { return value_; }
@@ -302,6 +338,8 @@ namespace ast::stmt {
     explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
     ~ExpressionStatement() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int) override;
     auto expression() -> std::shared_ptr<expr::Expression>& { return expression_; }
   };
@@ -312,6 +350,8 @@ namespace ast::stmt {
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int) override;
     auto expression() -> std::optional<std::shared_ptr<expr::Expression>>& { return expression_; }
   };
@@ -323,6 +363,8 @@ namespace ast::stmt {
     explicit Repeat(std::optional<std::shared_ptr<expr::Expression>> times);
     ~Repeat() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int) override;
     auto times() -> std::optional<std::shared_ptr<expr::Expression>>& { return times_; }
     auto body() -> std::shared_ptr<Block>& { return body_; }
@@ -339,6 +381,8 @@ namespace ast::param {
              std::shared_ptr<ident::TypeIdentifier> type);
     ~Parameter() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
 
   private:
@@ -356,6 +400,8 @@ namespace ast::func {
     ReturnTypeInfo() = default;
     ~ReturnTypeInfo() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
   };
 
@@ -365,6 +411,8 @@ namespace ast::func {
     explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id);
     ~SingleReturnType() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
   };
 
@@ -374,6 +422,8 @@ namespace ast::func {
     explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids);
     ~MultipleReturnType() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
   };
 
@@ -393,6 +443,8 @@ namespace ast::func {
     ~Function() override = default;
     void print(int level) override;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
     auto body() -> std::shared_ptr<stmt::Block>& { return body_; }
   };
@@ -410,6 +462,8 @@ namespace ast::prog {
     Module(std::string name, std::vector<std::shared_ptr<func::Function>> functions);
     ~Module() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     const std::string& name() const { return name_; }
     auto functions() -> std::vector<std::shared_ptr<func::Function>>& { return functions_; }
@@ -424,6 +478,8 @@ namespace ast::prog {
     Program() = default;
     ~Program() override = default;
     void accept(Visitor&) override;
+    void accept(SemanticAnalyser&) override = 0;
+    void accept(CodeGenerator&) override = 0;
     void print(int level) override;
     auto modules() -> std::vector<std::shared_ptr<Module>> { return modules_; }
   };
