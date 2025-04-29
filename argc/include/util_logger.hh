@@ -12,7 +12,7 @@ namespace logger {
  * @brief Log severity levels
  */
   enum class LogLevel {
-    TRACE, // Detailed tracing information
+    TRACE = 0, // Detailed tracing information
     DEBUG, // Debugging information
     INFO, // General information
     WARNING, // Warnings
