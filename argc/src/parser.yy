@@ -111,17 +111,34 @@ identifier
   }
 ;
 
+expression
+  : term {
+    $$ = $1;
+  }
+  | expression PLUS term {
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Add, $1, $3);
+  }
+  | expression MINUS term {
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Sub, $1, $3);
+  }
+;
 
 term
   : term TIMES factor {
-    $$ = std::make_shared<>();
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Mul, $1, $3);
+  }
+  | term TIMES factor {
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Div, $1, $3);
+  }
+  | factor {
+    $$ = $1;
   }
 ;
 
 
 factor
-  : INTEGER {
-    $$ = std::make_shared<ast::expr::Literal>($1);
+  : literal {
+    $$ = $1;
   }
   | LPAREN expression RPAREN {
     $$ = $2;
