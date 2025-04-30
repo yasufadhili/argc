@@ -89,6 +89,8 @@ namespace yy {
 %token <int> INTEGER
 %token <float> FLOAT
 
+%token RETURN
+
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
 
@@ -98,6 +100,9 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Statement>> execution_statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
+%type <std::shared_ptr<ast::stmt::Statement>> control_statement;
+
+%type <std::shared_ptr<ast::stmt::Return>> return_statement;
 
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
@@ -149,6 +154,9 @@ statement
   : execution_statement {
     $$ = $1;
   }
+  | control_statement {
+    $$ = $1;
+  }
 ;
 
 
@@ -167,6 +175,23 @@ block_statement
     $$ = std::make_shared<ast::stmt::Block>(
       std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
+  }
+;
+
+
+control_statement
+  : return_statement {
+    $$ = $1;
+  }
+;
+
+
+return_statement
+  : RETURN arithmetic_expression {
+    $$ = std::make_shared<ast::stmt::Return>($2);
+  }
+  | RETURN {
+    $$ = std::make_shared<ast::stmt::Return>(std::nullopt);
   }
 ;
 

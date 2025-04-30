@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <variant>
 
@@ -123,6 +124,17 @@ namespace ast::stmt {
     auto statements() const -> std::vector<std::shared_ptr<Statement>> {
       return statements_;
     }
+  };
+
+  class Return final : public Statement {
+    std::optional<std::shared_ptr<expr::Expression>> expression_;
+  public:
+    explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
+    ~Return() override = default;
+    void accept(SemanticAnalyser&) override;
+    void accept(CodeGenerator&) override;
+    void print(int) override;
+    auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
 }
 

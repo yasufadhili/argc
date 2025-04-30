@@ -69,6 +69,10 @@ COMMENT         \/\/[^\n]*
                   return yy::Parser::make_SEMICOLON(loc_);
                 }
 
+"return"        {
+                  return yy::Parser::make_RETURN(loc_);
+                }
+
 {INTEGER}       {
                     return yy::Parser::make_INTEGER(std::atof(YYText()), loc_);
                 }
