@@ -157,7 +157,8 @@ void FileSink::write(const LogMessage &log_message) {
 
 ConsoleSink::ConsoleSink() {
   // Use a simpler default format for console output
-  set_format("[%t] [%l] %m");
+  //set_format("[%t] [%l] %m");
+  set_format("[%l] %m");
 }
 
 void ConsoleSink::write(const LogMessage &log_message) {
