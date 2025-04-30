@@ -58,10 +58,14 @@ namespace yy {
 
 %token BACK_TICK
 
+%token <std::string> IDENT
+
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
 
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
+
+%type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
 
 %start translation_unit
@@ -72,9 +76,16 @@ namespace yy {
 %%
 
 translation_unit
-  : %empty {
+  : identifier {
     unit = std::make_shared<ast::unit::TranslationUnit>();
     $$ = unit;
+  }
+;
+
+
+identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
   }
 ;
 
