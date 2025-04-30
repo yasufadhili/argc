@@ -12,7 +12,7 @@ namespace ast {
 class SemanticAnalyser;
 class CodeGenerator;
 
-enum class BinaryOp { ADD, SUB, MUL, DIV, MOD, NONE };
+enum class BinaryOp { ADD, SUB, MUL, DIV, MOD, B_AND, B_OR, L_AND, L_OR, NONE };
 enum class UnaryOp { NEG, B_NOT, L_NOT };
 enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 

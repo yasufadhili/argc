@@ -129,14 +129,11 @@ translation_unit
 
 
 expression
-  : term {
+  : logical_expression {
     $$ = $1;
   }
-  | expression PLUS term {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::ADD, $1, $3);
-  }
-  | expression MINUS term {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::SUB, $1, $3);
+  | bitwise_expression {
+    $$ = $1;
   }
 ;
 
@@ -146,7 +143,7 @@ logical_expression
     $$ = $1;
   }
   | logical_expression LOGICAL_AND relational_expression {
-    $$ = std::make_shared<ast::Binary>(
+    $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::B_AND, $1, $3
     );
   }
@@ -180,32 +177,32 @@ relational_expression
   }
   | arithmetic_expression EQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::EQ, $1, $3
+      ast::RelationalOp::EQ, $1, $3
     );
   }
   | arithmetic_expression NEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::NEQ, $1, $3
+      ast::RelationalOp::NEQ, $1, $3
     );
   }
   | arithmetic_expression GT arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::GT, $1, $3
+      ast::RelationalOp::GT, $1, $3
     );
   }
   | arithmetic_expression LT arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::LT, $1, $3
+      ast::RelationalOp::LT, $1, $3
     );
   }
   | arithmetic_expression LEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::LEQ, $1, $3
+      ast::RelationalOp::LEQ, $1, $3
     );
   }
   | arithmetic_expression GEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
-      ast::BinaryOp::GEQ, $1, $3
+      ast::RelationalOp::GEQ, $1, $3
     );
   }
 ;
