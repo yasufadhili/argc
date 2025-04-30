@@ -8,6 +8,9 @@
 #include <sstream>
 #include <variant>
 
+#include "sym_table.hh"
+#include "util_logger.hh"
+
 namespace ast {
 
 class SemanticAnalyser;
@@ -168,14 +171,43 @@ struct SematicError {
 
 class SemanticAnalyser final {
   std::vector<SematicError> errors_;
+  std::shared_ptr<sym_table::SymbolTable> symbol_table_;
+  std::shared_ptr<sym_table::Type> current_function_return_type_;
+  bool error_occurred_ ;
 public:
   ~SemanticAnalyser() = default;
-  SemanticAnalyser() = default;
-  auto analyse(std::shared_ptr<unit::TranslationUnit>&) -> bool;
+  SemanticAnalyser();
+  auto analyse(const std::shared_ptr<unit::TranslationUnit>&) -> bool;
   auto get_errors() -> std::vector<SematicError> { return errors_; }
   auto add_error(const std::string& msg) -> void ;
-public:
-  void visit(std::shared_ptr<unit::TranslationUnit>&);
+
+  auto report_error(const std::string& message, const Node& node) -> void {
+    LOG_ERROR(message);
+    error_occurred_ = true;
+  };
+
+  static auto report_warning(const std::string& message, const Node& node) -> void {
+    LOG_WARNING(message);
+  };
+
+  auto current_function_return_type() const -> std::shared_ptr<sym_table::Type> {
+    return current_function_return_type_;
+  }
+
+  auto symbol_table() const -> std::shared_ptr<sym_table::SymbolTable> {
+    return symbol_table_;
+  }
+
+  auto errors() const -> std::vector<SematicError> {
+    return errors_;
+  }
+
+  void visit(const std::shared_ptr<unit::TranslationUnit>&tu) { tu->accept(*this); }
+
+  void visit (const std::shared_ptr<stmt::Statement>& s) { s->accept(*this); }
+  void visit (const std::shared_ptr<stmt::Empty>& s) { s->accept(*this); }
+  void visit (const std::shared_ptr<stmt::Block>& s) { s->accept(*this); }
+  void visit (const std::shared_ptr<stmt::Return>& s) { s->accept(*this); }
 };
 }
 
