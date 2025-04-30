@@ -49,6 +49,10 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
+{IDENTIFIER}    {
+                  return yy::Parser::make_IDENT(std::string(YYText()), loc_);
+                }
+
 <<EOF>>         { 
                     if (!exit_file()) 
                     { 
