@@ -94,6 +94,11 @@ namespace yy {
 
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
+%type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
+%type <std::shared_ptr<ast::stmt::Statement>> statement;
+%type <std::shared_ptr<ast::stmt::Statement>> execution_statement;
+%type <std::shared_ptr<ast::stmt::Block>> block_statement;
+
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
 %type <std::shared_ptr<ast::expr::Expression>> logical_expression;
@@ -125,6 +130,43 @@ translation_unit
   : expression {
     unit = std::make_shared<ast::unit::TranslationUnit>();
     $$ = unit;
+  }
+;
+
+
+statement
+  : execution_statement {
+    $$ = $1;
+  }
+;
+
+
+execution_statement
+  : block_statement {
+    $$ = $1;
+  }
+;
+
+
+statement_list
+  : statement {
+    $$ = std::vector<std::shared_ptr<ast::stmt::Statement>>{$1};
+  }
+  | statement_list statement {
+    $$ = $1;
+    $$.push_back($2);
+  }
+;
+
+
+block_statement
+  : LBRACE statement_list RBRACE {
+      $$ = std::make_shared<ast::stmt::Block>($2);
+  }
+  | LBRACE RBRACE {
+    $$ = std::make_shared<ast::stmt::Block>(
+      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    );
   }
 ;
 

@@ -104,6 +104,16 @@ namespace ast::expr {
 
 namespace ast::stmt {
   class Statement : public Node {};
+  class Block final : public Statement {
+    std::vector<std::shared_ptr<Statement>> statements_;
+  public:
+    explicit Block(std::vector<std::shared_ptr<Statement>>);
+    ~Block() override = default;
+    void accept(SemanticAnalyser &) override;
+    void accept(CodeGenerator &) override;
+    void print(int level) override;
+    auto statements() const -> std::vector<std::shared_ptr<Statement>>;
+  };
 }
 
 namespace ast::func {
