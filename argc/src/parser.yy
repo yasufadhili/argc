@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "include/ast.hh"
-
+#include "include/util_logger.hh"
 
 
 namespace yy {
@@ -382,5 +382,5 @@ identifier
 
 void yy::Parser::error(const location_type& loc, const std::string& msg)
 {
-    std::cout << "ERROR at "<< loc << ": " << msg << std::endl;
+  std::cerr << "ERROR at "<< loc.begin << ": " << msg << std::endl;
 }

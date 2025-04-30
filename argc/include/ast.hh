@@ -186,6 +186,7 @@ public:
   auto report_error(const std::string& message, const Node& node) -> void {
     LOG_ERROR(message);
     error_occurred_ = true;
+    yy::location l;
   };
 
   static auto report_warning(const std::string& message, const Node& node) -> void {
