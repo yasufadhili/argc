@@ -272,6 +272,9 @@ primary
   | LPAREN arithmetic_expression RPAREN {
     $$ = $2;
   }
+  | LPAREN bitwise_expression RPAREN {
+    $$ = $2;
+  }
 ;
 
 
