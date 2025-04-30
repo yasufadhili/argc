@@ -108,7 +108,7 @@ namespace yy {
 
 translation_unit
   : expression {
-    unit = std::make_shared<ast::unit::TranslationUnit>($1);
+    unit = std::make_shared<ast::unit::TranslationUnit>();
     $$ = unit;
   }
 ;
