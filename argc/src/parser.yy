@@ -64,6 +64,13 @@ namespace yy {
 %token DIVIDE
 %token MODULO
 
+%token LT
+%token GT
+%token EQ
+%token LEQ
+%token GEQ
+%token NEQ
+
 %token UNARY_MINUS
 %token TILDE
 
