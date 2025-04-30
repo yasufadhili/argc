@@ -55,6 +55,16 @@ namespace yy {
 
 %token LBRACE
 %token RBRACE
+%token RPAREN
+%token LPAREN
+
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token MODULO
+
+%token SEMICOLON
 
 %token BACK_TICK
 
@@ -67,7 +77,17 @@ namespace yy {
 
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
+%type <std::shared_ptr<ast::expr::Expression>> expression;
+
+%type <std::shared_ptr<ast::expr::Expression>> term;
+%type <std::shared_ptr<ast::expr::Expression>> factor;
+
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
+%type <std::shared_ptr<ast::expr::Literal>> literal;
+
+
+%left PLUS MINUS
+%left TIMES DIVIDE MODULO
 
 
 %start translation_unit
@@ -88,6 +108,30 @@ translation_unit
 identifier
   : IDENT {
     $$ = std::make_shared<ast::ident::Identifier>($1);
+  }
+;
+
+
+term
+  : term TIMES factor {
+    $$ = std::make_shared<>();
+  }
+;
+
+
+factor
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Literal>($1);
+  }
+  | LPAREN expression RPAREN {
+    $$ = $2;
+  }
+;
+
+
+literal
+  : INTEGER {
+    $$ = std::make_shared<ast::expr::Literal>($1);
   }
 ;
 

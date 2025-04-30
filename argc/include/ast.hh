@@ -11,6 +11,9 @@ namespace ast {
 class SemanticAnalyser;
 class CodeGenerator;
 
+enum class BinaryOp { Add, Sub, Mul, Div, Mod };
+enum class UnaryOp { Neg, B_Not, L_Not };
+
 class Node {
 protected:
   static void print_indent(const int level) {
@@ -52,8 +55,24 @@ public:
 }
 
 namespace ast::expr {
+
   class Expression : public Node {
 
+  };
+
+  class Binary final : public Expression {
+    BinaryOp op_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
+  public:
+    Binary(BinaryOp, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
+    ~Binary() override = default;
+    void accept(SemanticAnalyser &) override;
+    void accept(CodeGenerator &) override;
+    void print(int level) override;
+    auto lhs() const -> std::shared_ptr<Expression> { return lhs_; };
+    auto rhs() const -> std::shared_ptr<Expression> { return rhs_; };
+    auto op() const -> BinaryOp { return op_; };
   };
 
   class Literal final : public Expression {
