@@ -127,6 +127,45 @@ expression
 ;
 
 
+relational_expression
+  : arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::NONE, $1, nullptr
+    );
+  }
+  | arithmetic_expression EQ arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::EQ, $1, $3
+    );
+  }
+  | arithmetic_expression NEQ arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::NEQ, $1, $3
+    );
+  }
+  | arithmetic_expression GT arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::GT, $1, $3
+    );
+  }
+  | arithmetic_expression LT arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::LT, $1, $3
+    );
+  }
+  | arithmetic_expression LEQ arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::LEQ, $1, $3
+    );
+  }
+  | arithmetic_expression GEQ arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::GEQ, $1, $3
+    );
+  }
+;
+
+
 arithmetic_expression
   : term {
     $$ = $1;

@@ -21,7 +21,7 @@ void Unary::print(const int level) {
   std::cout << "Unary \n";
 }
 
-Binary::Binary(const BinaryOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+Binary::Binary(const std::variant<BinaryOp, RelationalOp> op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
   : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
 void Binary::accept(SemanticAnalyser&) {

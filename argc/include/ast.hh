@@ -5,13 +5,14 @@
 #include <memory>
 #include <iostream>
 #include <sstream>
+#include <variant>
 
 namespace ast {
 
 class SemanticAnalyser;
 class CodeGenerator;
 
-enum class BinaryOp { ADD, SUB, MUL, DIV, MOD };
+enum class BinaryOp { ADD, SUB, MUL, DIV, MOD, NONE };
 enum class UnaryOp { NEG, B_NOT, L_NOT };
 enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
@@ -62,18 +63,18 @@ namespace ast::expr {
   };
 
   class Binary final : public Expression {
-    BinaryOp op_;
+    std::variant<BinaryOp, RelationalOp> op_;
     std::shared_ptr<Expression> lhs_;
     std::shared_ptr<Expression> rhs_;
   public:
-    Binary(BinaryOp, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
-    ~Binary() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    Binary (std::variant<BinaryOp, RelationalOp>, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
+    ~Binary () override = default;
+    void accept (SemanticAnalyser &) override;
+    void accept (CodeGenerator &) override;
     void print(int level) override;
-    auto lhs() const -> std::shared_ptr<Expression> { return lhs_; };
-    auto rhs() const -> std::shared_ptr<Expression> { return rhs_; };
-    auto op() const -> BinaryOp { return op_; };
+    auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
+    auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
+    auto op () const -> std::variant<BinaryOp, RelationalOp> { return op_; };
   };
 
   class Unary final : public Expression {
