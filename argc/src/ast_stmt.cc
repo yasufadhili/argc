@@ -21,6 +21,9 @@ void Block::accept(CodeGenerator &) {
 void Block::print(const int level) {
   print_indent(level);
   std::cout << "Block Statement " <<'\n';
+  for (const auto &stmt : statements()) {
+    stmt->print(level + 1);
+  }
 }
 
 void Empty::print(const int level) {
@@ -44,5 +47,8 @@ void Return::accept(CodeGenerator &) {
 void Return::print(const int level) {
   print_indent(level);
   std::cout << "Return Statement " <<'\n';
+  if (expression().has_value()) {
+    expression().value()->print(level + 1);
+  }
 }
 

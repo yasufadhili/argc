@@ -20,4 +20,7 @@ void TranslationUnit::accept(CodeGenerator &) {
 void TranslationUnit::print(const int level) {
   print_indent(level);
   std::cout << "Translation Unit\n";
+  for (const auto& stmt : statements_) {
+    stmt->print(level + 1);
+  }
 }
