@@ -34,6 +34,9 @@ void Binary::accept(CodeGenerator&) {
 
 void Binary::print(const int level) {
   print_indent(level);
+  std::cout << "Binary Expression " << "\n";
+  lhs()->print(level + 1);
+  rhs()->print(level + 1);
 }
 
 Literal::Literal(const int v)
@@ -51,6 +54,6 @@ void Literal::accept(CodeGenerator &) {
 
 void Literal::print(const int level) {
   print_indent(level);
-  std::cout << "Literal \n";
+  std::cout << "Literal " << value() << "\n";
 }
 

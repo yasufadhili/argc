@@ -81,6 +81,7 @@ namespace yy {
 %token BITWISE_OR
 
 %token SEMICOLON
+%token ASSIGN
 
 %token BACK_TICK
 
@@ -120,8 +121,16 @@ namespace yy {
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
 
+// Operator precedence - from lowest to highest
+%precedence ASSIGN
+%left LOGICAL_OR
+%left LOGICAL_AND
+%left EQ NEQ
+%left GT LT GEQ LEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MODULO
+%right NOT
+%precedence UNARY_MINUS
 
 
 %start translation_unit
@@ -188,6 +197,15 @@ control_statement
 
 return_statement
   : RETURN arithmetic_expression {
+    $$ = std::make_shared<ast::stmt::Return>($2);
+  }
+  | RETURN logical_expression {
+    $$ = std::make_shared<ast::stmt::Return>($2);
+  }
+  | RETURN relational_expression {
+    $$ = std::make_shared<ast::stmt::Return>($2);
+  }
+  | RETURN bitwise_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
   }
   | RETURN {
