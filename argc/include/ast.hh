@@ -112,7 +112,9 @@ namespace ast::stmt {
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;
     void print(int level) override;
-    auto statements() const -> std::vector<std::shared_ptr<Statement>>;
+    auto statements() const -> std::vector<std::shared_ptr<Statement>> {
+      return statements_;
+    }
   };
 }
 
