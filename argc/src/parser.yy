@@ -87,6 +87,7 @@ namespace yy {
 %token <std::string> IDENT
 
 %token <int> INTEGER
+%token <float> FLOAT
 
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
