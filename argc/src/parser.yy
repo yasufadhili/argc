@@ -64,6 +64,9 @@ namespace yy {
 %token DIVIDE
 %token MODULO
 
+%token UNARY_MINUS
+%token TILDE
+
 %token SEMICOLON
 
 %token BACK_TICK
@@ -78,12 +81,18 @@ namespace yy {
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
 %type <std::shared_ptr<ast::expr::Expression>> expression;
+%type <std::shared_ptr<ast::expr::Unary>> unary_expression;
+%type <std::shared_ptr<ast::expr::Expression>> logical_expression;
+%type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
+%type <std::shared_ptr<ast::expr::Expression>> relational_expression;
 
 %type <std::shared_ptr<ast::expr::Expression>> term;
 %type <std::shared_ptr<ast::expr::Expression>> factor;
+%type <std::shared_ptr<ast::expr::Expression>> primary;
+%type <std::shared_ptr<ast::expr::Literal>> literal;
+%type <std::shared_ptr<ast::expr::Literal>> boolean_literal;
 
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
-%type <std::shared_ptr<ast::expr::Literal>> literal;
 
 
 %left PLUS MINUS
@@ -110,31 +119,76 @@ expression
     $$ = $1;
   }
   | expression PLUS term {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Add, $1, $3);
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::ADD, $1, $3);
   }
   | expression MINUS term {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Sub, $1, $3);
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::SUB, $1, $3);
   }
 ;
+
+
+arithmetic_expression
+  : term {
+    $$ = $1;
+  }
+  | arithmetic_expression PLUS term {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::ADD, $1, $3
+    );
+  }
+  | arithmetic_expression MINUS term {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::SUB, $1, $3
+    );
+  }
+;
+
 
 term
   : factor {
     $$ = $1;
   }
   | term TIMES factor {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Mul, $1, $3);
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::MUL, $1, $3);
   }
   | term TIMES factor {
-    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Div, $1, $3);
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::DIV, $1, $3);
+  }
+  | term MODULO factor {
+    $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::MOD, $1, $3);
+  }
+;
+
+
+unary_expression
+  : TILDE factor {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::UnaryOp::B_NOT, $2
+    );
+  }
+  | MINUS factor %prec UNARY_MINUS {
+    $$ = std::make_shared<ast::expr::Unary>(
+      ast::UnaryOp::NEG, $2
+    );
   }
 ;
 
 
 factor
+  : primary {
+    $$ = $1;
+  }
+  | unary_expression {
+    $$ = $1;
+  }
+;
+
+
+primary
   : literal {
     $$ = $1;
   }
-  | LPAREN expression RPAREN {
+  | LPAREN arithmetic_expression RPAREN {
     $$ = $2;
   }
 ;

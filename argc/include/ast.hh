@@ -11,8 +11,9 @@ namespace ast {
 class SemanticAnalyser;
 class CodeGenerator;
 
-enum class BinaryOp { Add, Sub, Mul, Div, Mod };
-enum class UnaryOp { Neg, B_Not, L_Not };
+enum class BinaryOp { ADD, SUB, MUL, DIV, MOD };
+enum class UnaryOp { NEG, B_NOT, L_NOT };
+enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
 class Node {
 protected:
@@ -73,6 +74,19 @@ namespace ast::expr {
     auto lhs() const -> std::shared_ptr<Expression> { return lhs_; };
     auto rhs() const -> std::shared_ptr<Expression> { return rhs_; };
     auto op() const -> BinaryOp { return op_; };
+  };
+
+  class Unary final : public Expression {
+    UnaryOp op_;
+    std::shared_ptr<Expression> operand_;
+  public:
+    Unary(UnaryOp, std::shared_ptr<Expression>);
+    ~Unary() override = default;
+    void accept(SemanticAnalyser &) override;
+    void accept(CodeGenerator &) override;
+    void print(int level) override;
+    auto operand() const -> std::shared_ptr<Expression> { return operand_; };
+    auto op() const -> UnaryOp { return op_; };
   };
 
   class Literal final : public Expression {
