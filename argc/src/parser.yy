@@ -98,18 +98,12 @@ namespace yy {
 %%
 
 translation_unit
-  : identifier {
-    unit = std::make_shared<ast::unit::TranslationUnit>();
+  : expression {
+    unit = std::make_shared<ast::unit::TranslationUnit>($1);
     $$ = unit;
   }
 ;
 
-
-identifier
-  : IDENT {
-    $$ = std::make_shared<ast::ident::Identifier>($1);
-  }
-;
 
 expression
   : term {
@@ -124,14 +118,14 @@ expression
 ;
 
 term
-  : term TIMES factor {
+  : factor {
+    $$ = $1;
+  }
+  | term TIMES factor {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Mul, $1, $3);
   }
   | term TIMES factor {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::Div, $1, $3);
-  }
-  | factor {
-    $$ = $1;
   }
 ;
 
@@ -149,6 +143,13 @@ factor
 literal
   : INTEGER {
     $$ = std::make_shared<ast::expr::Literal>($1);
+  }
+;
+
+
+identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
   }
 ;
 

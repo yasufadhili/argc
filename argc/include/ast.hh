@@ -101,8 +101,9 @@ namespace ast::mod {
 
 namespace ast::unit {
   class TranslationUnit final : public Node {
+    std::shared_ptr<expr::Expression> expr_;
   public:
-    TranslationUnit() = default;
+    TranslationUnit(std::shared_ptr<expr::Expression>);
     ~TranslationUnit() override = default;
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;
