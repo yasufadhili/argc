@@ -49,6 +49,26 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
+"{"             {
+                  return yy::Parser::make_LBRACE(loc_);
+                }
+
+"}"             {
+                  return yy::Parser::make_RBRACE(loc_);
+                }
+
+"("             {
+                  return yy::Parser::make_LPAREN(loc_);
+                }
+
+")"             {
+                  return yy::Parser::make_RPAREN(loc_);
+                }
+
+";"             {
+                  return yy::Parser::make_SEMICOLON(loc_);
+                }
+
 {INTEGER}       {
                     return yy::Parser::make_INTEGER(std::atof(YYText()), loc_);
                 }

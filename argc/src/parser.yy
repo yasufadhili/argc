@@ -145,6 +145,13 @@ statement_list
 ;
 
 
+statement
+  : execution_statement {
+    $$ = $1;
+  }
+;
+
+
 execution_statement
   : block_statement {
     $$ = $1;
@@ -160,13 +167,6 @@ block_statement
     $$ = std::make_shared<ast::stmt::Block>(
       std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
-  }
-;
-
-
-statement
-  : execution_statement {
-    $$ = $1;
   }
 ;
 

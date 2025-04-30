@@ -104,6 +104,14 @@ namespace ast::expr {
 
 namespace ast::stmt {
   class Statement : public Node {};
+  class Empty final : public Statement {
+  public:
+    explicit Empty() = default;
+    ~Empty() override = default;
+    void accept(SemanticAnalyser &) override {};
+    void accept(CodeGenerator &) override {};
+    void print(int level) override;
+  };
   class Block final : public Statement {
     std::vector<std::shared_ptr<Statement>> statements_;
   public:
