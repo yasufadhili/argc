@@ -60,6 +60,8 @@ namespace yy {
 
 %token <std::string> IDENT
 
+%token <int> INTEGER
+
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
 

@@ -55,6 +55,17 @@ namespace ast::expr {
   class Expression : public Node {
 
   };
+
+  class Literal final : public Expression {
+    int value_;
+  public:
+    explicit Literal(int);
+    ~Literal() override = default;
+    void accept(SemanticAnalyser &) override;
+    void accept(CodeGenerator &) override;
+    void print(int level) override;
+    auto value() const -> int { return value_; };
+  };
 }
 
 namespace ast::stmt {

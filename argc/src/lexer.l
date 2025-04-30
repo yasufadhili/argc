@@ -49,6 +49,10 @@ COMMENT         \/\/[^\n]*
 
 {COMMENT}       { /* Skip comments */ }
 
+{INTEGER}       {
+                    return yy::Parser::make_INTEGER(std::atof(YYText()), loc_);
+                }
+
 {IDENTIFIER}    {
                   return yy::Parser::make_IDENT(std::string(YYText()), loc_);
                 }
