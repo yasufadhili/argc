@@ -77,6 +77,9 @@ namespace yy {
 %token LOGICAL_AND
 %token LOGICAL_OR
 
+%token BITWISE_AND
+%token BITWISE_OR
+
 %token SEMICOLON
 
 %token BACK_TICK
@@ -94,6 +97,7 @@ namespace yy {
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
 %type <std::shared_ptr<ast::expr::Expression>> logical_expression;
 %type <std::shared_ptr<ast::expr::Expression>> arithmetic_expression;
+%type <std::shared_ptr<ast::expr::Expression>> bitwise_expression;
 %type <std::shared_ptr<ast::expr::Expression>> relational_expression;
 
 %type <std::shared_ptr<ast::expr::Expression>> term;
@@ -149,6 +153,20 @@ logical_expression
   | logical_expression LOGICAL_OR relational_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::L_OR, $1, $3
+    );
+  }
+;
+
+
+bitwise_expression
+  : arithmetic_expression BITWISE_AND arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::B_AND, $1, $3
+    );
+  }
+  | arithmetic_expression BITWISE_OR arithmetic_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::B_OR, $1, $3
     );
   }
 ;
