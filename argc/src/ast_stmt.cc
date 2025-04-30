@@ -36,8 +36,15 @@ Return::Return(std::optional<std::shared_ptr<expr::Expression> > expr)
 
 }
 
-void Return::accept(SemanticAnalyser &) {
-
+void Return::accept(SemanticAnalyser &an) {
+  if (!an.current_function_return_type()) {
+    an.report_error("Return statement outside of function", *this);
+    return;
+  }
+  // check if return value is provided
+  if (expression().has_value()) {
+    //an.visit(expression().value());
+  }
 }
 
 void Return::accept(CodeGenerator &) {

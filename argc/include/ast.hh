@@ -8,6 +8,7 @@
 #include <sstream>
 #include <variant>
 
+#include "location.hh"
 #include "sym_table.hh"
 #include "util_logger.hh"
 
@@ -170,6 +171,7 @@ struct SematicError {
 };
 
 class SemanticAnalyser final {
+  yy::location location_;
   std::vector<SematicError> errors_;
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   std::shared_ptr<sym_table::Type> current_function_return_type_;

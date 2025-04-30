@@ -4,7 +4,7 @@
 
 %define api.parser.class {Parser}
 %define api.value.type variant
-//%define api.value.automove true
+%define api.value.automove true
 %define api.token.raw
 %define api.token.constructor
 

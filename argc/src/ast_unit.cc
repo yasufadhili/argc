@@ -10,8 +10,10 @@ TranslationUnit::TranslationUnit(std::vector<std::shared_ptr<stmt::Statement> > 
 
 }
 
-void TranslationUnit::accept(SemanticAnalyser &) {
-
+void TranslationUnit::accept(SemanticAnalyser &an) {
+  for (const auto& s : statements_) {
+    an.visit(s);
+  }
 }
 
 void TranslationUnit::accept(CodeGenerator &) {
