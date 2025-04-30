@@ -74,6 +74,9 @@ namespace yy {
 %token UNARY_MINUS
 %token TILDE
 
+%token LOGICAL_AND
+%token LOGICAL_OR
+
 %token SEMICOLON
 
 %token BACK_TICK
@@ -130,6 +133,23 @@ expression
   }
   | expression MINUS term {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::SUB, $1, $3);
+  }
+;
+
+
+logical_expression
+  : relational_expression {
+    $$ = $1;
+  }
+  | logical_expression LOGICAL_AND relational_expression {
+    $$ = std::make_shared<ast::Binary>(
+      ast::BinaryOp::B_AND, $1, $3
+    );
+  }
+  | logical_expression LOGICAL_OR relational_expression {
+    $$ = std::make_shared<ast::expr::Binary>(
+      ast::BinaryOp::L_OR, $1, $3
+    );
   }
 ;
 
