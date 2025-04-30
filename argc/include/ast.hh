@@ -126,8 +126,9 @@ namespace ast::mod {
 
 namespace ast::unit {
   class TranslationUnit final : public Node {
+    std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
-    TranslationUnit() = default;
+    TranslationUnit(std::vector<std::shared_ptr<stmt::Statement>>);
     ~TranslationUnit() override = default;
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;

@@ -127,23 +127,9 @@ namespace yy {
 %%
 
 translation_unit
-  : expression {
-    unit = std::make_shared<ast::unit::TranslationUnit>();
+  : statement_list {
+    unit = std::make_shared<ast::unit::TranslationUnit>($1);
     $$ = unit;
-  }
-;
-
-
-statement
-  : execution_statement {
-    $$ = $1;
-  }
-;
-
-
-execution_statement
-  : block_statement {
-    $$ = $1;
   }
 ;
 
@@ -159,6 +145,13 @@ statement_list
 ;
 
 
+execution_statement
+  : block_statement {
+    $$ = $1;
+  }
+;
+
+
 block_statement
   : LBRACE statement_list RBRACE {
       $$ = std::make_shared<ast::stmt::Block>($2);
@@ -167,6 +160,13 @@ block_statement
     $$ = std::make_shared<ast::stmt::Block>(
       std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
+  }
+;
+
+
+statement
+  : execution_statement {
+    $$ = $1;
   }
 ;
 
