@@ -1,6 +1,40 @@
+#include <utility>
+
 #include "include/ast.hh"
 
+using namespace ast;
 using namespace ast::expr;
+
+Unary::Unary(const UnaryOp op, std::shared_ptr<Expression> operand)
+  : op_(op), operand_(std::move(operand)) {}
+
+void Unary::accept(SemanticAnalyser&) {
+
+}
+
+void Unary::accept(CodeGenerator&) {
+
+}
+
+void Unary::print(const int level) {
+  print_indent(level);
+  std::cout << "Unary \n";
+}
+
+Binary::Binary(const BinaryOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+  : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
+
+void Binary::accept(SemanticAnalyser&) {
+
+}
+
+void Binary::accept(CodeGenerator&) {
+
+}
+
+void Binary::print(const int level) {
+  print_indent(level);
+}
 
 Literal::Literal(const int v)
   : value_(v){
