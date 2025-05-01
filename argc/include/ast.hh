@@ -331,6 +331,7 @@ public:
   void visit (const std::shared_ptr<stmt::Return>& s) { s->accept(*this); }
   void visit (const std::shared_ptr<stmt::Assignment>& s) { s->accept(*this); }
   void visit (const std::shared_ptr<stmt::VariableDeclaration>& s) { s->accept(*this); }
+  void visit (const std::shared_ptr<stmt::Print>& s) { s->accept(*this); }
 
   void visit (const std::shared_ptr<expr::Expression>& e) { e->accept(*this); }
   void visit (const std::shared_ptr<expr::Binary>& e) { e->accept(*this); }
