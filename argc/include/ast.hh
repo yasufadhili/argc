@@ -172,9 +172,9 @@ namespace ast::stmt {
     std::optional<std::shared_ptr<expr::Expression>> initialiser_;
   public:
     VariableDeclaration(
-      std::shared_ptr<ident::Identifier>&,
-      const std::shared_ptr<sym_table::Type> &type,
-      const std::optional<std::shared_ptr<expr::Expression>>& init
+      std::shared_ptr<ident::Identifier>,
+      std::shared_ptr<sym_table::Type>,
+      std::optional<std::shared_ptr<expr::Expression>>
     );
     ~VariableDeclaration() override = default;
     void accept(SemanticAnalyser&) override;
