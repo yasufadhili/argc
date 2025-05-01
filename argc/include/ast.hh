@@ -67,10 +67,12 @@ public:
 namespace ast::expr {
 
   using LiteralVariant = std::variant<
-    int, double
+    int, double, bool
   >;
 
   class Expression : public Node {
+  public:
+    virtual LiteralVariant evaluate() = 0;
   };
 
   class Binary final : public Expression {
@@ -86,6 +88,7 @@ namespace ast::expr {
     auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
     auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
     auto op () const -> std::variant<BinaryOp, RelationalOp> { return op_; };
+    LiteralVariant evaluate() override;
   };
 
   class Unary final : public Expression {
@@ -99,6 +102,7 @@ namespace ast::expr {
     void print(int level) override;
     auto operand() const -> std::shared_ptr<Expression> { return operand_; };
     auto op() const -> UnaryOp { return op_; };
+    LiteralVariant evaluate() override;
   };
 
   class Literal final : public Expression {
@@ -110,6 +114,7 @@ namespace ast::expr {
     void accept(CodeGenerator &) override;
     void print(int level) override;
     auto value() const -> LiteralVariant { return value_; };
+    LiteralVariant evaluate() override;
   };
 
   class Variable final : public Expression {
@@ -126,6 +131,7 @@ namespace ast::expr {
     auto set_type(std::shared_ptr<sym_table::Type> t) -> void {
       type_ = t;
     }
+    LiteralVariant evaluate() override;
   };
 }
 
