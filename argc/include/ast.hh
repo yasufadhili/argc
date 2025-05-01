@@ -248,9 +248,8 @@ namespace ast::unit {
 
   class TranslationUnit final : public Node {
     std::vector<std::shared_ptr<mod::Module>> modules_;
-    std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
-    TranslationUnit(std::vector<std::shared_ptr<stmt::Statement>>);
+    TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
     ~TranslationUnit() override = default;
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;
@@ -305,7 +304,9 @@ public:
     return errors_;
   }
 
-  void visit(const std::shared_ptr<unit::TranslationUnit>&tu) { tu->accept(*this); }
+  void visit (const std::shared_ptr<unit::TranslationUnit>&tu) { tu->accept(*this); }
+
+  void visit (const std::shared_ptr<mod::Module>&m) { m->accept(*this); }
 
   void visit (const std::shared_ptr<stmt::Statement>& s) { s->accept(*this); }
   void visit (const std::shared_ptr<stmt::Empty>& s) { s->accept(*this); }

@@ -158,7 +158,7 @@ namespace yy {
 %%
 
 translation_unit
-  : statement_list {
+  : module_definition_list {
     unit = std::make_shared<ast::unit::TranslationUnit>($1);
     $$ = unit;
   }
