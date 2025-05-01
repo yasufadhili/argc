@@ -86,9 +86,12 @@ namespace yy {
 %token BACK_TICK
 
 %token <std::string> IDENT
+%token <std::string> TYPE_IDENT
 
 %token <int> INTEGER
 %token <float> FLOAT
+
+
 
 %token RETURN
 

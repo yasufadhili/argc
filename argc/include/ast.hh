@@ -63,6 +63,10 @@ public:
 
 namespace ast::expr {
 
+  using LiteralVariant = std::variant<
+    int, double
+  >;
+
   class Expression : public Node {
 
   };
@@ -96,14 +100,14 @@ namespace ast::expr {
   };
 
   class Literal final : public Expression {
-    int value_;
+    LiteralVariant value_;
   public:
-    explicit Literal(int);
+    explicit Literal(LiteralVariant);
     ~Literal() override = default;
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;
     void print(int level) override;
-    auto value() const -> int { return value_; };
+    auto value() const -> LiteralVariant { return value_; };
   };
 
   class Variable final : public Expression {

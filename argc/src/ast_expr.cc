@@ -1,4 +1,5 @@
 #include <utility>
+#include <variant>
 
 #include "include/ast.hh"
 
@@ -39,7 +40,7 @@ void Binary::print(const int level) {
   rhs()->print(level + 1);
 }
 
-Literal::Literal(const int v)
+Literal::Literal(LiteralVariant v)
   : value_(v){
 
 }
@@ -54,6 +55,11 @@ void Literal::accept(CodeGenerator &) {
 
 void Literal::print(const int level) {
   print_indent(level);
-  std::cout << "Literal " << value() << "\n";
+  if (std::holds_alternative<int>(value())) {
+    std::cout << "Literal " << std::get<int>(value()) << "\n";
+  } 
+  else if (std::holds_alternative<double>(value())) {
+    std::cout << "Literal " << std::get<double>(value()) << "\n";
+  }
 }
 
