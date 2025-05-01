@@ -25,7 +25,7 @@ void Unary::print(const int level) {
 Binary::Binary(const std::variant<BinaryOp, RelationalOp> op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
   : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
-void Binary::accept(SemanticAnalyser&an) {
+void Binary::accept(SemanticAnalyser&an) {  
   an.visit(lhs());
   an.visit(rhs());
 }
@@ -47,7 +47,7 @@ Literal::Literal(LiteralVariant v)
 }
 
 void Literal::accept(SemanticAnalyser &an) {
-  
+
 }
 
 void Literal::accept(CodeGenerator &) {

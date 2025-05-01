@@ -8,7 +8,6 @@
 #include <sstream>
 #include <variant>
 
-#include "config.hh"
 #include "location.hh"
 #include "sym_table.hh"
 #include "util_logger.hh"
@@ -39,6 +38,7 @@ public:
 }
 
 namespace ast::ident {
+
 class Identifier final : public Node {
   std::string name_;
 public:
@@ -60,6 +60,7 @@ public:
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
+
 }
 
 namespace ast::expr {
@@ -127,6 +128,7 @@ namespace ast::expr {
 
 namespace ast::stmt {
   class Statement : public Node {};
+
   class Empty final : public Statement {
   public:
     explicit Empty() = default;
@@ -135,6 +137,7 @@ namespace ast::stmt {
     void accept(CodeGenerator &) override {};
     void print(int level) override;
   };
+
   class Block final : public Statement {
     std::vector<std::shared_ptr<Statement>> statements_;
   public:
@@ -158,10 +161,13 @@ namespace ast::stmt {
     void print(int) override;
     auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
+
 }
 
 namespace ast::func {
+
   class Function : public Node {};
+
 }
 
 namespace ast::mod {
@@ -169,6 +175,7 @@ namespace ast::mod {
 }
 
 namespace ast::unit {
+
   class TranslationUnit final : public Node {
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
@@ -178,6 +185,7 @@ namespace ast::unit {
     void accept(CodeGenerator &) override;
     void print(int level) override;
   };
+
 }
 
 namespace ast {
@@ -189,11 +197,12 @@ struct SematicError {
 };
 
 class SemanticAnalyser final {
-  config::Config config_;
+
   std::vector<SematicError> errors_;
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   std::shared_ptr<sym_table::Type> current_function_return_type_;
   bool error_occurred_ ;
+
 public:
   ~SemanticAnalyser() = default;
   SemanticAnalyser();
