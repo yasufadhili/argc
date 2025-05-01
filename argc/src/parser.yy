@@ -101,6 +101,9 @@ namespace yy {
 
 %type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
 
+%type <std::shared_ptr<ast::mod::Module>> module;
+%type <std::vector<std::shared_ptr<ast::mod::Module>>> module_list;
+
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
 %type <std::shared_ptr<ast::stmt::Statement>> execution_statement;

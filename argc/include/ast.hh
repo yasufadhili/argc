@@ -212,12 +212,34 @@ namespace ast::func {
 }
 
 namespace ast::mod {
-  class Module : public Node {};
+
+  class Module : public Node {
+    std::string name_;
+    std::vector<std::shared_ptr<func::Function>> functions_;
+    std::vector<std::shared_ptr<stmt::Statement>> statements_;
+  public:
+    Module (
+      std::string,
+      std::vector<std::shared_ptr<func::Function>>,
+      std::vector<std::shared_ptr<stmt::Statement>>
+    ) ;
+    ~Module () override = default;
+    void accept (SemanticAnalyser&) override;
+    void accept (CodeGenerator&) override ;
+    void print (int) override;
+    auto name () -> std::string& { return name_; }
+    auto functions () -> std::vector<std::shared_ptr<func::Function>> { return functions_; }
+    auto statements () -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
+    auto add_function (std::shared_ptr<func::Function> f) -> void { functions_.emplace_back(f); }
+    auto add_statement (std::shared_ptr<stmt::Statement> s) -> void { statements_.emplace_back(s); }
+  };
+
 }
 
 namespace ast::unit {
 
   class TranslationUnit final : public Node {
+    std::vector<std::shared_ptr<mod::Module>> modules_;
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
     TranslationUnit(std::vector<std::shared_ptr<stmt::Statement>>);
@@ -225,6 +247,8 @@ namespace ast::unit {
     void accept(SemanticAnalyser &) override;
     void accept(CodeGenerator &) override;
     void print(int level) override;
+    auto add_module (std::shared_ptr<mod::Module> m) -> void { modules_.emplace_back(m); }
+    auto modules () -> std::vector<std::shared_ptr<mod::Module>> { return modules_; }
   };
 
 }
