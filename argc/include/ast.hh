@@ -186,6 +186,22 @@ namespace ast::stmt {
     auto set_symbol(std::shared_ptr<sym_table::Symbol> sym) -> void { symbol_ = std::move(sym); }
   };
 
+  class Assignment final : public Statement {
+    std::shared_ptr<ident::Identifier> target_;
+    std::shared_ptr<expr::Expression> value_;
+  public:
+    Assignment(
+      std::shared_ptr<ident::Identifier>,
+      std::shared_ptr<expr::Expression>
+    );
+    ~Assignment() override = default;
+    void accept(SemanticAnalyser&) override;
+    void accept(CodeGenerator&) override ;
+    void print(int) override;
+    auto target() -> std::shared_ptr<ident::Identifier> { return target_; }
+    auto value() -> std::shared_ptr<expr::Expression> { return value_; }
+  };
+
 }
 
 namespace ast::func {
