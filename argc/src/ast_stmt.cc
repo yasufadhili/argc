@@ -1,5 +1,6 @@
 
 #include "include/ast.hh"
+#include <utility>
 
 using namespace ast;
 using namespace ast::stmt;
@@ -59,3 +60,27 @@ void Return::print(const int level) {
   }
 }
 
+void VariableDeclaration::accept(SemanticAnalyser &) {
+
+}
+
+void VariableDeclaration::accept(CodeGenerator &) {
+
+}
+
+VariableDeclaration::VariableDeclaration (
+  std::shared_ptr<ident::Identifier> id,
+  std::shared_ptr<sym_table::Type> t,
+  std::optional<std::shared_ptr<expr::Expression>> init
+) :
+  identifier_(std::move(id)),
+  type_(std::move(t)),
+  initialiser_(std::move(init)) {}
+
+void VariableDeclaration::print(const int level) {
+  print_indent(level);
+  std::cout << "Variable Declaration Statement " <<'\n';
+  if (initialiser().has_value()) {
+    initialiser().value()->print(level + 1);
+  }
+}
