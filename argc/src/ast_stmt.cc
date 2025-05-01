@@ -41,7 +41,7 @@ Return::Return(std::optional<std::shared_ptr<expr::Expression> > expr)
 
 void Return::accept(SemanticAnalyser &an) {
   if (!an.current_function_return_type()) {
-    an.add_error("return statement outside of function");
+    an.add_error("return statement outside of function", location());
     //return;
   }
   // check if return value is provided
@@ -77,7 +77,7 @@ void VariableDeclaration::accept(SemanticAnalyser &an) {
   // Check if already declared in current scope
   if (an.symbol_table()->is_declared_in_current_scope(var_name)) {
     std::string err = "variable " + var_name + " already declared in this scope";
-    an.report_error(err, *this);
+    an.report_error(err, *this, location());
     return;
   }
 
@@ -111,7 +111,7 @@ void Assignment::accept(SemanticAnalyser &an) {
   //Lookup target variable
   auto target_symbol { an.symbol_table()->lookup_symbol(target_name) };
   if (!target_symbol) {
-    an.add_error("Undefined variable: " + target_name);
+    an.add_error("Undefined variable: " + target_name, location());
     //an.report_error("Undefined variable: " + target_name , *this);
     return;
   }
@@ -121,7 +121,7 @@ void Assignment::accept(SemanticAnalyser &an) {
     target_symbol->get_kind() != sym_table::SymbolKind::PARAM) 
   {
     std::string err = target_name + " is not a variable";
-    an.report_error(err, *this);
+    an.report_error(err, *this, location());
     return;
   }
 }
