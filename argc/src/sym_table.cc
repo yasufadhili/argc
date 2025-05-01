@@ -409,13 +409,17 @@ auto SymbolTable::get_instance() -> std::shared_ptr<SymbolTable> {
   if (!instance_) {
     instance_ = std::shared_ptr<SymbolTable>(new SymbolTable());
 
-    // Initialize with built-in types
-    instance_->add_type("int", Type::create_integer_type());
-    instance_->add_type("float", Type::create_floating_point_type());
+    // Initialise with built-in types
+    instance_->add_type("i8", Type::create_integer_type());
+    instance_->add_type("i16", Type::create_integer_type());
+    instance_->add_type("i32", Type::create_integer_type());
+    instance_->add_type("i64", Type::create_integer_type());
+    instance_->add_type("f32", Type::create_floating_point_type());
+    instance_->add_type("f64", Type::create_floating_point_type());
     instance_->add_type("char", Type::create_char_type());
     instance_->add_type("void", Type::create_void_type());
     instance_->add_type("bool", Type::create_bool_type());
-    instance_->add_type("string", Type::create_string_type());
+    instance_->add_type("str", Type::create_string_type());
   }
 
   return instance_;

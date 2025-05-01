@@ -90,6 +90,10 @@ COMMENT         \/\/[^\n]*
                   return yy::Parser::make_MODULO(loc_);
                 }
 
+"="             {
+                  return yy::Parser::make_ASSIGN(loc_);
+                }
+
 "return"        {
                   return yy::Parser::make_RETURN(loc_);
                 }
