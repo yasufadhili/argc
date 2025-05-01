@@ -185,6 +185,11 @@ statement
   | assignment_statement {
     $$ = $1;
   }
+  | error {
+    // Create a dummy statement for error recovery
+    LOG_WARNING("Invalid statement syntax");
+    $$ = std::make_shared<ast::stmt::Empty>();
+  }
 ;
 
 

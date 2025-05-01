@@ -7,3 +7,5 @@ var z i32 = x + 2
 var a i16 = p + 3 * z
 
 a = 23
+
+a = 34
