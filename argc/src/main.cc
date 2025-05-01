@@ -77,6 +77,9 @@ auto main(const int argc, char* argv[]) -> int {
   bool analysis_result { analyser.analyse(translation_unit) };
 
   if (!analysis_result) {
+    for (const auto& e : analyser.get_errors()) {
+      LOG_WARNING(e.message);
+    }
     LOG_ERROR("Semantic analysis failed with " + std::to_string(analyser.get_errors().size()) + " errors");
     return EXIT_FAILURE;
   }
