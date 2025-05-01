@@ -90,8 +90,17 @@ Assignment::Assignment (
   std::shared_ptr<expr::Expression> val
 ) : target_(std::move(target)), value_(std::move(val)) {}
 
-void Assignment::accept(SemanticAnalyser &) {
+void Assignment::accept(SemanticAnalyser &an) {
+  std::string target_name { target()->name() };
+  //Lookup target variable
+  auto target_symbol { an.symbol_table()->lookup_symbol(target_name) };
+  if (!target_symbol) {
+    an.add_error("Undefined variable: " + target_name);
+    //an.report_error("Undefined variable: " + target_name , *this);
+    //return;
+  }
 
+  // Check if target is a variable
 }
 
 void Assignment::accept(CodeGenerator &) {
