@@ -118,6 +118,8 @@ namespace yy {
 %type <std::shared_ptr<ast::expr::Literal>> literal;
 %type <std::shared_ptr<ast::expr::Literal>> boolean_literal;
 
+%type <std::shared_ptr<ast::ident::Variable>> variable;
+%type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
 
@@ -370,6 +372,20 @@ literal
   }
   | FLOAT {
     $$ = std::make_shared<ast::expr::Literal>($1);
+  }
+;
+
+
+variable
+  : identifier {
+    $$ = std::make_shared<ast::expr::Variable>($1, nullptr);
+  }
+;
+
+
+type_identifier
+  : TYPE_IDENT {
+    $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
   }
 ;
 
