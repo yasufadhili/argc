@@ -123,7 +123,7 @@ void Variable::accept(SemanticAnalyser &an) {
   auto symbol { an.symbol_table()->lookup_symbol(var_name) };
 
   if (!symbol) {
-    an.add_error("reference to undefined variable: " + var_name);
+    an.add_error("reference to undefined variable: " + var_name, location());
     return;
   }
 
@@ -134,7 +134,7 @@ void Variable::accept(SemanticAnalyser &an) {
     && symbol->get_kind() 
     != sym_table::SymbolKind::PARAM
   ) {
-    an.add_error(var_name + " is not a variable");
+    an.add_error(var_name + " is not a variable", location());
     return;
   }
 
