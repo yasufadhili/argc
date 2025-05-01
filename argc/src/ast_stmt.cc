@@ -60,14 +60,6 @@ void Return::print(const int level) {
   }
 }
 
-void VariableDeclaration::accept(SemanticAnalyser &) {
-
-}
-
-void VariableDeclaration::accept(CodeGenerator &) {
-
-}
-
 VariableDeclaration::VariableDeclaration (
   std::shared_ptr<ident::Identifier> id,
   std::shared_ptr<sym_table::Type> t,
@@ -77,10 +69,37 @@ VariableDeclaration::VariableDeclaration (
   type_(std::move(t)),
   initialiser_(std::move(init)) {}
 
+void VariableDeclaration::accept(SemanticAnalyser &) {
+
+}
+
+void VariableDeclaration::accept(CodeGenerator &) {
+
+}
+
 void VariableDeclaration::print(const int level) {
   print_indent(level);
   std::cout << "Variable Declaration Statement " <<'\n';
   if (initialiser().has_value()) {
     initialiser().value()->print(level + 1);
   }
+}
+
+Assignment::Assignment (
+  std::shared_ptr<ident::Identifier> target,
+  std::shared_ptr<expr::Expression> val
+) : target_(std::move(target)), value_(std::move(val)) {}
+
+void Assignment::accept(SemanticAnalyser &) {
+
+}
+
+void Assignment::accept(CodeGenerator &) {
+
+}
+
+void Assignment::print(const int level) {
+  print_indent(level);
+  std::cout << "Assignment Statement \n";
+  value()->print(level + 1);
 }
