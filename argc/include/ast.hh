@@ -105,6 +105,19 @@ namespace ast::expr {
     void print(int level) override;
     auto value() const -> int { return value_; };
   };
+
+  class Variable final : public Expression {
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::shared_ptr<sym_table::Type> type_;
+  public:
+    Variable(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
+    ~Variable() override = default;
+    void accept(SemanticAnalyser &) override;
+    void accept(CodeGenerator &) override;
+    void print(int level) override;
+    auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+  };
 }
 
 namespace ast::stmt {
