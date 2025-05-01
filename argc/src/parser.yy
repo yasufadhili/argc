@@ -128,7 +128,7 @@ namespace yy {
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
-%type <std::shared_ptr<sym::Type>> type_specifier;
+%type <std::shared_ptr<sym_table::Type>> type_specifier;
 %type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
 
 
@@ -171,7 +171,10 @@ statement_list
 
 
 statement
-  : execution_statement {
+  : declaration_statement {
+    $$ = $1;
+  }
+  | execution_statement {
     $$ = $1;
   }
   | control_statement {
@@ -251,7 +254,7 @@ optional_initialiser
 
 type_specifier
   : TYPE_IDENT {
-    $$ = std::make_shared<sym::Type>(sym_table::Type::TypeKind::PRIMITIVE, $1);
+    $$ = std::make_shared<sym_table::Type>(sym_table::Type::TypeKind::PRIMITIVE, $1);
   }
 ;
 
