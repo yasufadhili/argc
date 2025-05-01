@@ -1,5 +1,6 @@
 
 #include "include/ast.hh"
+#include <string>
 #include <utility>
 
 using namespace ast;
@@ -69,8 +70,15 @@ VariableDeclaration::VariableDeclaration (
   type_(std::move(t)),
   initialiser_(std::move(init)) {}
 
-void VariableDeclaration::accept(SemanticAnalyser &) {
+void VariableDeclaration::accept(SemanticAnalyser &an) {
+  std::string var_name { identifier()->name() };
 
+  // Check if already declared in current scope
+  if (an.symbol_table()->is_declared_in_current_scope(var_name)) {
+    std::string err = "variable " + var_name + " already declared in this scope";
+    an.report_error(err, *this);
+    return;
+  }
 }
 
 void VariableDeclaration::accept(CodeGenerator &) {
@@ -97,10 +105,17 @@ void Assignment::accept(SemanticAnalyser &an) {
   if (!target_symbol) {
     an.add_error("Undefined variable: " + target_name);
     //an.report_error("Undefined variable: " + target_name , *this);
-    //return;
+    return;
   }
 
   // Check if target is a variable
+  if (target_symbol->get_kind() != sym_table::SymbolKind::VAR &&
+    target_symbol->get_kind() != sym_table::SymbolKind::PARAM) 
+  {
+    std::string err = target_name + " is not a variable";
+    an.report_error(err, *this);
+    return;
+  }
 }
 
 void Assignment::accept(CodeGenerator &) {

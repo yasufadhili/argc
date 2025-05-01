@@ -1,11 +1,2 @@
 var x i32 = 2390
-var x i8 = 12
-var y i16
-
-var z i32 = x + 2
-
-var a i16 = p + 3 * z
-
-a = 23
-
-a = 34
+var x i16 

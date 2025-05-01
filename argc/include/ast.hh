@@ -180,6 +180,7 @@ namespace ast::stmt {
     void accept(SemanticAnalyser&) override;
     void accept(CodeGenerator&) override;
     void print(int) override;
+    auto identifier() -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto initialiser() -> std::optional<std::shared_ptr<expr::Expression>> { return initialiser_; }
     auto type() -> std::shared_ptr<sym_table::Type> { return type_; }
     auto symbol() -> std::shared_ptr<sym_table::Symbol> { return symbol_; }
