@@ -8,7 +8,7 @@
 #include <optional>
 #include <sstream>
 #include <variant>
-
+#include "error_handler.hh"
 #include "location.hh"
 #include "sym_table.hh"
 #include "util_logger.hh"
@@ -23,17 +23,25 @@ enum class UnaryOp { NEG, B_NOT, L_NOT };
 enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
 class Node {
+  yy::location location_;
 protected:
+  auto location() -> yy::location {
+    return location_;
+  }
   static void print_indent(const int level) {
     for (int i = 0; i < level; ++i) {
       std::cout << " ";
     }
   }
 public:
+  Node() : location_() {}
+  explicit Node(const yy::location& loc) : location_(loc) {}
   virtual ~Node() = default;
   virtual void accept(SemanticAnalyser&) = 0;
   virtual void accept(CodeGenerator&) = 0;
   virtual void print(int level) = 0;
+  void set_location(const yy::location& loc) { location_ = loc; }
+  const yy::location& location() const { return location_; }
 };
 
 }
@@ -279,15 +287,19 @@ namespace ast::unit {
 
 namespace ast {
 
-struct SematicError {
+// We'll keep the SemanticError struct for backward compatibility
+// but transition to using the DiagnosticHandler
+struct SemanticError {
   std::string message;
-  explicit SematicError(std::string msg)
-    : message(std::move(msg)) {}
+  yy::location location;
+  
+  SemanticError(std::string msg, const yy::location& loc)
+    : message(std::move(msg)), location(loc) {}
 };
 
 class SemanticAnalyser final {
 
-  std::vector<SematicError> errors_;
+  std::vector<SemanticError> errors_;
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   std::shared_ptr<sym_table::Type> current_function_return_type_;
   bool error_occurred_ ;
@@ -296,17 +308,19 @@ public:
   ~SemanticAnalyser() = default;
   SemanticAnalyser();
   auto analyse(const std::shared_ptr<unit::TranslationUnit>&) -> bool;
-  auto get_errors() -> std::vector<SematicError> { return errors_; }
-  auto add_error(const std::string& msg) -> void ;
+  auto get_errors() -> std::vector<SemanticError> { return errors_; }
+  auto add_error(const std::string& msg, const yy::location& loc) -> void ;
 
-  auto report_error(const std::string& message, const Node& node) -> void {
-    LOG_ERROR(message);
+  auto report_error(const std::string& message, const Node& node, const yy::location& loc) -> void {
     error_occurred_ = true;
-    yy::location l;
+    errors_.emplace_back(message, loc);
+    
+    // Report to the central error handler
+    error::DiagnosticHandler::instance().error(message, loc);
   };
 
-  static auto report_warning(const std::string& message, const Node& node) -> void {
-    LOG_WARNING(message);
+  static auto report_warning(const std::string& message, const Node& node, const yy::location& loc) -> void {
+    error::DiagnosticHandler::instance().warning(message, loc);
   };
 
   auto current_function_return_type() const -> std::shared_ptr<sym_table::Type> {
@@ -317,7 +331,7 @@ public:
     return symbol_table_;
   }
 
-  auto errors() const -> std::vector<SematicError> {
+  auto errors() const -> std::vector<SemanticError> {
     return errors_;
   }
 
