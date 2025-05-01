@@ -63,3 +63,19 @@ void Literal::print(const int level) {
   }
 }
 
+Variable::Variable(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
+  : identifier_(std::move(id)), type_(std::move(t)) { }
+
+void Variable::accept(SemanticAnalyser &) {
+
+}
+
+void Variable::accept(CodeGenerator &) {
+
+}
+
+void Variable::print(const int level) {
+  print_indent(level);
+  std::cout << "Variable Expression " << "\n";
+  identifier()->print(level + 1);
+}
