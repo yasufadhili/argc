@@ -108,6 +108,8 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Statement>> control_statement;
 %type <std::shared_ptr<ast::stmt::Statement>> declaration_statement;
 
+%type <std::shared_ptr<ast::stmt::Assignment>> assignment_statement;
+
 %type <std::shared_ptr<ast::stmt::Return>> return_statement;
 %type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 
@@ -180,6 +182,9 @@ statement
   | control_statement {
     $$ = $1;
   }
+  | assignment_statement {
+    $$ = $1;
+  }
 ;
 
 
@@ -238,6 +243,13 @@ return_statement
 variable_declaration
   : VAR identifier type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+  }
+;
+
+
+assignment_statement
+  : identifier ASSIGN expression {
+    $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
   }
 ;
 
