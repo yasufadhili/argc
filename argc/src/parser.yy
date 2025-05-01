@@ -30,6 +30,7 @@
 
 #include "include/ast.hh"
 #include "include/util_logger.hh"
+#include "error_handler.hh"
 
 
 namespace yy {
@@ -163,6 +164,7 @@ namespace yy {
 translation_unit
   : module_definition_list {
     unit = std::make_shared<ast::unit::TranslationUnit>($1);
+    unit->set_location(@$);
     $$ = unit;
   }
 ;
@@ -182,6 +184,7 @@ module_definition_list
 module_definition
   : MODULE identifier statement_list {
     $$ = std::make_shared<ast::mod::Module>($2, $3);
+    $$->set_location(@$);
   }
 ;
 
@@ -211,9 +214,11 @@ statement
     $$ = $1;
   }
   | error {
-    // Create a dummy statement for error recovery
-    LOG_WARNING("Invalid statement syntax");
+    // Create a dummy statement for error recovery with location info
+    error::DiagnosticHandler::instance().error("Invalid statement syntax", @$);
+    //LOG_WARNING("Invalid statement syntax");
     $$ = std::make_shared<ast::stmt::Empty>();
+    $$->set_location(@$);
   }
 ;
 
@@ -230,12 +235,14 @@ execution_statement
 
 block_statement
   : LBRACE statement_list RBRACE {
-      $$ = std::make_shared<ast::stmt::Block>($2);
+    $$ = std::make_shared<ast::stmt::Block>($2);
+    $$->set_location(@$);
   }
   | LBRACE RBRACE {
     $$ = std::make_shared<ast::stmt::Block>(
       std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -243,6 +250,7 @@ block_statement
 print_statement
   : PRINT expression {
     $$ = std::make_shared<ast::stmt::Print>($2);
+    $$->set_location(@$);
   }
 ;
 
@@ -264,18 +272,23 @@ control_statement
 return_statement
   : RETURN arithmetic_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
+    $$->set_location(@$);
   }
   | RETURN logical_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
+    $$->set_location(@$);
   }
   | RETURN relational_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
+    $$->set_location(@$);
   }
   | RETURN bitwise_expression {
     $$ = std::make_shared<ast::stmt::Return>($2);
+    $$->set_location(@$);
   }
   | RETURN {
     $$ = std::make_shared<ast::stmt::Return>(std::nullopt);
+    $$->set_location(@$);
   }
 ;
 
@@ -283,6 +296,7 @@ return_statement
 variable_declaration
   : VAR identifier type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+    $$->set_location(@$);
   }
 ;
 
@@ -290,6 +304,7 @@ variable_declaration
 assignment_statement
   : identifier ASSIGN expression {
     $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+    $$->set_location(@$);
   }
 ;
 
@@ -329,11 +344,13 @@ logical_expression
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::B_AND, $1, $3
     );
+    $$->set_location(@$);
   }
   | logical_expression LOGICAL_OR relational_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::L_OR, $1, $3
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -343,11 +360,13 @@ bitwise_expression
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::B_AND, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression BITWISE_OR arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::B_OR, $1, $3
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -357,36 +376,43 @@ relational_expression
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::NONE, $1, nullptr
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression EQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::EQ, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression NEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::NEQ, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression GT arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::GT, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression LT arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::LT, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression LEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::LEQ, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression GEQ arithmetic_expression {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::RelationalOp::GEQ, $1, $3
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -399,11 +425,13 @@ arithmetic_expression
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::ADD, $1, $3
     );
+    $$->set_location(@$);
   }
   | arithmetic_expression MINUS term {
     $$ = std::make_shared<ast::expr::Binary>(
       ast::BinaryOp::SUB, $1, $3
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -414,12 +442,15 @@ term
   }
   | term TIMES factor {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::MUL, $1, $3);
+    $$->set_location(@$);
   }
-  | term TIMES factor {
+  | term DIVIDE factor {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::DIV, $1, $3);
+    $$->set_location(@$);
   }
   | term MODULO factor {
     $$ = std::make_shared<ast::expr::Binary>(ast::BinaryOp::MOD, $1, $3);
+    $$->set_location(@$);
   }
 ;
 
@@ -429,11 +460,13 @@ unary_expression
     $$ = std::make_shared<ast::expr::Unary>(
       ast::UnaryOp::B_NOT, $2
     );
+    $$->set_location(@$);
   }
   | MINUS factor %prec UNARY_MINUS {
     $$ = std::make_shared<ast::expr::Unary>(
       ast::UnaryOp::NEG, $2
     );
+    $$->set_location(@$);
   }
 ;
 
@@ -457,9 +490,11 @@ primary
   }
   | LPAREN arithmetic_expression RPAREN {
     $$ = $2;
+    $$->set_location(@$);
   }
   | LPAREN bitwise_expression RPAREN {
     $$ = $2;
+    $$->set_location(@$);
   }
 ;
 
@@ -467,9 +502,11 @@ primary
 literal
   : INTEGER {
     $$ = std::make_shared<ast::expr::Literal>($1);
+    $$->set_location(@$);
   }
   | FLOAT {
     $$ = std::make_shared<ast::expr::Literal>($1);
+    $$->set_location(@$);
   }
 ;
 
@@ -477,6 +514,7 @@ literal
 variable
   : identifier {
     $$ = std::make_shared<ast::expr::Variable>($1, nullptr);
+    $$->set_location(@$);
   }
 ;
 
@@ -484,6 +522,7 @@ variable
 type_identifier
   : TYPE_IDENT {
     $$ = std::make_shared<ast::ident::TypeIdentifier>($1);
+    $$->set_location(@$);
   }
 ;
 
@@ -491,6 +530,7 @@ type_identifier
 identifier
   : IDENT {
     $$ = std::make_shared<ast::ident::Identifier>($1);
+    $$->set_location(@$);
   }
 ;
 
@@ -499,5 +539,5 @@ identifier
 
 void yy::Parser::error(const location_type& loc, const std::string& msg)
 {
-  std::cerr << "ERROR at "<< loc.begin << ": " << msg << std::endl;
+  error::DiagnosticHandler::instance().error(msg, loc);
 }
