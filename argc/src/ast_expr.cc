@@ -1,7 +1,7 @@
 #include <utility>
 #include <variant>
 
-#include "include/ast.hh"
+#include "ast.hh"
 #include "sym_table.hh"
 
 using namespace ast;

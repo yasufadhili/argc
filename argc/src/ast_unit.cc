@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include "../include/ast.hh"
+#include "ast.hh"
 
 using namespace ast::unit;
 
