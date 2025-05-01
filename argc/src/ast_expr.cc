@@ -66,8 +66,16 @@ void Literal::print(const int level) {
 Variable::Variable(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
   : identifier_(std::move(id)), type_(std::move(t)) { }
 
-void Variable::accept(SemanticAnalyser &) {
+void Variable::accept(SemanticAnalyser &an) {
+  std::string var_name { identifier()->name() };
+  auto symbol { an.symbol_table()->lookup_symbol(var_name) };
 
+  if (!symbol) {
+    an.report_warning("Reference to undefined variable: " + var_name, *this);
+    return;
+  }
+
+  // Check if it's a variable name or parameter
 }
 
 void Variable::accept(CodeGenerator &) {

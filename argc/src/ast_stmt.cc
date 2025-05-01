@@ -43,7 +43,7 @@ void Return::accept(SemanticAnalyser &an) {
   }
   // check if return value is provided
   if (expression().has_value()) {
-    //an.visit(expression().value());
+    an.visit(expression().value());
   }
 }
 
