@@ -368,6 +368,9 @@ literal
   : INTEGER {
     $$ = std::make_shared<ast::expr::Literal>($1);
   }
+  | FLOAT {
+    $$ = std::make_shared<ast::expr::Literal>($1);
+  }
 ;
 
 
