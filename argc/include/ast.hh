@@ -123,6 +123,9 @@ namespace ast::expr {
     void print(int level) override;
     auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    auto set_type(std::shared_ptr<sym_table::Type> t) -> void {
+      type_ = t;
+    }
   };
 }
 
