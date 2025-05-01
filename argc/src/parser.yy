@@ -94,6 +94,7 @@ namespace yy {
 
 
 %token RETURN
+%token VAR
 
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
@@ -107,6 +108,7 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Statement>> control_statement;
 
 %type <std::shared_ptr<ast::stmt::Return>> return_statement;
+%type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration_statement;
 
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
@@ -124,6 +126,9 @@ namespace yy {
 %type <std::shared_ptr<ast::expr::Variable>> variable;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
+
+%type <std::shared_ptr<sym::Type>> type_specifier;
+%type <std::optional<std::shared_ptr<ast::expr::Expression>>> optional_initialiser;
 
 
 // Operator precedence - from lowest to highest
@@ -215,6 +220,30 @@ return_statement
   }
   | RETURN {
     $$ = std::make_shared<ast::stmt::Return>(std::nullopt);
+  }
+;
+
+
+variable_declaration_statement
+  : VAR identifier type_specifier optional_initialiser {
+    $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
+  }
+;
+
+
+optional_initialiser
+  : %empty {
+    $$ = std::nullopt;
+  }
+  | ASSIGN expression {
+    $$ = $2;
+  }
+;
+
+
+type_specifier
+  : TYPE_IDENT {
+    $$ = std::make_shared<sym::Type>(sym_table::Type::TypeKind::PRIMITIVE, $1);
   }
 ;
 

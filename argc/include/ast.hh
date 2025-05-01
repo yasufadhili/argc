@@ -165,6 +165,27 @@ namespace ast::stmt {
     auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
 
+  class VariableDeclaration final : public Statement {
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::shared_ptr<sym_table::Symbol> symbol_;
+    std::shared_ptr<sym_table::Type> type_;
+    std::optional<std::shared_ptr<expr::Expression>> initialiser_;
+  public:
+    VariableDeclaration(
+      std::shared_ptr<ident::Identifier>&,
+      const std::shared_ptr<sym_table::Type> &type,
+      const std::optional<std::shared_ptr<expr::Expression>>& init
+    );
+    ~VariableDeclaration() override = default;
+    void accept(SemanticAnalyser&) override;
+    void accept(CodeGenerator&) override;
+    void print(int) override;
+    auto initialiser() -> std::optional<std::shared_ptr<expr::Expression>> { return initialiser_; }
+    auto type() -> std::shared_ptr<sym_table::Type> { return type_; }
+    auto symbol() -> std::shared_ptr<sym_table::Symbol> { return symbol_; }
+    auto set_symbol(std::shared_ptr<sym_table::Symbol> sym) -> void { symbol_ = std::move(sym); }
+  };
+
 }
 
 namespace ast::func {
