@@ -72,7 +72,7 @@ void Variable::accept(SemanticAnalyser &an) {
   auto symbol { an.symbol_table()->lookup_symbol(var_name) };
 
   if (!symbol) {
-    an.report_warning("Reference to undefined variable: " + var_name, *this);
+    an.add_error("reference to undefined variable: " + var_name);
     return;
   }
 
