@@ -148,6 +148,7 @@ void Print::accept(CodeGenerator &) {
 
 void Print::print(const int level) {
   print_indent(level);
+  //int x = std::get<int>(expression()->evaluate());
   std::cout << "Print Statement \n";
   expression()->print(level + 1);
 }

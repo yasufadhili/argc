@@ -72,7 +72,7 @@ namespace ast::expr {
 
   class Expression : public Node {
   public:
-    virtual LiteralVariant evaluate() = 0;
+    virtual LiteralVariant evaluate() { return 0; };
   };
 
   class Binary final : public Expression {
