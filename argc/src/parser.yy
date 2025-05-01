@@ -96,6 +96,7 @@ namespace yy {
 %token RETURN
 %token VAR
 %token MODULE
+%token PRINT
 
 
 %parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
@@ -111,6 +112,8 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
 %type <std::shared_ptr<ast::stmt::Statement>> control_statement;
 %type <std::shared_ptr<ast::stmt::Statement>> declaration_statement;
+
+%type <std::shared_ptr<ast::stmt::Print>> print_statement;
 
 %type <std::shared_ptr<ast::stmt::Assignment>> assignment_statement;
 

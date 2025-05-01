@@ -209,6 +209,17 @@ namespace ast::stmt {
     auto value() -> std::shared_ptr<expr::Expression> { return value_; }
   };
 
+  class Print final : public Statement {
+    std::shared_ptr<expr::Expression> expression_;
+  public:
+    Print(std::shared_ptr<expr::Expression>);
+    ~Print () override = default;
+    void accept(SemanticAnalyser&) override;
+    void accept(CodeGenerator&) override ;
+    void print(int) override;
+    auto expression() -> std::shared_ptr<expr::Expression> { return expression_; }
+  };
+
 }
 
 namespace ast::func {
