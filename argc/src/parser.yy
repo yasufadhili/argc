@@ -121,7 +121,7 @@ namespace yy {
 %type <std::shared_ptr<ast::expr::Literal>> literal;
 %type <std::shared_ptr<ast::expr::Literal>> boolean_literal;
 
-%type <std::shared_ptr<ast::ident::Variable>> variable;
+%type <std::shared_ptr<ast::expr::Variable>> variable;
 %type <std::shared_ptr<ast::ident::TypeIdentifier>> type_identifier;
 %type <std::shared_ptr<ast::ident::Identifier>> identifier;
 
@@ -358,6 +358,9 @@ factor
 
 primary
   : literal {
+    $$ = $1;
+  }
+  | variable {
     $$ = $1;
   }
   | LPAREN arithmetic_expression RPAREN {
