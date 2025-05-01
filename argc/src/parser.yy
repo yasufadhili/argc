@@ -222,6 +222,9 @@ execution_statement
   : block_statement {
     $$ = $1;
   }
+  | print_statement {
+    $$ = $1;
+  }
 ;
 
 
@@ -233,6 +236,13 @@ block_statement
     $$ = std::make_shared<ast::stmt::Block>(
       std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
+  }
+;
+
+
+print_statement
+  : PRINT expression {
+    $$ = std::make_shared<ast::stmt::Print>($2);
   }
 ;
 

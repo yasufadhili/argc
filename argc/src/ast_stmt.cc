@@ -1,5 +1,6 @@
 
 #include "ast.hh"
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -133,4 +134,20 @@ void Assignment::print(const int level) {
   print_indent(level);
   std::cout << "Assignment Statement \n";
   value()->print(level + 1);
+}
+
+Print::Print(std::shared_ptr<expr::Expression> e) : expression_(std::move(e)) {}
+
+void Print::accept(SemanticAnalyser &an) {
+
+}
+
+void Print::accept(CodeGenerator &) {
+
+}
+
+void Print::print(const int level) {
+  print_indent(level);
+  std::cout << "Print Statement \n";
+  expression()->print(level + 1);
 }

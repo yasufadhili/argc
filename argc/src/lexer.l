@@ -106,6 +106,10 @@ COMMENT         \/\/[^\n]*
                   return yy::Parser::make_MODULE(loc_);
                 }
 
+"print"         {
+                  return yy::Parser::make_PRINT(loc_);
+                }
+
 {INTEGER}       {
                     return yy::Parser::make_INTEGER(std::atof(YYText()), loc_);
                 }
