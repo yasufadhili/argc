@@ -106,9 +106,10 @@ namespace yy {
 %type <std::shared_ptr<ast::stmt::Statement>> execution_statement;
 %type <std::shared_ptr<ast::stmt::Block>> block_statement;
 %type <std::shared_ptr<ast::stmt::Statement>> control_statement;
+%type <std::shared_ptr<ast::stmt::Statement>> declaration_statement;
 
 %type <std::shared_ptr<ast::stmt::Return>> return_statement;
-%type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration_statement;
+%type <std::shared_ptr<ast::stmt::VariableDeclaration>> variable_declaration;
 
 %type <std::shared_ptr<ast::expr::Expression>> expression;
 %type <std::shared_ptr<ast::expr::Unary>> unary_expression;
@@ -198,6 +199,13 @@ block_statement
 ;
 
 
+declaration_statement
+  : variable_declaration {
+    $$ = $1;
+  }
+;
+
+
 control_statement
   : return_statement {
     $$ = $1;
@@ -224,7 +232,7 @@ return_statement
 ;
 
 
-variable_declaration_statement
+variable_declaration
   : VAR identifier type_specifier optional_initialiser {
     $$ = std::make_shared<ast::stmt::VariableDeclaration>($2, $3, $4);
   }
