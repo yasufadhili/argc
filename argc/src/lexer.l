@@ -94,7 +94,7 @@ COMMENT         \/\/[^\n]*
                   return yy::Parser::make_ASSIGN(loc_);
                 }
 
-"ret"        {
+"ret"           {
                   return yy::Parser::make_RETURN(loc_);
                 }
 

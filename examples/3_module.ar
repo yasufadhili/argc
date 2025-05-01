@@ -1,3 +1,7 @@
 module main
 
 var x i32 = 6789
+
+module math
+
+ret 23
