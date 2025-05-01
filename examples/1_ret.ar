@@ -1,2 +1,3 @@
 return 3 + 2 * 2 * 3.4345
-var x i8 = 23
+return
+return x
