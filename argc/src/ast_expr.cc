@@ -74,18 +74,18 @@ void Variable::accept(SemanticAnalyser &an) {
 
   if (!symbol) {
     an.add_error("reference to undefined variable: " + var_name);
-    //return;
+    return;
   }
 
   // Check if it's a variable name or parameter
   if (
-    symbol->get_kind() 
+    symbol->get_kind()
     != sym_table::SymbolKind::VAR 
     && symbol->get_kind() 
     != sym_table::SymbolKind::PARAM
   ) {
     an.add_error(var_name + " is not a variable");
-    //return;
+    return;
   }
 
   // Mark as used
