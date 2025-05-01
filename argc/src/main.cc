@@ -3,6 +3,7 @@
 #include "lexer.hh"
 #include "include/driver.hh"
 #include "include/util_logger.hh"
+#include "error_handler.hh"
 
 namespace fs = std::filesystem;
 
@@ -83,6 +84,8 @@ auto main(const int argc, char* argv[]) -> int {
     LOG_ERROR("Semantic analysis failed with " + std::to_string(analyser.get_errors().size()) + " errors");
     return EXIT_FAILURE;
   }
+
+  std::cout << "Message Count: "<< error::DiagnosticHandler::instance().message_count() << "\n";
 
   if (config.verbose) {
     LOG_INFO("Semantic Analysis successful");
