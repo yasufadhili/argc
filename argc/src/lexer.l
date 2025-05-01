@@ -12,6 +12,7 @@
 #include <stack>
 
 #include "lexer.hh"
+#include "sym_table.hh"
 
 using namespace yy;
 
@@ -106,6 +107,10 @@ COMMENT         \/\/[^\n]*
                 }
 
 {IDENTIFIER}    {
+                  auto st = sym_table::SymbolTable::get_instance();
+                  if(st->lookup_type(YYText())) {
+                    return yy::Parser::make_TYPE_IDENT(std::string(YYText()), loc_);
+                  }
                   return yy::Parser::make_IDENT(std::string(YYText()), loc_);
                 }
 
