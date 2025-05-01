@@ -79,6 +79,13 @@ void VariableDeclaration::accept(SemanticAnalyser &an) {
     an.report_error(err, *this);
     return;
   }
+
+  if (initialiser()) {
+    auto init_expr { initialiser().value() };
+    an.visit(init_expr);
+
+    auto init_type { init_expr };
+  }
 }
 
 void VariableDeclaration::accept(CodeGenerator &) {

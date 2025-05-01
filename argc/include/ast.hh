@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -70,7 +71,6 @@ namespace ast::expr {
   >;
 
   class Expression : public Node {
-
   };
 
   class Binary final : public Expression {
