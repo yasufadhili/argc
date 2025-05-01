@@ -214,20 +214,28 @@ namespace ast::func {
 namespace ast::mod {
 
   class Module : public Node {
-    std::string name_;
+    std::shared_ptr<ident::Identifier> identifier_;
     std::vector<std::shared_ptr<func::Function>> functions_;
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
     Module (
-      std::string,
+      std::shared_ptr<ident::Identifier>,
       std::vector<std::shared_ptr<func::Function>>,
       std::vector<std::shared_ptr<stmt::Statement>>
+    ) ;
+    Module (
+      std::shared_ptr<ident::Identifier>,
+      std::vector<std::shared_ptr<stmt::Statement>>
+    ) ;
+    Module (
+      std::shared_ptr<ident::Identifier>,
+      std::vector<std::shared_ptr<func::Function>>
     ) ;
     ~Module () override = default;
     void accept (SemanticAnalyser&) override;
     void accept (CodeGenerator&) override ;
     void print (int) override;
-    auto name () -> std::string& { return name_; }
+    auto identifier () -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto functions () -> std::vector<std::shared_ptr<func::Function>> { return functions_; }
     auto statements () -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
     auto add_function (std::shared_ptr<func::Function> f) -> void { functions_.emplace_back(f); }
