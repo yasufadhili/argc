@@ -38,8 +38,12 @@ void Binary::accept(CodeGenerator&) {
 void Binary::print(const int level) {
   print_indent(level);
   std::cout << "Binary Expression " << "\n";
-  lhs()->print(level + 1);
-  rhs()->print(level + 1);
+  if (lhs()) {
+    lhs()->print(level + 1);
+  }
+  if (rhs()) {
+    rhs()->print(level + 1);
+  }
 }
 
 Literal::Literal(LiteralVariant v)
