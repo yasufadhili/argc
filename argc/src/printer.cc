@@ -3,38 +3,38 @@
 using namespace ast;
 
 namespace {
-  auto binary_op_to_string(ast::BinaryOp op) -> std::string {
+  auto binary_op_to_string(BinaryOp op) -> std::string {
     switch (op) {
-      case ast::BinaryOp::ADD: return "+";
-      case ast::BinaryOp::SUB: return "-";
-      case ast::BinaryOp::MUL: return "*";
-      case ast::BinaryOp::DIV: return "/";
-      case ast::BinaryOp::MOD: return "%";
-      case ast::BinaryOp::B_AND: return "&";
-      case ast::BinaryOp::B_OR: return "|";
-      case ast::BinaryOp::L_AND: return "&&";
-      case ast::BinaryOp::L_OR: return "||";
+      case BinaryOp::ADD: return "+";
+      case BinaryOp::SUB: return "-";
+      case BinaryOp::MUL: return "*";
+      case BinaryOp::DIV: return "/";
+      case BinaryOp::MOD: return "%";
+      case BinaryOp::B_AND: return "&";
+      case BinaryOp::B_OR: return "|";
+      case BinaryOp::L_AND: return "&&";
+      case BinaryOp::L_OR: return "||";
       default: return "??";
     }
   }
 
-  auto relational_op_to_string(ast::RelationalOp op) -> std::string {
+  auto relational_op_to_string(RelationalOp op) -> std::string {
     switch (op) {
-      case ast::RelationalOp::LT: return "<";
-      case ast::RelationalOp::GT: return ">";
-      case ast::RelationalOp::EQ: return "==";
-      case ast::RelationalOp::LEQ: return "<=";
-      case ast::RelationalOp::GEQ: return ">=";
-      case ast::RelationalOp::NEQ: return "!=";
+      case RelationalOp::LT: return "<";
+      case RelationalOp::GT: return ">";
+      case RelationalOp::EQ: return "==";
+      case RelationalOp::LEQ: return "<=";
+      case RelationalOp::GEQ: return ">=";
+      case RelationalOp::NEQ: return "!=";
     }
     return "??";
   }
 
-  auto unary_op_to_string(ast::UnaryOp op) -> std::string{
+  auto unary_op_to_string(UnaryOp op) -> std::string{
     switch (op) {
-      case ast::UnaryOp::NEG: return "-";
-      case ast::UnaryOp::B_NOT: return "~";
-      case ast::UnaryOp::L_NOT: return "!";
+      case UnaryOp::NEG: return "-";
+      case UnaryOp::B_NOT: return "~";
+      case UnaryOp::L_NOT: return "!";
     }
     return "??";
   }
