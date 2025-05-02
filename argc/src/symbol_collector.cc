@@ -1,5 +1,7 @@
 
 #include "include/ast.hh"
+#include "sym_table.hh"
+#include <memory>
 
 using namespace ast;
 
@@ -53,7 +55,6 @@ void SymbolCollector::visit(stmt::Return& rs) {
 }
 
 void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
-  vd.identifier()->accept(*this);
   if (vd.initialiser()) {
     vd.initialiser().value()->accept(*this);
   }
