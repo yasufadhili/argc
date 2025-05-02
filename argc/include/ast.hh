@@ -75,7 +75,10 @@ namespace ast::expr {
     int64_t, double, bool, u_int64_t
   >;
 
-  class Expression : public Node {};
+  class Expression : public Node {
+  public:
+    void accept (Visitor &) override;
+  };
 
   class Binary final : public Expression {
     std::variant<BinaryOp, RelationalOp> op_;
@@ -131,7 +134,10 @@ namespace ast::expr {
 }
 
 namespace ast::stmt {
-  class Statement : public Node {};
+  class Statement : public Node {
+  public:
+    void accept (Visitor &) override;
+  };
 
   class Empty final : public Statement {
   public:
@@ -213,7 +219,10 @@ namespace ast::stmt {
 
 namespace ast::func {
 
-  class Function : public Node {};
+  class Function : public Node {
+  public:
+    void accept (Visitor &) override;
+  };
 
 }
 
@@ -301,15 +310,24 @@ namespace ast {
 
   inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
 
+  inline void func::Function::accept(Visitor &v) { v.visit(*this); }
+
+  inline void ident::TypeIdentifier::accept(Visitor &v) { v.visit(*this); }
+  inline void ident::Identifier::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Statement::accept(Visitor &v) { v.visit(*this); }
   inline void stmt::Block::accept(Visitor &v) { v.visit(*this); }
-
   inline void stmt::Empty::accept(Visitor &v) { v.visit(*this); }
-
   inline void stmt::Return::accept(Visitor &v) { v.visit(*this); }
-
   inline void stmt::Print::accept(Visitor &v) { v.visit(*this); }
-
   inline void stmt::Assignment::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::VariableDeclaration::accept(Visitor &v) { v.visit(*this); }
+
+  inline void expr::Expression::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Unary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Binary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Literal::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Variable::accept(Visitor &v) { v.visit(*this); }
 }
 
 namespace ast {
@@ -324,6 +342,29 @@ public:
   ~SymbolCollector () override = default;
 
   auto has_errors () const -> bool { return error_occurred_; }
+
+  void visit (unit::TranslationUnit&) override;
+
+  void visit (mod::Module&) override;
+
+  void visit (func::Function&) override;
+
+  void visit (ident::Identifier&) override;
+  void visit (ident::TypeIdentifier&) override;
+
+  void visit (stmt::Statement&) override;
+  void visit (stmt::Empty&) override;
+  void visit (stmt::Block&) override;
+  void visit (stmt::Return&) override;
+  void visit (stmt::Print&) override;
+  void visit (stmt::VariableDeclaration&) override;
+  void visit (stmt::Assignment&) override;
+
+  void visit (expr::Expression&) override;
+  void visit (expr::Literal&) override;
+  void visit (expr::Binary&) override;
+  void visit (expr::Unary&) override;
+  void visit (expr::Variable&) override;
 
 };
 
