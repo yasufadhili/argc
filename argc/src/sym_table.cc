@@ -263,7 +263,7 @@ auto Type::create_pointer_type(const std::shared_ptr<Type>& base_type) -> std::s
   return ptr_type;
 }
 
-auto Type::create_array_type(const std::shared_ptr<Type>& element_type, int size) -> std::shared_ptr<Type> {
+auto Type::create_array_type(const std::shared_ptr<Type>& element_type, const int size) -> std::shared_ptr<Type> {
   std::string arr_name = element_type->get_name() + "[" +
                           (size >= 0 ? std::to_string(size) : "") + "]";
   auto arrayType = std::make_shared<Type>(TypeKind::ARRAY, arr_name);
@@ -292,8 +292,7 @@ auto Scope::add_symbol(const std::shared_ptr<Symbol>& symbol) -> bool {
 }
 
 auto Scope::lookup_symbol(const std::string &name) const -> std::shared_ptr<Symbol> {
-  auto it = symbols_.find(name);
-  if (it != symbols_.end()) {
+  if (const auto it = symbols_.find(name); it != symbols_.end()) {
     return it->second;
   }
   return nullptr;
@@ -310,8 +309,8 @@ auto Scope::get_scope_name() const -> std::string {
 
 auto Scope::print() const -> void {
   std::cout << "Scope: " << scope_name_ << " (level " << scope_level_ << ")" << std::endl;
-  for (const auto& pair : symbols_) {
-    pair.second->print(2);
+  for (const auto&[fst, snd] : symbols_) {
+    snd->print(2);
   }
 }
 
@@ -387,7 +386,7 @@ auto SymbolTable::is_declared_in_current_scope(const std::string &name) const ->
 }
 
 auto SymbolTable::add_type(const std::string &name, const std::shared_ptr<Type>& type) const -> bool {
-  auto type_symbol = std::make_shared<Symbol>(
+  const auto type_symbol = std::make_shared<Symbol>(
         name,
         SymbolKind::TYPE,
         type,
@@ -398,8 +397,10 @@ auto SymbolTable::add_type(const std::string &name, const std::shared_ptr<Type>&
 }
 
 auto SymbolTable::lookup_type(const std::string &name) const -> std::shared_ptr<Type> {
-  auto symbol = lookup_symbol(name);
-  if (symbol && symbol->get_kind() == SymbolKind::TYPE) {
+  if (
+    const auto symbol = lookup_symbol(name);
+    symbol && symbol->get_kind() == SymbolKind::TYPE)
+  {
     return symbol->get_type();
   }
   return nullptr;
@@ -407,7 +408,7 @@ auto SymbolTable::lookup_type(const std::string &name) const -> std::shared_ptr<
 
 auto SymbolTable::get_instance() -> std::shared_ptr<SymbolTable> {
   if (!instance_) {
-    instance_ = std::shared_ptr<SymbolTable>(new SymbolTable());
+    instance_ = std::make_shared<SymbolTable>();
 
     // Initialise with built-in types
     instance_->add_type("i8", Type::create_integer_type());
@@ -443,15 +444,17 @@ auto SymbolTable::report_warning(const std::string &message) -> void {
 auto SymbolTable::check_unused_symbols() const -> void {
   for (const auto& scope : scopes_) {
     for (auto it = scope->begin(); it != scope->end(); ++it) {
-      auto symbol = it->second;
-      if (!symbol->get_is_used() &&
-          symbol->get_kind() != SymbolKind::TYPE &&
-          symbol->get_kind() != SymbolKind::MODULE) {
+      if (
+        const auto symbol = it->second;
+        !symbol->get_is_used()
+        && symbol->get_kind() != SymbolKind::TYPE
+        && symbol->get_kind() != SymbolKind::MODULE)
+      {
 
         report_warning("Unused symbol: " + symbol->get_name() +
                     " at " + symbol->get_filename() + ":" +
                     std::to_string(symbol->get_line()));
-          }
+      }
     }
   }
 }
