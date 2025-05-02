@@ -15,8 +15,7 @@
 
 namespace ast {
 
-class SemanticAnalyser;
-class CodeGenerator;
+class Visitor;
 
 enum class BinaryOp { ADD, SUB, MUL, DIV, MOD, B_AND, B_OR, L_AND, L_OR, NONE };
 enum class UnaryOp { NEG, B_NOT, L_NOT };
@@ -37,8 +36,7 @@ public:
   Node() : location_() {}
   explicit Node(const yy::location& loc) : location_(loc) {}
   virtual ~Node() = default;
-  virtual void accept(SemanticAnalyser&) = 0;
-  virtual void accept(CodeGenerator&) = 0;
+  virtual void accept(Visitor&) = 0;
   virtual void print(int level) = 0;
   void set_location(const yy::location& loc) { location_ = loc; }
   const yy::location& location() const { return location_; }
@@ -53,8 +51,7 @@ class Identifier final : public Node {
 public:
   explicit Identifier(std::string);
   ~Identifier() override = default;
-  void accept(SemanticAnalyser &) override;
-  void accept(CodeGenerator &) override;
+  void accept(Visitor &) override;
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -64,8 +61,8 @@ class TypeIdentifier final : public Node {
 public:
   explicit TypeIdentifier(std::string);
   ~TypeIdentifier() override = default;
-  void accept(SemanticAnalyser &) override;
-  void accept(CodeGenerator &) override;
+  void accept(Visitor &) override;
+  
   void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
@@ -89,8 +86,7 @@ namespace ast::expr {
   public:
     Binary (std::variant<BinaryOp, RelationalOp>, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Binary () override = default;
-    void accept (SemanticAnalyser &) override;
-    void accept (CodeGenerator &) override;
+    void accept (Visitor &) override;
     void print(int level) override;
     auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
     auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
@@ -103,8 +99,8 @@ namespace ast::expr {
   public:
     Unary(UnaryOp, std::shared_ptr<Expression>);
     ~Unary() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    void accept(Visitor &) override;
+    
     void print(int level) override;
     auto operand() const -> std::shared_ptr<Expression> { return operand_; };
     auto op() const -> UnaryOp { return op_; };
@@ -115,8 +111,7 @@ namespace ast::expr {
   public:
     explicit Literal(LiteralVariant);
     ~Literal() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    void accept(Visitor &) override;
     void print(int level) override;
     auto value() const -> LiteralVariant { return value_; };
   };
@@ -127,8 +122,7 @@ namespace ast::expr {
   public:
     Variable(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
     ~Variable() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    void accept(Visitor &) override;
     void print(int level) override;
     auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
@@ -145,8 +139,7 @@ namespace ast::stmt {
   public:
     explicit Empty() = default;
     ~Empty() override = default;
-    void accept(SemanticAnalyser &) override {};
-    void accept(CodeGenerator &) override {};
+    void accept(Visitor &) override {};
     void print(int level) override;
   };
 
@@ -155,8 +148,7 @@ namespace ast::stmt {
   public:
     explicit Block(std::vector<std::shared_ptr<Statement>>);
     ~Block() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    void accept(Visitor &) override;
     void print(int level) override;
     auto statements() const -> std::vector<std::shared_ptr<Statement>> {
       return statements_;
@@ -168,8 +160,7 @@ namespace ast::stmt {
   public:
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;
-    void accept(SemanticAnalyser&) override;
-    void accept(CodeGenerator&) override;
+    void accept(Visitor&) override;
     void print(int) override;
     auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
@@ -186,8 +177,7 @@ namespace ast::stmt {
       std::optional<std::shared_ptr<expr::Expression>>
     );
     ~VariableDeclaration() override = default;
-    void accept(SemanticAnalyser&) override;
-    void accept(CodeGenerator&) override;
+    void accept(Visitor&) override;
     void print(int) override;
     auto identifier() -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto initialiser() -> std::optional<std::shared_ptr<expr::Expression>> { return initialiser_; }
@@ -205,8 +195,7 @@ namespace ast::stmt {
       std::shared_ptr<expr::Expression>
     );
     ~Assignment() override = default;
-    void accept(SemanticAnalyser&) override;
-    void accept(CodeGenerator&) override ;
+    void accept(Visitor&) override;
     void print(int) override;
     auto target() -> std::shared_ptr<ident::Identifier> { return target_; }
     auto value() -> std::shared_ptr<expr::Expression> { return value_; }
@@ -217,8 +206,7 @@ namespace ast::stmt {
   public:
     Print(std::shared_ptr<expr::Expression>);
     ~Print () override = default;
-    void accept(SemanticAnalyser&) override;
-    void accept(CodeGenerator&) override ;
+    void accept(Visitor&) override;
     void print(int) override;
     auto expression() -> std::shared_ptr<expr::Expression> { return expression_; }
   };
@@ -252,8 +240,7 @@ namespace ast::mod {
       std::vector<std::shared_ptr<func::Function>>
     ) ;
     ~Module () override = default;
-    void accept (SemanticAnalyser&) override;
-    void accept (CodeGenerator&) override ;
+    void accept (Visitor&) override;
     void print (int) override;
     auto identifier () -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto functions () -> std::vector<std::shared_ptr<func::Function>> { return functions_; }
@@ -271,8 +258,7 @@ namespace ast::unit {
   public:
     TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
     ~TranslationUnit() override = default;
-    void accept(SemanticAnalyser &) override;
-    void accept(CodeGenerator &) override;
+    void accept(Visitor &) override;
     void print(int level) override;
     auto add_module (std::shared_ptr<mod::Module> m) -> void { modules_.emplace_back(m); }
     auto modules () -> std::vector<std::shared_ptr<mod::Module>> { return modules_; }
@@ -281,111 +267,5 @@ namespace ast::unit {
 }
 
 namespace ast {
-
-// We'll keep the SemanticError struct for backward compatibility
-// but transition to using the DiagnosticHandler
-struct SemanticError {
-  std::string message;
-  yy::location location;
-  
-  SemanticError(std::string msg, const yy::location& loc)
-    : message(std::move(msg)), location(loc) {}
-};
-
-class SemanticAnalyser final {
-
-  std::vector<SemanticError> errors_;
-  std::shared_ptr<sym_table::SymbolTable> symbol_table_;
-  std::shared_ptr<sym_table::Type> current_function_return_type_;
-  bool error_occurred_ ;
-
-public:
-  ~SemanticAnalyser() = default;
-  SemanticAnalyser();
-  auto analyse(const std::shared_ptr<unit::TranslationUnit>&) -> bool;
-  auto get_errors() -> std::vector<SemanticError> { return errors_; }
-  auto add_error(const std::string& msg, const yy::location& loc) -> void ;
-
-  auto report_error(const std::string& message, const Node& node, const yy::location& loc) -> void {
-    error_occurred_ = true;
-    errors_.emplace_back(message, loc);
-    
-    // Report to the central error handler
-    error::DiagnosticHandler::instance().error(message, loc);
-  };
-
-  static auto report_warning(const std::string& message, const Node& node, const yy::location& loc) -> void {
-    error::DiagnosticHandler::instance().warning(message, loc);
-  };
-
-  auto current_function_return_type() const -> std::shared_ptr<sym_table::Type> {
-    return current_function_return_type_;
-  }
-
-  auto symbol_table() const -> std::shared_ptr<sym_table::SymbolTable> {
-    return symbol_table_;
-  }
-
-  auto errors() const -> std::vector<SemanticError> {
-    return errors_;
-  }
-
-  void visit (const std::shared_ptr<unit::TranslationUnit>&tu) { tu->accept(*this); }
-
-  void visit (const std::shared_ptr<mod::Module>&m) { m->accept(*this); }
-
-  void visit (const std::shared_ptr<stmt::Statement>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::Empty>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::Block>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::Return>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::Assignment>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::VariableDeclaration>& s) { s->accept(*this); }
-  void visit (const std::shared_ptr<stmt::Print> s) { s->accept(*this); }
-
-  void visit (const std::shared_ptr<expr::Expression>& e) { e->accept(*this); }
-  void visit (const std::shared_ptr<expr::Binary>& e) { e->accept(*this); }
-  void visit (const std::shared_ptr<expr::Unary>& e) { e->accept(*this); }
-  void visit (const std::shared_ptr<expr::Variable>& e) { e->accept(*this); }
-  void visit (const std::shared_ptr<expr::Literal>& e) { e->accept(*this); }
-  
-};
-}
-
-namespace ast {
-
-class CodeGenerator final{
-  std::stringstream output_;
-public:
-  ~CodeGenerator() = default;
-  auto get_output() -> std::stringstream & { return output_; }
-  auto emit(const std::string&code)-> void {
-    output_ << code << "\n";
-  }
-
-  void generate( std::shared_ptr<unit::TranslationUnit>&u) { u->accept(*this); }
-  void generate ( unit::TranslationUnit& u ) { u.accept(*this); }
-
-  void generate ( std::shared_ptr<stmt::Statement>& s ) { s->accept(*this); }
-  void generate ( stmt::Statement& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::Empty>& s ) { s->accept(*this); }
-  void generate ( stmt::Empty& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::Block>& s ) { s->accept(*this); }
-  void generate ( stmt::Block& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::Return>& s ) { s->accept(*this); }
-  void generate ( stmt::Return& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::VariableDeclaration>& s ) { s->accept(*this); }
-  void generate ( stmt::VariableDeclaration& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::Assignment>& s ) { s->accept(*this); }
-  void generate ( stmt::Assignment& s ) { s.accept(*this); }
-  void generate ( std::shared_ptr<stmt::Print>& s ) { s->accept(*this); }
-  void generate ( stmt::Print& s ) { s.accept(*this); }
-
-  void generate ( std::shared_ptr<expr::Expression> &e) { e->accept(*this); }
-  void generate ( std::shared_ptr<expr::Binary> &e) { e->accept(*this); }
-  void generate ( std::shared_ptr<expr::Unary> &e) { e->accept(*this); }
-  void generate ( std::shared_ptr<expr::Variable> &e) { e->accept(*this); }
-  void generate ( std::shared_ptr<expr::Literal> &e) { e->accept(*this); }
-
-};
 
 }
