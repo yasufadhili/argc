@@ -154,7 +154,7 @@ namespace ast::stmt {
   class Block final : public Statement {
     std::vector<std::shared_ptr<Statement>> statements_;
   public:
-    explicit Block(std::vector<std::shared_ptr<Statement>>);
+    explicit Block(std::vector<std::shared_ptr<Statement>> stmts) : statements_(std::move(stmts)) {}
     ~Block() override = default;
     void accept(Visitor &) override;
     auto statements() const -> std::vector<std::shared_ptr<Statement>> {
@@ -165,7 +165,7 @@ namespace ast::stmt {
   class Return final : public Statement {
     std::optional<std::shared_ptr<expr::Expression>> expression_;
   public:
-    explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
+    explicit Return(std::optional<std::shared_ptr<expr::Expression> > expr) : expression_(std::move(expr)){}
     ~Return() override = default;
     void accept(Visitor&) override;
     auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
@@ -178,12 +178,14 @@ namespace ast::stmt {
     std::optional<std::shared_ptr<expr::Expression>> initialiser_;
     bool is_const_;
   public:
-    VariableDeclaration(
-      std::shared_ptr<ident::Identifier>,
-      std::shared_ptr<sym_table::Type>,
-      std::optional<std::shared_ptr<expr::Expression>>,
-      bool is_const = false
-    );
+    VariableDeclaration (
+      std::shared_ptr<ident::Identifier> id,
+      std::shared_ptr<sym_table::Type> t,
+      std::optional<std::shared_ptr<expr::Expression>> init
+    ) :
+    identifier_(std::move(id)),
+    type_(std::move(t)),
+    initialiser_(std::move(init)) {}
     ~VariableDeclaration() override = default;
     void accept(Visitor&) override;
     auto identifier() -> std::shared_ptr<ident::Identifier> { return identifier_; }
@@ -198,10 +200,8 @@ namespace ast::stmt {
     std::shared_ptr<ident::Identifier> target_;
     std::shared_ptr<expr::Expression> value_;
   public:
-    Assignment(
-      std::shared_ptr<ident::Identifier>,
-      std::shared_ptr<expr::Expression>
-    );
+    Assignment ( std::shared_ptr<ident::Identifier> target, std::shared_ptr<expr::Expression> val)
+     : target_(std::move(target)), value_(std::move(val)) {}
     ~Assignment() override = default;
     void accept(Visitor&) override;
     auto target() -> std::shared_ptr<ident::Identifier> { return target_; }
