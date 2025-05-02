@@ -77,9 +77,13 @@ namespace ast::expr {
   >;
 
   class Expression : public Node {
+  protected:
+    std::shared_ptr<sym_table::Type> type_;
   public:
-    ~Expression () override = default;
-    void accept (Visitor &) override;
+    virtual ~Expression () override = default;
+    virtual void accept (Visitor &) override;
+    virtual auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    virtual void set_type(std::shared_ptr<sym_table::Type> t) { type_ = std::move(t); }
   };
 
   class Binary final : public Expression {
@@ -133,6 +137,15 @@ namespace ast::expr {
       type_ = std::move(t);
     }
   };
+
+  class FunctionCall final : public Expression {
+    std::shared_ptr<ident::Identifier> function_;
+    std::vector<std::shared_ptr<Expression>> arguments_;
+  public:
+    FunctionCall(std::shared_ptr<ident::Identifier>, std::vector<std::shared_ptr<Expression>>);
+    auto function() const -> std::shared_ptr<ident::Identifier> { return function_; }
+    auto arguments() const -> const std::vector<std::shared_ptr<Expression>>& { return arguments_; }
+  };
 }
 
 namespace ast::stmt {
@@ -176,11 +189,13 @@ namespace ast::stmt {
     std::shared_ptr<sym_table::Symbol> symbol_;
     std::shared_ptr<sym_table::Type> type_;
     std::optional<std::shared_ptr<expr::Expression>> initialiser_;
+    bool is_const_;
   public:
     VariableDeclaration(
       std::shared_ptr<ident::Identifier>,
       std::shared_ptr<sym_table::Type>,
-      std::optional<std::shared_ptr<expr::Expression>>
+      std::optional<std::shared_ptr<expr::Expression>>,
+      bool is_const = false
     );
     ~VariableDeclaration() override = default;
     void accept(Visitor&) override;
@@ -190,6 +205,7 @@ namespace ast::stmt {
     auto type() -> std::shared_ptr<sym_table::Type> { return type_; }
     auto symbol() -> std::shared_ptr<sym_table::Symbol> { return symbol_; }
     auto set_symbol(std::shared_ptr<sym_table::Symbol> sym) -> void { symbol_ = std::move(sym); }
+    auto is_const() const -> bool { return is_const_; }
   };
 
   class Assignment final : public Statement {
@@ -221,9 +237,35 @@ namespace ast::stmt {
 
 namespace ast::func {
 
-  class Function : public Node {
+  class Parameter final : public Node {
+    std::shared_ptr<ident::Identifier> name_;
+    std::shared_ptr<sym_table::Type> type_;
   public:
-    void accept (Visitor &) override;
+    Parameter(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
+    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+  };
+
+  class Function : public Node {
+    std::shared_ptr<ident::Identifier> name_;
+    std::vector<std::shared_ptr<Parameter>> parameters_;
+    std::shared_ptr<sym_table::Type> return_type_;
+    std::shared_ptr<stmt::Block> body_;
+    bool is_public_;
+  public:
+    Function(
+      std::shared_ptr<ident::Identifier>,
+      std::vector<std::shared_ptr<Parameter>>,
+      std::shared_ptr<sym_table::Type>,
+      std::shared_ptr<stmt::Block>,
+      bool is_public = false
+    );
+    void accept(Visitor&) override;
+    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto parameters() const -> const std::vector<std::shared_ptr<Parameter>>& { return parameters_; }
+    auto return_type() const -> std::shared_ptr<sym_table::Type> { return return_type_; }
+    auto body() const -> std::shared_ptr<stmt::Block> { return body_; }
+    auto is_public() const -> bool { return is_public_; }
   };
 
 }
