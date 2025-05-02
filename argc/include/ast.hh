@@ -75,7 +75,7 @@ public:
 namespace ast::expr {
 
   using LiteralVariant = std::variant<
-    int, double, bool
+    int64_t, double, bool, u_int64_t
   >;
 
   class Expression : public Node {
