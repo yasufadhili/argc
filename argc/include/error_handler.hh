@@ -40,7 +40,7 @@ namespace error {
     auto code_snippet () const -> const std::optional<std::string> &  { return code_snippet_; }
     auto suggestion () const -> const std::optional<std::string> & { return suggestion_; }
 
-    std::string formatted_message() const {
+    auto formatted_message() const -> std::string {
       std::stringstream ss;
 
       switch (severity_) {
@@ -75,7 +75,6 @@ namespace error {
 
   // The main error handler class - singleton pattern
   class DiagnosticHandler {
-  private:
     std::vector<DiagnosticMessage> messages_;
     bool has_error_ = false;
     bool has_fatal_error_ = false;
@@ -90,15 +89,15 @@ namespace error {
     DiagnosticHandler &operator=(const DiagnosticHandler &) = delete;
 
     // Singleton instance getter
-    static DiagnosticHandler &instance() {
+    static auto instance () -> DiagnosticHandler & {
       static DiagnosticHandler instance;
       return instance;
     }
 
-    void report(const std::string &message, Severity severity,
+    auto  report(const std::string &message, Severity severity,
                 const yy::location &location,
                 std::optional<std::string> code_snippet = std::nullopt,
-                std::optional<std::string> suggestion = std::nullopt) {
+                std::optional<std::string> suggestion = std::nullopt) -> void  {
       messages_.emplace_back(message, severity, location, code_snippet, suggestion);
 
       if (severity == Severity::ERROR || severity == Severity::FATAL) {
@@ -109,49 +108,49 @@ namespace error {
       }
     }
 
-    void info(const std::string &message, const yy::location &location,
+    auto info(const std::string &message, const yy::location &location,
               std::optional<std::string> code_snippet = std::nullopt,
-              std::optional<std::string> suggestion = std::nullopt) {
+              std::optional<std::string> suggestion = std::nullopt) -> void  {
       report(message, Severity::INFO, location, code_snippet, suggestion);
     }
 
-    void warning(const std::string &message, const yy::location &location,
+    auto  warning(const std::string &message, const yy::location &location,
                  std::optional<std::string> code_snippet = std::nullopt,
-                 std::optional<std::string> suggestion = std::nullopt) {
+                 std::optional<std::string> suggestion = std::nullopt) -> void {
       report(message, Severity::WARNING, location, code_snippet, suggestion);
     }
 
-    void error(const std::string &message, const yy::location &location,
+    auto  error(const std::string &message, const yy::location &location,
                std::optional<std::string> code_snippet = std::nullopt,
-               std::optional<std::string> suggestion = std::nullopt) {
+               std::optional<std::string> suggestion = std::nullopt) -> void {
       report(message, Severity::ERROR, location, code_snippet, suggestion);
     }
 
-    void fatal(const std::string &message, const yy::location &location,
+    auto  fatal(const std::string &message, const yy::location &location,
                std::optional<std::string> code_snippet = std::nullopt,
-               std::optional<std::string> suggestion = std::nullopt) {
+               std::optional<std::string> suggestion = std::nullopt) -> void {
       report(message, Severity::FATAL, location, code_snippet, suggestion);
     }
 
-    const std::vector<DiagnosticMessage> &messages() const {
+    auto messages () const-> const std::vector<DiagnosticMessage> & {
       return messages_;
     }
 
-    bool has_errors() const {
+    auto has_errors () const -> bool {
       return has_error_;
     }
 
-    bool has_fatal_errors() const {
+    auto has_fatal_errors () const -> bool {
       return has_fatal_error_;
     }
 
-    void print_all(std::ostream &os = std::cerr) const {
+    auto print_all (std::ostream &os = std::cerr) const -> void {
       for (const auto &msg: messages_) {
         os << msg.formatted_message() << std::endl;
       }
     }
 
-    void print_errors(std::ostream &os = std::cerr) const {
+    auto print_errors (std::ostream &os = std::cerr) const -> void {
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::ERROR || msg.severity() == Severity::FATAL) {
           os << msg.formatted_message() << std::endl;
@@ -159,17 +158,17 @@ namespace error {
       }
     }
 
-    void clear() {
+    auto clear () -> void {
       messages_.clear();
       has_error_ = false;
       has_fatal_error_ = false;
     }
 
-    size_t message_count() const {
+    auto message_count () const -> size_t {
       return messages_.size();
     }
 
-    size_t error_count() const {
+    auto error_count () const -> size_t {
       size_t count = 0;
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::ERROR || msg.severity() == Severity::FATAL) {
@@ -179,7 +178,7 @@ namespace error {
       return count;
     }
 
-    size_t warning_count() const {
+    auto warning_count() const -> size_t {
       size_t count = 0;
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::WARNING) {
