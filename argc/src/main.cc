@@ -84,6 +84,12 @@ auto main(const int argc, char* argv[]) -> int {
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
+    std::cout << std::endl;
+    std::cout << "Compilation finished with "
+    << error::DiagnosticHandler::instance().message_count() << " messages: "
+    << error::DiagnosticHandler::instance().error_count() << " errors, "
+    << error::DiagnosticHandler::instance().warning_count() << " warnings"
+    << "\n" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -91,6 +97,8 @@ auto main(const int argc, char* argv[]) -> int {
   //  LOG_INFO("Semantic Analysis successful");
   //  LOG_INFO("Generating Assembly code");
   //}
+
+  return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
 
   ast::CodeGenerator code_generator;
   code_generator.generate(translation_unit);
