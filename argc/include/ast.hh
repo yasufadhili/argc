@@ -44,7 +44,7 @@ namespace ast::ident {
 class Identifier final : public Node {
   std::string name_;
 public:
-  explicit Identifier(std::string);
+  explicit Identifier(std::string name) : name_(std::move(name)) {}
   ~Identifier() override = default;
   void accept(Visitor &) override;
   auto name() const -> std::string { return name_; };
@@ -53,7 +53,7 @@ public:
 class TypeIdentifier final : public Node {
   std::string name_;
 public:
-  explicit TypeIdentifier(std::string);
+  explicit TypeIdentifier(std::string name) : name_(std::move(name)) {}
   ~TypeIdentifier() override = default;
   void accept(Visitor &) override;
   auto name() const -> std::string { return name_; };
