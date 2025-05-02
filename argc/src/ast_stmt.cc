@@ -1,5 +1,5 @@
 
-#include "ast.hh"
+#include "include/ast.hh"
 #include <memory>
 #include <string>
 #include <utility>
@@ -17,7 +17,7 @@ void Block::accept(SemanticAnalyser &) {
 
 }
 
-void Block::accept(CodeGenerator &) {
+void Block::accept(CodeGenerator &g) {
 
 }
 
@@ -50,7 +50,7 @@ void Return::accept(SemanticAnalyser &an) {
   }
 }
 
-void Return::accept(CodeGenerator &) {
+void Return::accept(CodeGenerator &g) {
 
 }
 
@@ -89,8 +89,7 @@ void VariableDeclaration::accept(SemanticAnalyser &an) {
   }
 }
 
-void VariableDeclaration::accept(CodeGenerator &) {
-
+void VariableDeclaration::accept(CodeGenerator &g) {
 }
 
 void VariableDeclaration::print(const int level) {
@@ -126,7 +125,7 @@ void Assignment::accept(SemanticAnalyser &an) {
   }
 }
 
-void Assignment::accept(CodeGenerator &) {
+void Assignment::accept(CodeGenerator &g) {
 
 }
 
@@ -142,7 +141,7 @@ void Print::accept(SemanticAnalyser &an) {
 
 }
 
-void Print::accept(CodeGenerator &) {
+void Print::accept(CodeGenerator &g) {
 
 }
 

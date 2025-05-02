@@ -17,7 +17,7 @@ void Unary::accept(SemanticAnalyser&) {
 }
 
 void Unary::accept(CodeGenerator&g) {
-  g.generate(operand());
+
 }
 
 void Unary::print(const int level) {
@@ -34,12 +34,7 @@ void Binary::accept(SemanticAnalyser&an) {
 }
 
 void Binary::accept(CodeGenerator&g) {
-  if (lhs()) {
-    g.generate(lhs());
-  }
-  if (rhs()) {
-    g.generate(rhs());
-  }
+
 }
 
 void Binary::print(const int level) {
@@ -63,21 +58,13 @@ void Literal::accept(SemanticAnalyser &an) {
 }
 
 void Literal::accept(CodeGenerator &g) {
-  if (std::holds_alternative<int64_t>(value())) {
-    g.emit("  integer, " + std::get<int64_t>(value()));
-  } else if (std::holds_alternative<u_int64_t>(value())) {
-    g.emit("  ; unsigned integer " + std::get<u_int64_t>(value()));
-  } else if (std::holds_alternative<double>(value())) {
-    g.emit("  ; double " + std::get<int64_t>(value()));
-  } else if (std::holds_alternative<bool>(value())) {
-    g.emit("  ; bool " + std::get<bool>(value()));
-  }
+
 }
 
 void Literal::print(const int level) {
   print_indent(level);
-  if (std::holds_alternative<int>(value())) {
-    std::cout << "Literal " << std::get<int>(value()) << "\n";
+  if (std::holds_alternative<int64_t>(value())) {
+    std::cout << "Literal " << std::get<int64_t>(value()) << "\n";
   } 
   else if (std::holds_alternative<double>(value())) {
     std::cout << "Literal " << std::get<double>(value()) << "\n";

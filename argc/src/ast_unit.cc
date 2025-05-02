@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include "ast.hh"
+#include "include/ast.hh"
 
 using namespace ast::unit;
 
@@ -16,7 +16,7 @@ void TranslationUnit::accept(SemanticAnalyser &an) {
   }
 }
 
-void TranslationUnit::accept(CodeGenerator &) {
+void TranslationUnit::accept(CodeGenerator &g) {
 }
 
 void TranslationUnit::print(const int level) {
