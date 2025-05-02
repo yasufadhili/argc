@@ -201,7 +201,7 @@ statement_list
 
 
 statement
-  : declaration_statement SEMICOLON {
+  : declaration_statement {
     $$ = $1;
   }
   | execution_statement {
@@ -210,7 +210,7 @@ statement
   | control_statement {
     $$ = $1;
   }
-  | assignment_statement SEMICOLON {
+  | assignment_statement {
     $$ = $1;
   }
   | error {
@@ -226,7 +226,7 @@ execution_statement
   : block_statement {
     $$ = $1;
   }
-  | print_statement SEMICOLON {
+  | print_statement {
     $$ = $1;
   }
 ;
