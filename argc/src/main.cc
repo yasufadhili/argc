@@ -3,7 +3,7 @@
 #include "lexer.hh"
 #include "include/driver.hh"
 #include "include/util_logger.hh"
-#include "error_handler.hh"
+#include "include/error_handler.hh"
 
 namespace fs = std::filesystem;
 
