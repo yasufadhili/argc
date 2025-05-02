@@ -54,6 +54,8 @@ namespace error {
           break;
       }
 
+      ss << location_.begin.filename << " ";
+
       // Add location information if available
       ss << location_.begin.line << ":" << location_.begin.column << "-"
           << location_.end.line << ":" << location_.end.column << ": ";

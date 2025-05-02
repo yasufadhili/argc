@@ -148,7 +148,7 @@ void yy::Lexer::handle_inc_file()
 {
   int c{};
   while ((c = yyinput()) && c != '\n')
-      ;
+    ;
   enter_file(YYText());
   BEGIN(INITIAL);
 }
@@ -157,7 +157,7 @@ bool yy::Lexer::enter_file(const std::string& filename)
 {
 
   if (!include_handler_.enter_file(filename)) {
-      return false;
+    return false;
   }
   
   auto bs = yy_create_buffer(*include_handler_.current_file().file, YY_BUF_SIZE);
@@ -171,7 +171,7 @@ bool yy::Lexer::exit_file()
 {
   if (!include_handler_.exit_file())
   {
-      return false;
+    return false;
   }
   
   yypop_buffer_state();
