@@ -2,6 +2,11 @@
 
 1. **Restructure the Type System**:
     - Create a more robust type handling system that can handle compound types
+    - Integer types (i8, i16, i32, i64)
+    - Unsigned type (u8, u16, u32, u64)
+    - Floating point values (f32, f64) - Single and double precision
+    - Should handle decimal, binary, octal and hexadecimal
+    - Exponents
     - Add support for arrays and custom types
 
 2. **Add Statement Terminators**:
