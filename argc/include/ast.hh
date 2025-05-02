@@ -137,7 +137,7 @@ namespace ast::stmt {
   public:
     explicit Empty() = default;
     ~Empty() override = default;
-    void accept(Visitor &) override {};
+    void accept(Visitor &) override;
     void print(int level) override;
   };
 
@@ -269,31 +269,47 @@ namespace ast {
   class Visitor {
   public:
     virtual ~Visitor() = default;
-    virtual void visit (std::shared_ptr<unit::TranslationUnit>&) = 0;
+    virtual void visit (unit::TranslationUnit&) = 0;
 
-    virtual void visit (std::shared_ptr<mod::Module>&) = 0;
+    virtual void visit (mod::Module&) = 0;
 
-    virtual void visit (std::shared_ptr<func::Function>&) = 0;
+    virtual void visit (func::Function&) = 0;
 
-    virtual void visit (std::shared_ptr<ident::Identifier>&) = 0;
-    virtual void visit (std::shared_ptr<ident::TypeIdentifier>&) = 0;
+    virtual void visit (ident::Identifier&) = 0;
+    virtual void visit (ident::TypeIdentifier&) = 0;
 
-    virtual void visit (std::shared_ptr<stmt::Statement>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::Empty>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::Block>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::Return>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::Print>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::VariableDeclaration>&) = 0;
-    virtual void visit (std::shared_ptr<stmt::Assignment>&) = 0;
+    virtual void visit (stmt::Statement&) = 0;
+    virtual void visit (stmt::Empty&) = 0;
+    virtual void visit (stmt::Block&) = 0;
+    virtual void visit (stmt::Return&) = 0;
+    virtual void visit (stmt::Print&) = 0;
+    virtual void visit (stmt::VariableDeclaration&) = 0;
+    virtual void visit (stmt::Assignment&) = 0;
 
-    virtual void visit (std::shared_ptr<expr::Expression>&) = 0;
-    virtual void visit (std::shared_ptr<expr::Literal>&) = 0;
-    virtual void visit (std::shared_ptr<expr::Binary>&) = 0;
-    virtual void visit (std::shared_ptr<expr::Unary>&) = 0;
-    virtual void visit (std::shared_ptr<expr::Variable>&) = 0;
+    virtual void visit (expr::Expression&) = 0;
+    virtual void visit (expr::Literal&) = 0;
+    virtual void visit (expr::Binary&) = 0;
+    virtual void visit (expr::Unary&) = 0;
+    virtual void visit (expr::Variable&) = 0;
 
   };
 
+}
+
+namespace ast {
+  inline void unit::TranslationUnit::accept(Visitor &v) { v.visit(*this); }
+
+  inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Block::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Empty::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Return::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Print::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Assignment::accept(Visitor &v) { v.visit(*this); }
 }
 
 namespace ast {
@@ -308,29 +324,6 @@ public:
   ~SymbolCollector () override = default;
 
   auto has_errors () const -> bool { return error_occurred_; }
-
-  void visit(std::shared_ptr<unit::TranslationUnit> &) override;
-
-  void visit(std::shared_ptr<mod::Module> &) override;
-
-  void visit(std::shared_ptr<func::Function> &) override;
-
-  void visit(std::shared_ptr<ident::TypeIdentifier> &) override;
-  void visit(std::shared_ptr<ident::Identifier>&) override;
-
-  void visit(std::shared_ptr<stmt::Statement> &) override;
-  void visit(std::shared_ptr<stmt::Empty> &) override;
-  void visit(std::shared_ptr<stmt::Block> &) override;
-  void visit(std::shared_ptr<stmt::Return> &) override;
-  void visit(std::shared_ptr<stmt::Print> &) override;
-  void visit(std::shared_ptr<stmt::VariableDeclaration> &) override;
-  void visit(std::shared_ptr<stmt::Assignment> &) override;
-
-  void visit(std::shared_ptr<expr::Expression>&) override;
-  void visit(std::shared_ptr<expr::Literal>&) override;
-  void visit(std::shared_ptr<expr::Binary> &) override;
-  void visit(std::shared_ptr<expr::Unary> &) override;
-  void visit(std::shared_ptr<expr::Variable> &) override;
 
 };
 
