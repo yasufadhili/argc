@@ -16,8 +16,8 @@ void Unary::accept(SemanticAnalyser&) {
 
 }
 
-void Unary::accept(CodeGenerator&) {
-
+void Unary::accept(CodeGenerator&g) {
+  g.generate(operand());
 }
 
 void Unary::print(const int level) {
@@ -33,8 +33,13 @@ void Binary::accept(SemanticAnalyser&an) {
   an.visit(rhs());
 }
 
-void Binary::accept(CodeGenerator&) {
-
+void Binary::accept(CodeGenerator&g) {
+  if (lhs()) {
+    g.generate(lhs());
+  }
+  if (rhs()) {
+    g.generate(rhs());
+  }
 }
 
 void Binary::print(const int level) {
@@ -109,7 +114,7 @@ void Variable::accept(SemanticAnalyser &an) {
   set_type(symbol->get_type());
 }
 
-void Variable::accept(CodeGenerator &) {
+void Variable::accept(CodeGenerator &g) {
 
 }
 
