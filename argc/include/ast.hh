@@ -82,7 +82,8 @@ namespace ast::expr {
     std::shared_ptr<Expression> lhs_;
     std::shared_ptr<Expression> rhs_;
   public:
-    Binary (std::variant<BinaryOp, RelationalOp>, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
+    Binary(const std::variant<BinaryOp, RelationalOp> op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+    : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
     ~Binary () override = default;
     void accept (Visitor &) override;
     auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
@@ -94,7 +95,8 @@ namespace ast::expr {
     UnaryOp op_;
     std::shared_ptr<Expression> operand_;
   public:
-    Unary(UnaryOp, std::shared_ptr<Expression>);
+    Unary(const UnaryOp op, std::shared_ptr<Expression> operand)
+    : op_(op), operand_(std::move(operand)) {}
     ~Unary() override = default;
     void accept(Visitor &) override;
     auto operand() const -> std::shared_ptr<Expression> { return operand_; };
@@ -104,7 +106,8 @@ namespace ast::expr {
   class Literal final : public Expression {
     LiteralVariant value_;
   public:
-    explicit Literal(LiteralVariant);
+    explicit Literal(const LiteralVariant v)
+    : value_(v){}
     ~Literal() override = default;
     void accept(Visitor &) override;
     auto value() const -> LiteralVariant { return value_; };
@@ -114,7 +117,8 @@ namespace ast::expr {
     std::shared_ptr<ident::Identifier> identifier_;
     std::shared_ptr<sym_table::Type> type_;
   public:
-    Variable(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
+    Variable(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
+    : identifier_(std::move(id)), type_(std::move(t)) { }
     ~Variable() override = default;
     void accept(Visitor &) override;
     auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
