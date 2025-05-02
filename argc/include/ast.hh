@@ -262,18 +262,21 @@ namespace ast::mod {
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
     Module (
-      std::shared_ptr<ident::Identifier>,
-      std::vector<std::shared_ptr<func::Function>>,
-      std::vector<std::shared_ptr<stmt::Statement>>
-    ) ;
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<func::Function>> fns,
+      std::vector<std::shared_ptr<stmt::Statement>> stmts
+    ) : identifier_(id), functions_(fns), statements_(stmts) {}
+  
     Module (
-      std::shared_ptr<ident::Identifier>,
-      std::vector<std::shared_ptr<stmt::Statement>>
-    ) ;
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<stmt::Statement>> stmts
+    ) : identifier_(id), statements_(stmts) {}
+  
     Module (
-      std::shared_ptr<ident::Identifier>,
-      std::vector<std::shared_ptr<func::Function>>
-    ) ;
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<func::Function>> fns
+    ) : identifier_(id), functions_(fns) {}
+  
     ~Module () override = default;
     void accept (Visitor&) override;
     auto identifier () -> std::shared_ptr<ident::Identifier> { return identifier_; }
