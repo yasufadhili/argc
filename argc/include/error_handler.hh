@@ -23,7 +23,7 @@ namespace error {
     std::optional<std::string> suggestion_;
 
   public:
-    DiagnosticMessage(std::string message, Severity severity,
+    DiagnosticMessage(std::string message, const Severity severity,
                       const yy::location &location,
                       std::optional<std::string> code_snippet = std::nullopt,
                       std::optional<std::string> suggestion = std::nullopt)
@@ -34,13 +34,13 @@ namespace error {
         suggestion_(std::move(suggestion)) {
     }
 
-    auto message () const -> const std::string & { return message_; }
-    auto severity () const-> Severity { return severity_; }
-    auto &location () const -> yy::location { return location_; }
-    auto code_snippet () const -> const std::optional<std::string> &  { return code_snippet_; }
-    auto suggestion () const -> const std::optional<std::string> & { return suggestion_; }
+    [[nodiscard]] auto message () const -> const std::string& { return message_; }
+    [[nodiscard]] auto severity () const-> Severity { return severity_; }
+    [[nodiscard]] auto location () const -> const yy::location& { return location_; }
+    [[nodiscard]] auto code_snippet () const -> const std::optional<std::string>&  { return code_snippet_; }
+    [[nodiscard]] auto suggestion () const -> const std::optional<std::string>& { return suggestion_; }
 
-    auto formatted_message() const -> std::string {
+    [[nodiscard]] auto formatted_message () const -> std::string {
       std::stringstream ss;
 
       switch (severity_) {
@@ -80,13 +80,13 @@ namespace error {
     bool has_fatal_error_ = false;
 
     // Private constructor for singleton
-    DiagnosticHandler() = default;
+    DiagnosticHandler () = default;
 
   public:
     // Delete copy constructor and assignment operator
-    DiagnosticHandler(const DiagnosticHandler &) = delete;
+    DiagnosticHandler (const DiagnosticHandler &) = delete;
 
-    DiagnosticHandler &operator=(const DiagnosticHandler &) = delete;
+    DiagnosticHandler &operator = (const DiagnosticHandler &) = delete;
 
     // Singleton instance getter
     static auto instance () -> DiagnosticHandler & {
@@ -94,10 +94,10 @@ namespace error {
       return instance;
     }
 
-    auto  report(const std::string &message, Severity severity,
+    auto report (const std::string &message, Severity severity,
                 const yy::location &location,
-                std::optional<std::string> code_snippet = std::nullopt,
-                std::optional<std::string> suggestion = std::nullopt) -> void  {
+                const std::optional<std::string>& code_snippet = std::nullopt,
+                const std::optional<std::string>& suggestion = std::nullopt) -> void  {
       messages_.emplace_back(message, severity, location, code_snippet, suggestion);
 
       if (severity == Severity::ERROR || severity == Severity::FATAL) {
@@ -108,39 +108,39 @@ namespace error {
       }
     }
 
-    auto info(const std::string &message, const yy::location &location,
-              std::optional<std::string> code_snippet = std::nullopt,
-              std::optional<std::string> suggestion = std::nullopt) -> void  {
+    auto info (const std::string &message, const yy::location &location,
+              const std::optional<std::string>& code_snippet = std::nullopt,
+              const std::optional<std::string>& suggestion = std::nullopt) -> void  {
       report(message, Severity::INFO, location, code_snippet, suggestion);
     }
 
-    auto  warning(const std::string &message, const yy::location &location,
-                 std::optional<std::string> code_snippet = std::nullopt,
-                 std::optional<std::string> suggestion = std::nullopt) -> void {
+    auto warning (const std::string &message, const yy::location &location,
+                 const std::optional<std::string>& code_snippet = std::nullopt,
+                 const std::optional<std::string>& suggestion = std::nullopt) -> void {
       report(message, Severity::WARNING, location, code_snippet, suggestion);
     }
 
-    auto  error(const std::string &message, const yy::location &location,
-               std::optional<std::string> code_snippet = std::nullopt,
-               std::optional<std::string> suggestion = std::nullopt) -> void {
+    auto error (const std::string &message, const yy::location &location,
+               const std::optional<std::string>& code_snippet = std::nullopt,
+               const std::optional<std::string>& suggestion = std::nullopt) -> void {
       report(message, Severity::ERROR, location, code_snippet, suggestion);
     }
 
-    auto  fatal(const std::string &message, const yy::location &location,
-               std::optional<std::string> code_snippet = std::nullopt,
-               std::optional<std::string> suggestion = std::nullopt) -> void {
+    auto fatal (const std::string &message, const yy::location &location,
+               const std::optional<std::string>& code_snippet = std::nullopt,
+               const std::optional<std::string>& suggestion = std::nullopt) -> void {
       report(message, Severity::FATAL, location, code_snippet, suggestion);
     }
 
-    auto messages () const-> const std::vector<DiagnosticMessage> & {
+    [[nodiscard]] auto messages () const-> const std::vector<DiagnosticMessage> & {
       return messages_;
     }
 
-    auto has_errors () const -> bool {
+    [[nodiscard]] auto has_errors () const -> bool {
       return has_error_;
     }
 
-    auto has_fatal_errors () const -> bool {
+    [[nodiscard]] auto has_fatal_errors () const -> bool {
       return has_fatal_error_;
     }
 
@@ -164,11 +164,11 @@ namespace error {
       has_fatal_error_ = false;
     }
 
-    auto message_count () const -> size_t {
+    [[nodiscard]] auto message_count () const -> size_t {
       return messages_.size();
     }
 
-    auto error_count () const -> size_t {
+    [[nodiscard]] auto error_count () const -> size_t {
       size_t count = 0;
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::ERROR || msg.severity() == Severity::FATAL) {
@@ -178,7 +178,7 @@ namespace error {
       return count;
     }
 
-    auto warning_count() const -> size_t {
+    [[nodiscard]] auto warning_count() const -> size_t {
       size_t count = 0;
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::WARNING) {
