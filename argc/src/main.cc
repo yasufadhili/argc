@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include "ast.hh"
 #include "lexer.hh"
 #include "include/driver.hh"
 #include "include/util_logger.hh"
@@ -73,6 +74,9 @@ auto main(const int argc, char* argv[]) -> int {
     LOG_INFO("Code Structure: ");
     translation_unit->print(0);
   }
+
+  ast::SymbolCollector symbol_collector;
+  translation_unit->accept(symbol_collector);
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
