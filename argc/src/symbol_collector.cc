@@ -17,8 +17,10 @@ void SymbolCollector::visit(ident::TypeIdentifier&) {
 }
 
 
-void SymbolCollector::visit(mod::Module&) {
-
+void SymbolCollector::visit(mod::Module&m) {
+  for (auto f : m.functions()) {
+    f->accept(*this);
+  }
 }
 
 void SymbolCollector::visit(func::Function&) {
