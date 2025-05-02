@@ -299,9 +299,15 @@ namespace ast {
 namespace ast {
 
 class SymbolCollector final : public Visitor {
+  std::shared_ptr<sym_table::SymbolTable> symbol_table_;
+  bool error_occurred_;
 public:
-  SymbolCollector();
-  ~SymbolCollector() override = default;
+  SymbolCollector () :
+  symbol_table_(sym_table::SymbolTable::get_instance()),
+  error_occurred_(false) {}
+  ~SymbolCollector () override = default;
+
+  auto has_errors () const -> bool { return error_occurred_; }
 
   void visit(std::shared_ptr<unit::TranslationUnit> &) override;
 
