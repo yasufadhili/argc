@@ -49,7 +49,7 @@ namespace yy {
 }
 
 
-%token END 0
+%token END 0 "end of file"
 
 %token ASM
 %token <std::string> STRING_LITERAL
@@ -201,7 +201,7 @@ statement_list
 
 
 statement
-  : declaration_statement {
+  : declaration_statement SEMICOLON {
     $$ = $1;
   }
   | execution_statement {
@@ -210,7 +210,7 @@ statement
   | control_statement {
     $$ = $1;
   }
-  | assignment_statement {
+  | assignment_statement SEMICOLON {
     $$ = $1;
   }
   | error {
@@ -226,7 +226,7 @@ execution_statement
   : block_statement {
     $$ = $1;
   }
-  | print_statement {
+  | print_statement SEMICOLON {
     $$ = $1;
   }
 ;

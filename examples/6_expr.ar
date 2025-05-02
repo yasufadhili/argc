@@ -1,1 +1,3 @@
 module expressions
+
+var x i32
