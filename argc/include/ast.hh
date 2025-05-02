@@ -293,7 +293,7 @@ namespace ast::unit {
   class TranslationUnit final : public Node {
     std::vector<std::shared_ptr<mod::Module>> modules_;
   public:
-    explicit TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
+    explicit TranslationUnit(std::vector<std::shared_ptr<mod::Module> > m) : modules_(std::move(m)) {}
     ~TranslationUnit() override = default;
     void accept(Visitor &) override;
     auto add_module (std::shared_ptr<mod::Module> m) -> void { modules_.emplace_back(m); }
