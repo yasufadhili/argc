@@ -78,7 +78,7 @@ auto main(const int argc, char* argv[]) -> int {
   bool analysis_result { analyser.analyse(translation_unit) };
 
   if (!analysis_result) {
-    LOG_ERROR("Failed to analyse translation unit");
+    LOG_FATAL("Failed to analyse translation unit");
     return EXIT_FAILURE;
   }
 
