@@ -216,7 +216,6 @@ statement
   | error {
     // Create a dummy statement for error recovery with location info
     error::DiagnosticHandler::instance().error("Invalid statement syntax", @$);
-    //LOG_WARNING("Invalid statement syntax");
     $$ = std::make_shared<ast::stmt::Empty>();
     $$->set_location(@$);
   }

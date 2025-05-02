@@ -81,14 +81,16 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  std::cout << "Message Count: "<< error::DiagnosticHandler::instance().message_count() << "\n";
+  error::DiagnosticHandler::instance().print_all();
 
-
-
-  if (config.verbose) {
-    LOG_INFO("Semantic Analysis successful");
-    LOG_INFO("Generating Assembly code");
+  if (error::DiagnosticHandler::instance().message_count() > 0) {
+    return EXIT_FAILURE;
   }
+
+  //if (config.verbose) {
+  //  LOG_INFO("Semantic Analysis successful");
+  //  LOG_INFO("Generating Assembly code");
+  //}
 
   ast::CodeGenerator code_generator;
   code_generator.generate(translation_unit);
