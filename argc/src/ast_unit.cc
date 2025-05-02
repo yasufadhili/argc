@@ -10,15 +10,6 @@ TranslationUnit::TranslationUnit(std::vector<std::shared_ptr<mod::Module> > m)
 
 }
 
-void TranslationUnit::accept(SemanticAnalyser &an) {
-  for (const auto& m : modules_) {
-    an.visit(m);
-  }
-}
-
-void TranslationUnit::accept(CodeGenerator &g) {
-}
-
 void TranslationUnit::print(const int level) {
   print_indent(level);
   std::cout << "Translation Unit\n";
