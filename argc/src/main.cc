@@ -85,7 +85,7 @@ auto main(const int argc, char* argv[]) -> int {
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
     std::cout << std::endl;
-    std::cout << "Compilation finished with "
+    std::cout << "Compilation failed with "
     << error::DiagnosticHandler::instance().message_count() << " messages: "
     << error::DiagnosticHandler::instance().error_count() << " errors, "
     << error::DiagnosticHandler::instance().warning_count() << " warnings"
