@@ -2,12 +2,12 @@
 #include <filesystem>
 #include <iostream>
 
-#include "driver.hh"
+#include "include/driver.hh"
 
 #include <fstream>
 
 #include "lexer.hh"
-#include "stages.hh"
+#include "include/util_logger.hh"
 
 namespace fs = std::filesystem;
 using namespace driver;
@@ -169,7 +169,7 @@ auto driver::display_help(const std::string &prog_name) -> void {
   std::cout << "  -g                    Generate debugging information" << std::endl;
   std::cout << "  -w                    Disable all warnings" << std::endl;
   std::cout << "  -Werror               Treat warnings as errors" << std::endl;
-  std::cout << "  -std=<standard>       Specify language standard (e.g. 1)" << std::endl;
+  //std::cout << "  -std=<standard>       Specify language standard (e.g. 1)" << std::endl;
   std::cout << "  -I<dir>               Add directory to include search path" << std::endl;
   //std::cout << "  -D<macro>[=<val>]     Define a preprocessor macro" << std::endl;
   std::cout << "  -L<dir>               Add directory to library search path" << std::endl;
@@ -192,12 +192,12 @@ auto driver::validate_input_files(const config::Config &config) -> bool {
   std::set<std::string> valid_extensions{".ar", ".arg", ".argon"};
   for (const auto &file: config.input_files) {
     if (!fs::exists(file)) {
-      std::cerr << "Error: Input file '" << file << "' does not exist" << std::endl;
+      LOG_ERROR("Error: Input file '" + file + "' does not exist");
       return false;
     }
     std::string extension{fs::path(file).extension().string()};
     if (valid_extensions.find(extension) == valid_extensions.end()) {
-      std::cerr << "Warning: File '" << file << "' has unrecognised extension '" << extension << "'" << std::endl;
+      LOG_ERROR("Warning: File '" + file + "' has unrecognised extension '" + extension + "'");
     }
   }
   return true;
@@ -210,11 +210,9 @@ auto driver::cleanup_temp_files(const config::Config &config) -> void {
       if (fs::exists(file)) {
         try {
           fs::remove(file);
-          if (config.verbose) {
-            std::cout << "Removed temporary file: " << file << std::endl;
-          }
+            LOG_INFO_IF(config.verbose, "Removed temporary file: " + file);
         } catch (const std::exception &e) {
-          std::cerr << "Warning: Failed to remove temporary file '" << file << "': " << e.what() << std::endl;
+          LOG_WARNING("Failed to remove temporary file '" + file);
         }
       }
     }

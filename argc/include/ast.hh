@@ -1,473 +1,434 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
+#include <memory>
 #include <iostream>
 #include <optional>
-#include <sstream> 
-
-#include "symbols.hh"
-
+#include <sstream>
+#include <variant>
+#include "config.hh"
+#include "error_handler.hh"
+#include "location.hh"
+#include "sym_table.hh"
+#include "util_logger.hh"
 
 namespace ast {
 
-  class Visitor;
+class Visitor;
 
-  class Node {
-  protected:
-    static void print_indent(const int level) {
-      for (int i = 0; i < level; ++i) {
-        std::cout << " ";
-      }
-    }
+enum class BinaryOp { ADD, SUB, MUL, DIV, MOD, B_AND, B_OR, L_AND, L_OR, NONE };
+enum class UnaryOp { NEG, B_NOT, L_NOT };
+enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
-  public:
-    virtual ~Node() = default;
-    virtual void accept(Visitor&) = 0;
-    virtual void print(int level) = 0;
-  };
+class Node {
+  yy::location location_;
+protected:
+  auto location() -> yy::location {
+    return location_;
+  }
+public:
+  Node() : location_() {}
+  explicit Node(const yy::location& loc) : location_(loc) {}
+  virtual ~Node() = default;
+  virtual void accept(Visitor&) = 0;
+  void set_location(const yy::location& loc) { location_ = loc; }
+  const yy::location& location() const { return location_; }
+};
 
 }
 
-
 namespace ast::ident {
 
-  class Identifier final : Node{
-  public:
-    explicit Identifier(std::string  name) : name_(std::move(name)) {}
-    ~Identifier() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    const std::string& name() const { return name_; }
+class Identifier final : public Node {
+  std::string name_;
+public:
+  explicit Identifier(std::string name) : name_(std::move(name)) {}
+  ~Identifier() override = default;
+  void accept(Visitor &) override;
+  auto name() const -> std::string { return name_; };
+};
 
-  private:
-    std::string name_;
-  };
-
-  class TypeIdentifier final : Node {
-  public:
-    explicit TypeIdentifier(const std::string& name) : name_(name) {}
-    ~TypeIdentifier() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    const std::string& name() const { return name_; }
-
-  private:
-    std::string name_;
-  };
+class TypeIdentifier final : public Node {
+  std::string name_;
+public:
+  explicit TypeIdentifier(std::string name) : name_(std::move(name)) {}
+  ~TypeIdentifier() override = default;
+  void accept(Visitor &) override;
+  auto name() const -> std::string { return name_; };
+};
 
 }
 
 namespace ast::expr {
 
+  using LiteralVariant = std::variant<
+    int64_t, double, bool, u_int64_t
+  >;
+
   class Expression : public Node {
-    std::shared_ptr<sym::Type> type_;
+  protected:
+    std::shared_ptr<sym_table::Type> type_;
   public:
-    Expression() = default;
-    ~Expression() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    virtual int evaluate();
-    auto type() const -> std::shared_ptr<sym::Type> { return type_; }
-    auto set_type(std::shared_ptr<sym::Type> type) -> void { type_ = std::move(type); }
+    virtual ~Expression () override = default;
+    virtual void accept (Visitor &) override;
+    virtual auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    virtual void set_type(std::shared_ptr<sym_table::Type> t) { type_ = std::move(t); }
   };
 
-  class Binary : public Expression {
+  class Binary final : public Expression {
+    std::variant<BinaryOp, RelationalOp> op_;
+    std::shared_ptr<Expression> lhs_;
+    std::shared_ptr<Expression> rhs_;
   public:
-    ~Binary() override = default;
-    void accept(Visitor&) override = 0;
-    void print(int level) override;
-    int evaluate() override;
+    Binary(const std::variant<BinaryOp, RelationalOp> op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs)
+    : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
+    ~Binary () override = default;
+    void accept (Visitor &) override;
+    auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
+    auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
+    auto op () const -> std::variant<BinaryOp, RelationalOp> { return op_; };
   };
 
   class Unary final : public Expression {
-  public:
-    enum struct UnaryOp {
-      NEG, NOT, LOGICAL_NOT
-    };
-  private:
     UnaryOp op_;
     std::shared_ptr<Expression> operand_;
-
   public:
-    Unary(UnaryOp op, std::shared_ptr<Expression> operand);
+    Unary(const UnaryOp op, std::shared_ptr<Expression> operand)
+    : op_(op), operand_(std::move(operand)) {}
     ~Unary() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    int evaluate() override;
-    auto op() const -> UnaryOp { return op_; }
-    auto operand() -> std::shared_ptr<Expression>& { return operand_; }
+    void accept(Visitor &) override;
+    auto operand() const -> std::shared_ptr<Expression> { return operand_; };
+    auto op() const -> UnaryOp { return op_; };
   };
 
-  class Constant final : public Expression {
-    using  const_variant = std::variant<
-      int, double, bool, std::string, char
-    >;
-    const_variant value_;
-    sym::Type::TypeKind kind_;
+  class Literal final : public Expression {
+    LiteralVariant value_;
   public:
-    explicit Constant(const_variant , sym::Type::TypeKind);
-    ~Constant() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    int evaluate() override;
+    explicit Literal(const LiteralVariant v)
+    : value_(v){}
+    ~Literal() override = default;
+    void accept(Visitor &) override;
+    auto value() const -> LiteralVariant { return value_; };
   };
 
   class Variable final : public Expression {
     std::shared_ptr<ident::Identifier> identifier_;
-    std::shared_ptr<sym::Type> type_;
+    std::shared_ptr<sym_table::Type> type_;
   public:
-    //Variable(std::string name, std::shared_ptr<sym::Type> type)
-    //    : identifier(std::move(name)), var_type(std::move(type)) {}
-    explicit Variable(const std::string&);
-    void accept(Visitor&) override;
-    void print(int) override;
-    auto identifier() -> std::shared_ptr<ident::Identifier>& { return identifier_; }
-    auto type() -> std::shared_ptr<sym::Type>& { return type_; }
+    Variable(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
+    : identifier_(std::move(id)), type_(std::move(t)) { }
+    ~Variable() override = default;
+    void accept(Visitor &) override;
+    auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    auto set_type(std::shared_ptr<sym_table::Type> t) -> void {
+      type_ = std::move(t);
+    }
   };
 
-  enum struct BitwiseOp {
-    AND, OR, XOR, NOT, SHL, SHR
-  };
-
-  class Bitwise final : public Binary {
-    BitwiseOp op_;
-    std::shared_ptr<Expression> lhs_;
-    std::shared_ptr<Expression> rhs_;
+  class FunctionCall final : public Expression {
+    std::shared_ptr<ident::Identifier> function_;
+    std::vector<std::shared_ptr<Expression>> arguments_;
   public:
-    Bitwise(BitwiseOp op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right);
-    ~Bitwise() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    auto evaluate() -> int;
-    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
-    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
-    auto op() const -> BitwiseOp { return op_; }
+    FunctionCall(std::shared_ptr<ident::Identifier>, std::vector<std::shared_ptr<Expression>>);
+    auto function() const -> std::shared_ptr<ident::Identifier> { return function_; }
+    auto arguments() const -> const std::vector<std::shared_ptr<Expression>>& { return arguments_; }
   };
-
-  enum struct LogicalOp {
-    AND, OR
-  };
-
-  class Logical final : public Binary {
-    LogicalOp op_;
-    std::shared_ptr<Expression> lhs_;
-    std::shared_ptr<Expression> rhs_;
-  public:
-    Logical(LogicalOp op, std::shared_ptr<Expression> lhs, std::shared_ptr<Expression> rhs);
-    ~Logical() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    int evaluate() override;
-    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
-    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
-    auto op() -> LogicalOp { return op_; }
-  };
-
-}
-
-namespace ast::expr::arith {
-
-  enum struct ArithmeticType {
-    ADD, SUB, DIV, MUL, MOD
-  };
-
-  class Arithmetic final : public Binary {
-    ArithmeticType type_;
-    std::shared_ptr<Expression> lhs_;
-    std::shared_ptr<Expression> rhs_;
-  public:
-    Arithmetic(ArithmeticType, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
-    ~Arithmetic() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    int evaluate() override;
-    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
-    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
-    auto type() const -> ArithmeticType { return type_; }
-  };
-
-}
-
-namespace ast::expr::boolean {
-
-  enum struct BooleanType {
-    TRUE = 1, FALSE = 0
-  };
-
-  class Boolean final : public Expression {
-    BooleanType type;
-  public:
-    explicit Boolean(BooleanType);
-    ~Boolean() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    int evaluate() override;
-  };
-
-}
-
-namespace ast::expr::rel {
-
-  enum struct RelationalType {
-    EQ, NEQ,  GT, LT, GEQ, LEQ, NONE
-  };
-
-  class Relational final : public Binary {
-    RelationalType type_;
-    std::shared_ptr<Expression> lhs_;
-    std::shared_ptr<Expression> rhs_;
-  public:
-    Relational(RelationalType, std::shared_ptr<Expression>, std::shared_ptr<Expression> );
-    ~Relational() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
-    int evaluate() override;
-    auto lhs() -> std::shared_ptr<Expression>& { return lhs_; }
-    auto rhs() -> std::shared_ptr<Expression>& { return rhs_; }
-    auto type() -> RelationalType { return type_; }
-  };
-
 }
 
 namespace ast::stmt {
   class Statement : public Node {
   public:
-    ~Statement() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
+    void accept (Visitor &) override;
   };
 
-  class EmptyStatement final : public Statement {
+  class Empty final : public Statement {
   public:
-    EmptyStatement() = default;
-    ~EmptyStatement() override = default;
-    void print(int level) override;
-    void accept(Visitor&) override;
+    explicit Empty() = default;
+    ~Empty() override = default;
+    void accept(Visitor &) override;
   };
 
   class Block final : public Statement {
     std::vector<std::shared_ptr<Statement>> statements_;
   public:
-    explicit Block(std::vector<std::shared_ptr<Statement>> stmts)
-      : statements_(std::move(stmts)) {}
-
-    auto add_statement(std::shared_ptr<Statement> stmt) -> void {
-      statements_.push_back(std::move(stmt));
+    explicit Block(std::vector<std::shared_ptr<Statement>> stmts) : statements_(std::move(stmts)) {}
+    ~Block() override = default;
+    void accept(Visitor &) override;
+    auto statements() const -> std::vector<std::shared_ptr<Statement>> {
+      return statements_;
     }
-    void print(int level) override;
-    void accept(Visitor&) override;
-    auto statements() -> std::vector<std::shared_ptr<Statement>>& { return statements_; }
-  };
-
-  class VariableDeclaration final : public Statement {
-    std::string name_;
-    std::shared_ptr<sym::Type> type_;
-    std::optional<std::shared_ptr<expr::Expression>> initialiser_;
-    std::shared_ptr<sym::Symbol> symbol_;
-  public:
-    VariableDeclaration(
-      std::string name,
-      const std::shared_ptr<sym::Type> &type,
-      const std::optional<std::shared_ptr<expr::Expression>>& init
-    );
-
-    void print(int level) override;
-    void accept(Visitor&) override;
-    auto set_symbol(std::shared_ptr<sym::Symbol> sym) -> void { symbol_ = std::move(sym); }
-    auto get_symbol() const -> std::shared_ptr<sym::Symbol> { return symbol_; }
-    auto name() const -> const std::string& { return name_; }
-    auto type() const -> std::shared_ptr<sym::Type> { return type_; }
-    auto initialiser() -> const std::optional<std::shared_ptr<expr::Expression>>& { return initialiser_; }
-  };
-
-  class Assignment final : public Statement {
-    std::string target_;
-    std::shared_ptr<expr::Expression> value_;
-  public:
-    Assignment(std::string target_var, std::shared_ptr<expr::Expression> assigned_value);
-    ~Assignment() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    auto target() -> std::string& { return target_; }
-    auto value() -> std::shared_ptr<expr::Expression>& { return value_; }
-  };
-
-  class ExpressionStatement final : public Statement {
-    std::shared_ptr<expr::Expression> expression_;
-  public:
-    explicit ExpressionStatement(std::shared_ptr<expr::Expression>);
-    ~ExpressionStatement() override = default;
-    void accept(Visitor&) override;
-    void print(int) override;
-    auto expression() -> std::shared_ptr<expr::Expression>& { return expression_; }
   };
 
   class Return final : public Statement {
     std::optional<std::shared_ptr<expr::Expression>> expression_;
   public:
-    explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
+    explicit Return(std::optional<std::shared_ptr<expr::Expression> > expr) : expression_(std::move(expr)){}
     ~Return() override = default;
     void accept(Visitor&) override;
-    void print(int) override;
-    auto expression() -> std::optional<std::shared_ptr<expr::Expression>>& { return expression_; }
+    auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
 
-  class Repeat final : public Statement {
-    std::optional<std::shared_ptr<expr::Expression>> times_;
-    std::shared_ptr<Block> body_;
+  class VariableDeclaration final : public Statement {
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::shared_ptr<sym_table::Symbol> symbol_;
+    std::shared_ptr<sym_table::Type> type_;
+    std::optional<std::shared_ptr<expr::Expression>> initialiser_;
+    bool is_const_;
   public:
-    explicit Repeat(std::optional<std::shared_ptr<expr::Expression>> times);
-    ~Repeat() override = default;
+    VariableDeclaration (
+      std::shared_ptr<ident::Identifier> id,
+      std::shared_ptr<sym_table::Type> t,
+      std::optional<std::shared_ptr<expr::Expression>> init
+    ) :
+    identifier_(std::move(id)),
+    type_(std::move(t)),
+    initialiser_(std::move(init)) {}
+    ~VariableDeclaration() override = default;
     void accept(Visitor&) override;
-    void print(int) override;
-    auto times() -> std::optional<std::shared_ptr<expr::Expression>>& { return times_; }
-    auto body() -> std::shared_ptr<Block>& { return body_; }
+    auto identifier() -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto initialiser() -> std::optional<std::shared_ptr<expr::Expression>> { return initialiser_; }
+    auto type() -> std::shared_ptr<sym_table::Type> { return type_; }
+    auto symbol() -> std::shared_ptr<sym_table::Symbol> { return symbol_; }
+    auto set_symbol(std::shared_ptr<sym_table::Symbol> sym) -> void { symbol_ = std::move(sym); }
+    auto is_const() const -> bool { return is_const_; }
+  };
+
+  class Assignment final : public Statement {
+    std::shared_ptr<ident::Identifier> target_;
+    std::shared_ptr<expr::Expression> value_;
+  public:
+    Assignment ( std::shared_ptr<ident::Identifier> target, std::shared_ptr<expr::Expression> val)
+     : target_(std::move(target)), value_(std::move(val)) {}
+    ~Assignment() override = default;
+    void accept(Visitor&) override;
+    auto target() -> std::shared_ptr<ident::Identifier> { return target_; }
+    auto value() -> std::shared_ptr<expr::Expression> { return value_; }
+  };
+
+  class Print final : public Statement {
+    std::shared_ptr<expr::Expression> expression_;
+  public:
+    explicit Print(std::shared_ptr<expr::Expression> e) : expression_(std::move(e)) {}
+    ~Print () override = default;
+    void accept(Visitor&) override;
+    auto expression() -> std::shared_ptr<expr::Expression> { return expression_; }
   };
 
 }
-
-
-namespace ast::param {
-
-  class Parameter final : Node {
-  public:
-    Parameter(std::shared_ptr<ident::Identifier> name,
-             std::shared_ptr<ident::TypeIdentifier> type);
-    ~Parameter() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-
-  private:
-    std::shared_ptr<ident::Identifier> name_;
-    std::shared_ptr<ident::TypeIdentifier> type_;
-  };
-
-}
-
 
 namespace ast::func {
 
-  class ReturnTypeInfo : public Node {
-  public:
-    ReturnTypeInfo() = default;
-    ~ReturnTypeInfo() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-  };
-
-  class SingleReturnType final : public ReturnTypeInfo {
-    std::shared_ptr<ident::TypeIdentifier> id_;
-  public:
-    explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id);
-    ~SingleReturnType() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-  };
-
-  class MultipleReturnType final: public ReturnTypeInfo {
-    std::vector<std::shared_ptr<ident::TypeIdentifier>> ids_;
-  public:
-    explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids);
-    ~MultipleReturnType() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-  };
-
-
-  class Function final : public Node {
+  class Parameter final : public Node {
     std::shared_ptr<ident::Identifier> name_;
-    std::vector<std::shared_ptr<param::Parameter>> params_;
-    std::shared_ptr<ReturnTypeInfo> return_type_;
+    std::shared_ptr<sym_table::Type> type_;
+  public:
+    Parameter(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
+    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+  };
+
+  class Function : public Node {
+    std::shared_ptr<ident::Identifier> name_;
+    std::vector<std::shared_ptr<Parameter>> parameters_;
+    std::shared_ptr<sym_table::Type> return_type_;
     std::shared_ptr<stmt::Block> body_;
+    bool is_public_;
   public:
     Function(
-      const std::shared_ptr<ident::Identifier> &name,
-      std::vector<std::shared_ptr<param::Parameter>> parameters,
-      const std::shared_ptr<ReturnTypeInfo> &return_type,
-      const std::shared_ptr<stmt::Block>& body
+      std::shared_ptr<ident::Identifier>,
+      std::vector<std::shared_ptr<Parameter>>,
+      std::shared_ptr<sym_table::Type>,
+      std::shared_ptr<stmt::Block>,
+      bool is_public = false
     );
-    ~Function() override = default;
-    void print(int level) override;
     void accept(Visitor&) override;
     auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
-    auto body() -> std::shared_ptr<stmt::Block>& { return body_; }
+    auto parameters() const -> const std::vector<std::shared_ptr<Parameter>>& { return parameters_; }
+    auto return_type() const -> std::shared_ptr<sym_table::Type> { return return_type_; }
+    auto body() const -> std::shared_ptr<stmt::Block> { return body_; }
+    auto is_public() const -> bool { return is_public_; }
   };
-
 
 }
 
-
-namespace ast::prog {
+namespace ast::mod {
 
   class Module final : public Node {
-    std::string name_;
-    std::vector<std::shared_ptr<func::Function> > functions_;
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::vector<std::shared_ptr<func::Function>> functions_;
+    std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
-    Module(std::string name, std::vector<std::shared_ptr<func::Function>> functions);
-    ~Module() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    const std::string& name() const { return name_; }
-    auto functions() -> std::vector<std::shared_ptr<func::Function>>& { return functions_; }
-    void add_function(const std::shared_ptr<func::Function>& func);
+    Module (
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<func::Function>> fns,
+      std::vector<std::shared_ptr<stmt::Statement>> stmts
+    ) : identifier_(id), functions_(fns), statements_(stmts) {}
+  
+    Module (
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<stmt::Statement>> stmts
+    ) : identifier_(id), statements_(stmts) {}
+  
+    Module (
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<func::Function>> fns
+    ) : identifier_(id), functions_(fns) {}
+  
+    ~Module () override = default;
+    void accept (Visitor&) override;
+    auto identifier () -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto functions () -> std::vector<std::shared_ptr<func::Function>> { return functions_; }
+    auto statements () -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
+    auto add_function (std::shared_ptr<func::Function> f) -> void { functions_.emplace_back(f); }
+    auto add_statement (std::shared_ptr<stmt::Statement> s) -> void { statements_.emplace_back(s); }
   };
 
-  class Program final : public Node {
-    std::vector<std::shared_ptr<Module> > modules_;
+}
 
+namespace ast::unit {
+
+  class TranslationUnit final : public Node {
+    std::vector<std::shared_ptr<mod::Module>> modules_;
   public:
-    explicit Program(std::vector<std::shared_ptr<Module>>);
-    Program() = default;
-    ~Program() override = default;
-    void accept(Visitor&) override;
-    void print(int level) override;
-    auto modules() -> std::vector<std::shared_ptr<Module>> { return modules_; }
+    explicit TranslationUnit(std::vector<std::shared_ptr<mod::Module> > m) : modules_(std::move(m)) {}
+    ~TranslationUnit() override = default;
+    void accept(Visitor &) override;
+    auto add_module (std::shared_ptr<mod::Module> m) -> void { modules_.emplace_back(m); }
+    auto modules () -> std::vector<std::shared_ptr<mod::Module>> { return modules_; }
   };
+
 }
 
 namespace ast {
 
-class Visitor {
-  std::stringstream output_;
+  class Visitor {
+  protected:  
+    config::Config config_;
+  public:
+    virtual ~Visitor() = default;
+    virtual void visit (unit::TranslationUnit&) = 0;
+
+    virtual void visit (mod::Module&) = 0;
+
+    virtual void visit (func::Function&) = 0;
+
+    virtual void visit (ident::Identifier&) = 0;
+    virtual void visit (ident::TypeIdentifier&) = 0;
+
+    virtual void visit (stmt::Statement&) = 0;
+    virtual void visit (stmt::Empty&) = 0;
+    virtual void visit (stmt::Block&) = 0;
+    virtual void visit (stmt::Return&) = 0;
+    virtual void visit (stmt::Print&) = 0;
+    virtual void visit (stmt::VariableDeclaration&) = 0;
+    virtual void visit (stmt::Assignment&) = 0;
+
+    virtual void visit (expr::Expression&) = 0;
+    virtual void visit (expr::Literal&) = 0;
+    virtual void visit (expr::Binary&) = 0;
+    virtual void visit (expr::Unary&) = 0;
+    virtual void visit (expr::Variable&) = 0;
+
+  };
+
+}
+
+namespace ast {
+  inline void unit::TranslationUnit::accept(Visitor &v) { v.visit(*this); }
+
+  inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
+
+  inline void func::Function::accept(Visitor &v) { v.visit(*this); }
+
+  inline void ident::TypeIdentifier::accept(Visitor &v) { v.visit(*this); }
+  inline void ident::Identifier::accept(Visitor &v) { v.visit(*this); }
+
+  inline void stmt::Statement::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Block::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Empty::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Return::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Print::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::Assignment::accept(Visitor &v) { v.visit(*this); }
+  inline void stmt::VariableDeclaration::accept(Visitor &v) { v.visit(*this); }
+
+  inline void expr::Expression::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Unary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Binary::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Literal::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::Variable::accept(Visitor &v) { v.visit(*this); }
+}
+
+namespace ast {
+
+class Printer final : public Visitor {
+  int indent_level_ = 0;
+
+  void print_indent() const {
+    for (int i = 0; i < indent_level_; ++i) {
+      std::cout << " ";
+    }
+  }
 
 public:
+  void visit(unit::TranslationUnit&) override;
+  void visit(mod::Module&) override;
+  void visit(func::Function&) override;
+  void visit(ident::Identifier&) override;
+  void visit(ident::TypeIdentifier&) override;
+  void visit(stmt::Statement&) override;
+  void visit(stmt::Empty&) override;
+  void visit(stmt::Block&) override;
+  void visit(stmt::Return&) override;
+  void visit(stmt::Print&) override;
+  void visit(stmt::VariableDeclaration&) override;
+  void visit(stmt::Assignment&) override;
+  void visit(expr::Expression&) override;
+  void visit(expr::Literal&) override;
+  void visit(expr::Binary&) override;
+  void visit(expr::Unary&) override;
+  void visit(expr::Variable&) override;
+};
+  
+}
 
-  auto emit(std::string code) -> void;
+namespace ast {
 
-  auto generate_label(int value) -> std::string;
+class SymbolCollector final : public Visitor {
+  std::shared_ptr<sym_table::SymbolTable> symbol_table_;
+  bool error_occurred_;
+public:
+  SymbolCollector () :
+  symbol_table_(sym_table::SymbolTable::get_instance()),
+  error_occurred_(false) {}
+  ~SymbolCollector () override = default;
 
-  auto get_output() -> std::stringstream&;
+  auto has_errors () const -> bool { return error_occurred_; }
 
-  virtual ~Visitor() = default;
-  virtual void visit (std::shared_ptr<prog::Program>& p) { p->accept(*this);}
-  virtual void visit (std::shared_ptr<prog::Module>& m) { m->accept(*this);}
-  virtual void visit (std::shared_ptr<func::Function>& f) { f->accept(*this); }
-  virtual void visit (std::shared_ptr<func::ReturnTypeInfo>& rti) { rti->accept(*this); }
-  virtual void visit (std::shared_ptr<func::SingleReturnType>& rti) { rti->accept(*this); }
-  virtual void visit (std::shared_ptr<func::MultipleReturnType>& rti) { rti->accept(*this); }
-  virtual void visit (std::shared_ptr<param::Parameter>& p) { p->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::Statement>& s) { s->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::Block>& b) { b->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::ExpressionStatement>& s) { s->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::Assignment>& a) { a->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::Repeat>& r) { r->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::Return>& r) { r->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::VariableDeclaration>& vd) { vd->accept(*this); }
-  virtual void visit (std::shared_ptr<stmt::EmptyStatement>& es) { es->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Expression>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::arith::Arithmetic>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::rel::Relational>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Variable>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Unary>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Logical>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Binary>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Constant>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::Bitwise>& e) { e->accept(*this); }
-  virtual void visit (std::shared_ptr<expr::boolean::Boolean>& e) { e->accept(*this); }
+  void visit (unit::TranslationUnit&) override;
+
+  void visit (mod::Module&) override;
+
+  void visit (func::Function&) override;
+
+  void visit (ident::Identifier&) override;
+  void visit (ident::TypeIdentifier&) override;
+
+  void visit (stmt::Statement&) override;
+  void visit (stmt::Empty&) override;
+  void visit (stmt::Block&) override;
+  void visit (stmt::Return&) override;
+  void visit (stmt::Print&) override;
+  void visit (stmt::VariableDeclaration&) override;
+  void visit (stmt::Assignment&) override;
+
+  void visit (expr::Expression&) override;
+  void visit (expr::Literal&) override;
+  void visit (expr::Binary&) override;
+  void visit (expr::Unary&) override;
+  void visit (expr::Variable&) override;
 
 };
 
