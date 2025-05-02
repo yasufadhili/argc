@@ -19,14 +19,6 @@ Module::Module (
   std::vector<std::shared_ptr<func::Function>> fns
 ) : identifier_(id), functions_(fns) {}
 
-void Module::accept(SemanticAnalyser&) {
-
-}
-
-void Module::accept(CodeGenerator&) {
-  
-}
-
 void Module::print(const int level) {
   print_indent(level);
   std::cout << "Module \n";
