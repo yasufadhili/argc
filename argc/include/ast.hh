@@ -8,6 +8,7 @@
 #include <optional>
 #include <sstream>
 #include <variant>
+#include "config.hh"
 #include "error_handler.hh"
 #include "location.hh"
 #include "sym_table.hh"
@@ -276,6 +277,8 @@ namespace ast::unit {
 namespace ast {
 
   class Visitor {
+  protected:  
+    config::Config config_;
   public:
     virtual ~Visitor() = default;
     virtual void visit (unit::TranslationUnit&) = 0;

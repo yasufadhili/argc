@@ -10,7 +10,6 @@ void SymbolCollector::visit(unit::TranslationUnit&tu) {
 }
 
 void SymbolCollector::visit(ident::Identifier&) {
-
 }
 
 void SymbolCollector::visit(ident::TypeIdentifier&) {
