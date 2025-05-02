@@ -72,7 +72,8 @@ auto main(const int argc, char* argv[]) -> int {
 
   if (config.verbose) {
     LOG_INFO("Code Structure: ");
-    translation_unit->print(0);
+    ast::Printer printer;
+    translation_unit->accept(printer);
   }
 
   ast::SymbolCollector symbol_collector;
