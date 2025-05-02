@@ -1,5 +1,9 @@
 module main
 
 def main {
+  
+}
+
+def main {
   ret (42 + 4 * 2) *2
 }

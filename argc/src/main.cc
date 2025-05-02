@@ -6,6 +6,13 @@
 #include <string>
 #include <filesystem>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "analyser.hh"
 #include "config.hh"
 #include "util_logger.hh"
 #include "lexer.hh"
@@ -14,6 +21,103 @@
 #include "driver.hh"
 
 namespace fs = std::filesystem;
+
+// Execute external process safely
+bool execute_process(const std::vector<std::string>& args, std::string& error_output) {
+  // Prepare arguments for process execution
+  std::vector<const char*> c_args;
+  for (const auto& arg : args) {
+    c_args.push_back(arg.c_str());
+  }
+  c_args.push_back(nullptr);  // Null terminator
+
+  std::array<int, 2> stderr_pipe;
+  if (pipe(stderr_pipe.data()) != 0) {
+    error_output = "Failed to create pipe for stderr";
+    return false;
+  }
+
+  pid_t child_pid = fork();
+  if (child_pid == -1) {
+    error_output = "Failed to fork process";
+    close(stderr_pipe[0]);
+    close(stderr_pipe[1]);
+    return false;
+  }
+
+  if (child_pid == 0) {
+    // Child process
+    close(stderr_pipe[0]);  // Close read end
+    dup2(stderr_pipe[1], STDERR_FILENO);
+    close(stderr_pipe[1]);
+
+    execvp(c_args[0], const_cast<char* const*>(c_args.data()));
+    
+    // If we get here, exec failed
+    std::string err_msg = "Failed to execute: " + args[0];
+    write(STDERR_FILENO, err_msg.c_str(), err_msg.length());
+    _exit(EXIT_FAILURE);
+  }
+
+  // Parent process
+  close(stderr_pipe[1]);  // Close write end
+
+  // Read error output
+  char buffer[4096];
+  error_output.clear();
+  ssize_t bytes_read;
+  while ((bytes_read = read(stderr_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+    buffer[bytes_read] = '\0';
+    error_output += buffer;
+  }
+  close(stderr_pipe[0]);
+
+  // Wait for child process
+  int status;
+  waitpid(child_pid, &status, 0);
+
+  return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+
+// Handles assembly and linking
+bool build_executable (
+  const fs::path& asm_path, 
+  const fs::path& obj_path,
+  const fs::path& output_path,
+  logger::Logger& logger
+  ) {
+  std::string error_output;
+  
+  // Assemble
+  std::vector<std::string> assemble_args = {
+    "as",
+    "-o", obj_path.string(),
+    asm_path.string()
+  };
+  
+  logger.log(logger::LogLevel::DEBUG, "Running assembler: as -o " + obj_path.string() + " " + asm_path.string());
+              
+  if (!execute_process(assemble_args, error_output)) {
+    logger.log(logger::LogLevel::ERROR, "Assembly failed: " + error_output);
+    return false;
+  }
+  
+  // Link
+  std::vector<std::string> link_args = {
+    "ld",
+    "-o", output_path.string(),
+    obj_path.string()
+  };
+  
+  logger.log(logger::LogLevel::DEBUG, "Running linker: ld -o " + output_path.string() + " " + obj_path.string());
+              
+  if (!execute_process(link_args, error_output)) {
+    logger.log(logger::LogLevel::ERROR, "Linking failed: " + error_output);
+    return false;
+  }
+  
+  return true;
+}
 
 auto main(const int argc, char* argv[]) -> int {
 
@@ -82,6 +186,17 @@ auto main(const int argc, char* argv[]) -> int {
       program->print(0);
     }
 
+    analyser::SemanticAnalyser analyser;
+    analyser.visit(program);
+
+    bool s { analyser.analyse(*program) };
+    
+    if (s) {
+      logger.log(logger::LogLevel::INFO, "Success analyse");
+    } else {
+      logger.log(logger::LogLevel::ERROR, "Failed analyse");
+    }
+
     ast::Visitor visitor;
     visitor.visit(program);
 
@@ -98,24 +213,15 @@ auto main(const int argc, char* argv[]) -> int {
     output_file.close();
 
     fs::path obj_path = fs::absolute(config.input_files.at(0)).replace_extension(".o");
+    fs::path exec_path = config.output_file.empty() ? 
+                        input_path.parent_path() / input_path.stem() : 
+                        fs::absolute(config.output_file);
     
-    // Poorly implmented just for testing
-    std::stringstream assemble_cmd;
-    assemble_cmd << "as -o ";
-    assemble_cmd << obj_path << " " << output_path;
-
-    // Not Safe, Could use posix_spawn or a wrapper library
-    if (std::system(assemble_cmd.str().c_str()) != 0) {
-        throw std::runtime_error("Assembly failed.");
+    if (!build_executable(output_path, obj_path, exec_path, logger)) {
+      return 1;
     }
 
-    std::stringstream link_cmd;
-    link_cmd << "ld -o " << config.output_file << " " << obj_path;
-
-    if (std::system(link_cmd.str().c_str()) != 0) {
-        throw std::runtime_error("Linking failed.");
-    }
-
+    logger.log(logger::LogLevel::INFO, "Successfully built executable: " + exec_path.string());
     return 0;
 
   } catch (const std::exception& e) {

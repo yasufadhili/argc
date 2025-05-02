@@ -6,5 +6,6 @@ _start:
   xor %rdi, %rdi
   syscall
 main:
+main:
   mov $100, %rax
   ret
