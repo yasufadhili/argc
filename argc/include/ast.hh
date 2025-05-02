@@ -121,7 +121,6 @@ namespace ast::expr {
     void accept(CodeGenerator &) override;
     void print(int level) override;
     auto value() const -> LiteralVariant { return value_; };
-    LiteralVariant evaluate() override;
   };
 
   class Variable final : public Expression {

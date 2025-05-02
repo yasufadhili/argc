@@ -37,35 +37,6 @@ void Binary::accept(CodeGenerator&) {
 
 }
 
-LiteralVariant Binary::evaluate() {
-  if (std::holds_alternative<BinaryOp>(op())) {
-    auto op = std::get<BinaryOp>(op_);
-    switch (op) {
-      case BinaryOp::ADD:
-        return std::get<int>(lhs()->evaluate()) + std::get<int>(rhs()->evaluate());
-      case BinaryOp::SUB:
-        return std::get<int>(lhs()->evaluate()) - std::get<int>(rhs()->evaluate());
-      case BinaryOp::MUL:
-        return std::get<int>(lhs()->evaluate()) * std::get<int>(rhs()->evaluate());
-      case BinaryOp::MOD:
-        return std::get<int>(lhs()->evaluate()) % std::get<int>(rhs()->evaluate());
-      case BinaryOp::DIV:
-        if (std::get<int>(rhs()->evaluate()) == 0) {
-          LOG_ERROR("division by zero");
-          return 0;
-        }
-        return std::get<int>(lhs()->evaluate()) / std::get<int>(rhs()->evaluate());
-      case BinaryOp::B_AND:
-        return std::get<int>(lhs()->evaluate()) & std::get<int>(rhs()->evaluate());
-      case BinaryOp::B_OR:
-        return std::get<int>(lhs()->evaluate()) | std::get<int>(rhs()->evaluate());
-    }
-  }
-  if (std::holds_alternative<RelationalOp>(op())) {
-    
-  }
-}
-
 void Binary::print(const int level) {
   print_indent(level);
   std::cout << "Binary Expression " << "\n";
@@ -88,10 +59,6 @@ void Literal::accept(SemanticAnalyser &an) {
 
 void Literal::accept(CodeGenerator &) {
 
-}
-
-LiteralVariant Literal::evaluate() {
-  return value();
 }
 
 void Literal::print(const int level) {
