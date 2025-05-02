@@ -122,16 +122,39 @@ COMMENT         \/\/[^\n]*
 {INTEGER}       {
                     std::string num(YYText());
                     int base = 10;
+                    bool valid = true;
+                    
                     if (num.substr(0,2) == "0x" || num.substr(0,2) == "0X") {
                         base = 16;
                         num = num.substr(2);
+                        // Validate hex digits
+                        valid = std::all_of(num.begin(), num.end(), [](char c) {
+                            return (c >= '0' && c <= '9') || 
+                                   (c >= 'a' && c <= 'f') || 
+                                   (c >= 'A' && c <= 'F');
+                        });
                     } else if (num.substr(0,2) == "0b" || num.substr(0,2) == "0B") {
                         base = 2;
                         num = num.substr(2);
+                        // Validate binary digits
+                        valid = std::all_of(num.begin(), num.end(), [](char c) {
+                            return c == '0' || c == '1';
+                        });
                     } else if (num.substr(0,2) == "0o" || num.substr(0,2) == "0O") {
                         base = 8;
                         num = num.substr(2);
+                        // Validate octal digits
+                        valid = std::all_of(num.begin(), num.end(), [](char c) {
+                            return c >= '0' && c <= '7';
+                        });
                     }
+
+                    if (!valid || num.empty()) {
+                        include_handler().report_error("Invalid digits for base " + 
+                            std::to_string(base) + " number: " + YYText());
+                        return yy::Parser::make_YYUNDEF(loc_);
+                    }
+
                     return yy::Parser::make_INTEGER(std::stoll(num, nullptr, base), loc_);
                 }
 
