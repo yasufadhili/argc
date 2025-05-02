@@ -74,14 +74,6 @@ auto main(const int argc, char* argv[]) -> int {
     translation_unit->print(0);
   }
 
-  ast::SemanticAnalyser analyser;
-  bool analysis_result { analyser.analyse(translation_unit) };
-
-  if (!analysis_result) {
-    LOG_ERROR("Failed to analyse translation unit");
-    return EXIT_FAILURE;
-  }
-
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
     std::cout << std::endl;
@@ -93,13 +85,9 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  //if (config.verbose) {
-  //  LOG_INFO("Semantic Analysis successful");
-  //  LOG_INFO("Generating Assembly code");
-  //}
-
   return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
 
+  /**
   ast::CodeGenerator code_generator;
   code_generator.generate(translation_unit);
 
@@ -116,6 +104,6 @@ auto main(const int argc, char* argv[]) -> int {
   if (config.verbose){
     LOG_INFO("Written to output file");
   }
-
+  **/
   return 0;
 }
