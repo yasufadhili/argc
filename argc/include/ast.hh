@@ -266,4 +266,32 @@ namespace ast::unit {
 
 namespace ast {
 
+  class Visitor {
+  public:
+    virtual ~Visitor() = default;
+    virtual void visit (std::shared_ptr<unit::TranslationUnit>&) = 0;
+
+    virtual void visit (std::shared_ptr<mod::Module>&) = 0;
+
+    virtual void visit (std::shared_ptr<func::Function>&) = 0;
+
+    virtual void visit (std::shared_ptr<ident::Identifier>&) = 0;
+    virtual void visit (std::shared_ptr<ident::TypeIdentifier>&) = 0;
+
+    virtual void visit (std::shared_ptr<stmt::Statement>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::Empty>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::Block>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::Return>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::Print>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::VariableDeclaration>&) = 0;
+    virtual void visit (std::shared_ptr<stmt::Assignment>&) = 0;
+
+    virtual void visit (std::shared_ptr<expr::Expression>&) = 0;
+    virtual void visit (std::shared_ptr<expr::Literal>&) = 0;
+    virtual void visit (std::shared_ptr<expr::Binary>&) = 0;
+    virtual void visit (std::shared_ptr<expr::Unary>&) = 0;
+    virtual void visit (std::shared_ptr<expr::Variable>&) = 0;
+
+  };
+
 }
