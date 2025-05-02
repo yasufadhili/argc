@@ -211,7 +211,7 @@ namespace ast::stmt {
   class Print final : public Statement {
     std::shared_ptr<expr::Expression> expression_;
   public:
-    explicit Print(std::shared_ptr<expr::Expression>);
+    explicit Print(std::shared_ptr<expr::Expression> e) : expression_(std::move(e)) {}
     ~Print () override = default;
     void accept(Visitor&) override;
     auto expression() -> std::shared_ptr<expr::Expression> { return expression_; }
