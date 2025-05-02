@@ -110,7 +110,6 @@ namespace ast::expr {
     void print(int level) override;
     auto operand() const -> std::shared_ptr<Expression> { return operand_; };
     auto op() const -> UnaryOp { return op_; };
-    LiteralVariant evaluate() override;
   };
 
   class Literal final : public Expression {

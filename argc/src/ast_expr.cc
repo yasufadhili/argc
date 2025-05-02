@@ -2,9 +2,9 @@
 #include <utility>
 #include <variant>
 
-#include "ast.hh"
-#include "sym_table.hh"
-#include "util_logger.hh"
+#include "include/ast.hh"
+#include "include/sym_table.hh"
+#include "include/util_logger.hh"
 
 using namespace ast;
 using namespace ast::expr;
@@ -18,17 +18,6 @@ void Unary::accept(SemanticAnalyser&) {
 
 void Unary::accept(CodeGenerator&) {
 
-}
-
-LiteralVariant Unary::evaluate() {
-  switch (op_) {
-    case UnaryOp::NEG:
-      return (operand()->evaluate());
-    case UnaryOp::B_NOT:
-      return operand()->evaluate();
-    case UnaryOp::L_NOT:
-      return operand()->evaluate();
-  }
 }
 
 void Unary::print(const int level) {
