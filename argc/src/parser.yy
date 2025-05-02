@@ -50,6 +50,7 @@ namespace yy {
 
 
 %token END 0 "end of file"
+%token NEW_LINE "new line"
 
 %token ASM
 %token <std::string> STRING_LITERAL

@@ -23,6 +23,7 @@ using namespace yy;
 
 %x INCLUDE
 
+NEWLINE         ([\n]*)
 WHITESPACE      ([ \t\r\f]*)
 DIGIT           [0-9]
 LETTER          [a-zA-Z]
@@ -40,8 +41,9 @@ COMMENT         \/\/[^\n]*
     loc_.step();
 %}
 
-\n              { 
-                    loc_.lines(1); loc_.step(); 
+{NEWLINE}+      { 
+                  loc_.lines(1); loc_.step(); 
+                  return yy::Parser::make_NEW_LINE(loc_);
                 }
 
 {WHITESPACE}+   { 
