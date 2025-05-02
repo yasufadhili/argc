@@ -80,7 +80,6 @@ namespace ast::expr {
 
   class Expression : public Node {
   public:
-    virtual LiteralVariant evaluate() { return 0; };
   };
 
   class Binary final : public Expression {
@@ -96,7 +95,6 @@ namespace ast::expr {
     auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
     auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
     auto op () const -> std::variant<BinaryOp, RelationalOp> { return op_; };
-    LiteralVariant evaluate() override;
   };
 
   class Unary final : public Expression {
@@ -137,7 +135,6 @@ namespace ast::expr {
     auto set_type(std::shared_ptr<sym_table::Type> t) -> void {
       type_ = std::move(t);
     }
-    LiteralVariant evaluate() override;
   };
 }
 

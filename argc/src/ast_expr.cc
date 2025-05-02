@@ -105,10 +105,6 @@ void Variable::accept(CodeGenerator &) {
 
 }
 
-LiteralVariant Variable::evaluate() {
-
-}
-
 void Variable::print(const int level) {
   print_indent(level);
   std::cout << "Variable Expression " << "\n";
