@@ -44,13 +44,13 @@ namespace error {
       std::stringstream ss;
 
       switch (severity_) {
-        case Severity::INFO: ss << "INFO: ";
+        case Severity::INFO: ss << "[INFO] ";
           break;
-        case Severity::WARNING: ss << "WARNING: ";
+        case Severity::WARNING: ss << "\033[33m" << "[WARNING] " << "\033[0m";
           break;
-        case Severity::ERROR: ss << "ERROR: ";
+        case Severity::ERROR: ss << "\033[31m" << "[ERROR] " << "\033[0m";
           break;
-        case Severity::FATAL: ss << "FATAL ERROR: ";
+        case Severity::FATAL: ss << "\033[31m" <<"[FATAL] " << "\033[0m";
           break;
       }
 
@@ -69,6 +69,7 @@ namespace error {
         ss << "\n    Suggestion: " << *suggestion_;
       }
 
+      ss << "\033[0m";
       return ss.str();
     }
   };
