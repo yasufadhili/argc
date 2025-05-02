@@ -75,9 +75,7 @@ namespace ast::expr {
     int64_t, double, bool, u_int64_t
   >;
 
-  class Expression : public Node {
-  public:
-  };
+  class Expression : public Node {};
 
   class Binary final : public Expression {
     std::variant<BinaryOp, RelationalOp> op_;
@@ -204,7 +202,7 @@ namespace ast::stmt {
   class Print final : public Statement {
     std::shared_ptr<expr::Expression> expression_;
   public:
-    Print(std::shared_ptr<expr::Expression>);
+    explicit Print(std::shared_ptr<expr::Expression>);
     ~Print () override = default;
     void accept(Visitor&) override;
     void print(int) override;
@@ -221,7 +219,7 @@ namespace ast::func {
 
 namespace ast::mod {
 
-  class Module : public Node {
+  class Module final : public Node {
     std::shared_ptr<ident::Identifier> identifier_;
     std::vector<std::shared_ptr<func::Function>> functions_;
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
@@ -256,7 +254,7 @@ namespace ast::unit {
   class TranslationUnit final : public Node {
     std::vector<std::shared_ptr<mod::Module>> modules_;
   public:
-    TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
+    explicit TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
     ~TranslationUnit() override = default;
     void accept(Visitor &) override;
     void print(int level) override;
