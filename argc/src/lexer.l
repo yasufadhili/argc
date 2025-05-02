@@ -28,8 +28,15 @@ WHITESPACE      ([ \t\r\f]*)
 DIGIT           [0-9]
 LETTER          [a-zA-Z]
 IDENTIFIER      [a-zA-Z_][a-zA-Z0-9_]*
-INTEGER         {DIGIT}+
-FLOAT           {DIGIT}+\.{DIGIT}+([eE][+-]?{DIGIT}+)?
+HEXDIGIT        [0-9a-fA-F]
+BINDIGIT        [0-1]
+OCTDIGIT        [0-7]
+INTEGER         {DECIMAL}|{HEXADECIMAL}|{OCTAL}|{BINARY}
+DECIMAL         {DIGIT}+
+HEXADECIMAL     0[xX]{HEXDIGIT}+
+OCTAL           0[oO]{OCTDIGIT}+
+BINARY          0[bB]{BINDIGIT}+
+FLOAT           {DECIMAL}\.{DECIMAL}?([eE][+-]?{DECIMAL})?|{DECIMAL}?\.{DECIMAL}([eE][+-]?{DECIMAL})?|{DECIMAL}[eE][+-]?{DECIMAL}
 STRING          \"([^\"\n\\]|\\[\"\\'nt])*\"
 STRING_LIT      \`([^\"\n\\]|\\[\"\\'nt])*\`
 CHAR            \'([^'\n\\]|\\[\"\\'nt])\'
@@ -113,11 +120,23 @@ COMMENT         \/\/[^\n]*
                 }
 
 {INTEGER}       {
-                    return yy::Parser::make_INTEGER(std::atof(YYText()), loc_);
+                    std::string num(YYText());
+                    int base = 10;
+                    if (num.substr(0,2) == "0x" || num.substr(0,2) == "0X") {
+                        base = 16;
+                        num = num.substr(2);
+                    } else if (num.substr(0,2) == "0b" || num.substr(0,2) == "0B") {
+                        base = 2;
+                        num = num.substr(2);
+                    } else if (num.substr(0,2) == "0o" || num.substr(0,2) == "0O") {
+                        base = 8;
+                        num = num.substr(2);
+                    }
+                    return yy::Parser::make_INTEGER(std::stoll(num, nullptr, base), loc_);
                 }
 
 {FLOAT}         {
-                    return yy::Parser::make_FLOAT(std::atof(YYText()), loc_);
+                    return yy::Parser::make_FLOAT(std::stod(YYText()), loc_);
                 }
 
 {IDENTIFIER}    {
