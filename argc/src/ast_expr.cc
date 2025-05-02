@@ -48,7 +48,7 @@ void Binary::print(const int level) {
   }
 }
 
-Literal::Literal(LiteralVariant v)
+Literal::Literal(const LiteralVariant v)
   : value_(v){
 
 }
@@ -75,8 +75,8 @@ Variable::Variable(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_ta
   : identifier_(std::move(id)), type_(std::move(t)) { }
 
 void Variable::accept(SemanticAnalyser &an) {
-  std::string var_name { identifier()->name() };
-  auto symbol { an.symbol_table()->lookup_symbol(var_name) };
+  const std::string var_name { identifier()->name() };
+  const auto symbol { an.symbol_table()->lookup_symbol(var_name) };
 
   if (!symbol) {
     an.add_error("reference to undefined variable: " + var_name, location());
