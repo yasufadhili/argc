@@ -65,7 +65,7 @@ auto main(const int argc, char* argv[]) -> int {
   }
 
   if (parser.parse() != 0) {
-    LOG_ERROR("Failed to parse translation unit");
+    LOG_FATAL("Failed to parse translation unit");
     return EXIT_FAILURE;
   }
 
@@ -78,7 +78,7 @@ auto main(const int argc, char* argv[]) -> int {
   bool analysis_result { analyser.analyse(translation_unit) };
 
   if (!analysis_result) {
-    LOG_FATAL("Failed to analyse translation unit");
+    LOG_ERROR("Failed to analyse translation unit");
     return EXIT_FAILURE;
   }
 
