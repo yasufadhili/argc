@@ -78,12 +78,12 @@ auto main(const int argc, char* argv[]) -> int {
   bool analysis_result { analyser.analyse(translation_unit) };
 
   if (!analysis_result) {
+    LOG_ERROR("Failed to analyse translation unit");
     return EXIT_FAILURE;
   }
 
-  error::DiagnosticHandler::instance().print_all();
-
-  if (error::DiagnosticHandler::instance().message_count() > 0) {
+  if (error::DiagnosticHandler::instance().has_errors()) {
+    error::DiagnosticHandler::instance().print_all();
     return EXIT_FAILURE;
   }
 
