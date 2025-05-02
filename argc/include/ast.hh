@@ -344,6 +344,7 @@ public:
 
   void visit (const std::shared_ptr<expr::Expression>& e) { e->accept(*this); }
   void visit (const std::shared_ptr<expr::Binary>& e) { e->accept(*this); }
+  void visit (const std::shared_ptr<expr::Unary>& e) { e->accept(*this); }
   void visit (const std::shared_ptr<expr::Variable>& e) { e->accept(*this); }
   void visit (const std::shared_ptr<expr::Literal>& e) { e->accept(*this); }
   
@@ -360,10 +361,13 @@ public:
   auto emit(const std::string&code)-> void {
     output_ << code << "\n";
   }
-public:
-  void generate(std::shared_ptr<unit::TranslationUnit>&u) {
-    u->accept(*this);
-  }
+
+  void generate(const std::shared_ptr<unit::TranslationUnit>&u) { u->accept(*this); }
+  void generate (const std::shared_ptr<expr::Expression> &e) { e->accept(*this); }
+  void generate (const std::shared_ptr<expr::Binary> &e) { e->accept(*this); }
+  void generate (const std::shared_ptr<expr::Unary> &e) { e->accept(*this); }
+  void generate (const std::shared_ptr<expr::Variable> &e) { e->accept(*this); }
+  void generate (const std::shared_ptr<expr::Literal> &e) { e->accept(*this); }
 };
 
 }

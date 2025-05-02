@@ -57,8 +57,16 @@ void Literal::accept(SemanticAnalyser &an) {
 
 }
 
-void Literal::accept(CodeGenerator &) {
-
+void Literal::accept(CodeGenerator &g) {
+  if (std::holds_alternative<int64_t>(value())) {
+    g.emit("  integer, " + std::get<int64_t>(value()));
+  } else if (std::holds_alternative<u_int64_t>(value())) {
+    g.emit("  ; unsigned integer " + std::get<u_int64_t>(value()));
+  } else if (std::holds_alternative<double>(value())) {
+    g.emit("  ; double " + std::get<int64_t>(value()));
+  } else if (std::holds_alternative<bool>(value())) {
+    g.emit("  ; bool " + std::get<bool>(value()));
+  }
 }
 
 void Literal::print(const int level) {
