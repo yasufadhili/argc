@@ -295,3 +295,37 @@ namespace ast {
   };
 
 }
+
+namespace ast {
+
+class SymbolCollector final : public Visitor {
+public:
+  SymbolCollector();
+  ~SymbolCollector() override = default;
+
+  void visit(std::shared_ptr<unit::TranslationUnit> &) override;
+
+  void visit(std::shared_ptr<mod::Module> &) override;
+
+  void visit(std::shared_ptr<func::Function> &) override;
+
+  void visit(std::shared_ptr<ident::TypeIdentifier> &) override;
+  void visit(std::shared_ptr<ident::Identifier>&) override;
+
+  void visit(std::shared_ptr<stmt::Statement> &) override;
+  void visit(std::shared_ptr<stmt::Empty> &) override;
+  void visit(std::shared_ptr<stmt::Block> &) override;
+  void visit(std::shared_ptr<stmt::Return> &) override;
+  void visit(std::shared_ptr<stmt::Print> &) override;
+  void visit(std::shared_ptr<stmt::VariableDeclaration> &) override;
+  void visit(std::shared_ptr<stmt::Assignment> &) override;
+
+  void visit(std::shared_ptr<expr::Expression>&) override;
+  void visit(std::shared_ptr<expr::Literal>&) override;
+  void visit(std::shared_ptr<expr::Binary> &) override;
+  void visit(std::shared_ptr<expr::Unary> &) override;
+  void visit(std::shared_ptr<expr::Variable> &) override;
+
+};
+
+}
