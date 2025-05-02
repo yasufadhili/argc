@@ -41,11 +41,9 @@ namespace error {
     const std::optional<std::string> &code_snippet() const { return code_snippet_; }
     const std::optional<std::string> &suggestion() const { return suggestion_; }
 
-    // Format the error message for display
     std::string formatted_message() const {
       std::stringstream ss;
 
-      // Add severity prefix
       switch (severity_) {
         case Severity::INFO: ss << "INFO: ";
           break;
@@ -61,7 +59,6 @@ namespace error {
       ss << location_.begin.line << ":" << location_.begin.column << "-"
           << location_.end.line << ":" << location_.end.column << ": ";
 
-      // Add the actual message
       ss << message_;
 
       // Add code snippet if available
@@ -69,7 +66,6 @@ namespace error {
         ss << "\n    " << *code_snippet_;
       }
 
-      // Add suggestion if available
       if (suggestion_.has_value()) {
         ss << "\n    Suggestion: " << *suggestion_;
       }
@@ -100,7 +96,6 @@ namespace error {
       return instance;
     }
 
-    // Add a diagnostic message
     void report(const std::string &message, Severity severity,
                 const yy::location &location,
                 std::optional<std::string> code_snippet = std::nullopt,
@@ -115,7 +110,6 @@ namespace error {
       }
     }
 
-    // Convenience methods for different severity levels
     void info(const std::string &message, const yy::location &location,
               std::optional<std::string> code_snippet = std::nullopt,
               std::optional<std::string> suggestion = std::nullopt) {
@@ -152,14 +146,12 @@ namespace error {
       return has_fatal_error_;
     }
 
-    // Print all messages to a stream
     void print_all(std::ostream &os = std::cerr) const {
       for (const auto &msg: messages_) {
         os << msg.formatted_message() << std::endl;
       }
     }
 
-    // Print only errors to a stream
     void print_errors(std::ostream &os = std::cerr) const {
       for (const auto &msg: messages_) {
         if (msg.severity() == Severity::ERROR || msg.severity() == Severity::FATAL) {
