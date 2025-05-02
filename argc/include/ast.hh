@@ -78,6 +78,7 @@ namespace ast::expr {
 
   class Expression : public Node {
   public:
+    ~Expression () override = default;
     void accept (Visitor &) override;
   };
 

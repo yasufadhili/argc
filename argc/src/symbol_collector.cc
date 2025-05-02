@@ -31,28 +31,36 @@ void SymbolCollector::visit(stmt::Statement&) {
 
 }
 
-void SymbolCollector::visit(stmt::Block&) {
-
+void SymbolCollector::visit(stmt::Block&b) {
+  for (auto & stmt : b.statements()) {
+    stmt->accept(*this);
+  }
 }
 
 void SymbolCollector::visit(stmt::Empty&) {
 
 }
 
-void SymbolCollector::visit(stmt::Assignment&) {
-
+void SymbolCollector::visit(stmt::Assignment& s) {
+  s.target()->accept(*this);
+  s.value()->accept(*this);
 }
 
-void SymbolCollector::visit(stmt::Return&) {
-
+void SymbolCollector::visit(stmt::Return& rs) {
+  if (rs.expression()) {
+    rs.expression().value()->accept(*this);
+  }
 }
 
-void SymbolCollector::visit(stmt::VariableDeclaration&) {
-
+void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
+  vd.identifier()->accept(*this);
+  if (vd.initialiser()) {
+    vd.initialiser().value()->accept(*this);
+  }
 }
 
-void SymbolCollector::visit(stmt::Print&) {
-
+void SymbolCollector::visit(stmt::Print& ps) {
+  ps.expression()->accept(*this);
 }
 
 void SymbolCollector::visit(expr::Expression&) {
@@ -63,15 +71,20 @@ void SymbolCollector::visit(expr::Literal&) {
 
 }
 
-void SymbolCollector::visit(expr::Binary&) {
-
+void SymbolCollector::visit(expr::Binary& e) {
+  if (e.lhs()) {
+    e.lhs()->accept(*this);
+  }
+  if (e.rhs()) {
+    e.rhs()->accept(*this);
+  }
 }
 
-void SymbolCollector::visit(expr::Unary&) {
-
+void SymbolCollector::visit(expr::Unary& e) {
+  e.operand()->accept(*this);
 }
 
-void SymbolCollector::visit(expr::Variable&) {
-
+void SymbolCollector::visit(expr::Variable& e) {
+  e.identifier()->accept(*this);
 }
 
