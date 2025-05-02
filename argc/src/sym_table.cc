@@ -1,8 +1,11 @@
 
-#include "symbols.hh"
+
+#include "sym_table.hh"
+
+#include <iostream>
 
 
-using namespace sym;
+using namespace sym_table;
 
 std::shared_ptr<SymbolTable> SymbolTable::instance_ = nullptr;
 
@@ -155,21 +158,21 @@ auto Type::get_common_type(const Type &t1, const Type &t2) -> std::shared_ptr<Ty
   if (t1.kind_ == t2.kind_ && t1.name_ == t2.name_) {
     return std::make_shared<Type>(t1.kind_, t1.name_);
   }
-    
+
   // Handle numeric type promotions
   if (t1.is_numeric_type() && t2.is_numeric_type()) {
     // Implement numeric promotion rules
     // Float + int -> float
     if (t1.is_floating_point_type()) return std::make_shared<Type>(t1.kind_, t1.name_);
     if (t2.is_floating_point_type()) return std::make_shared<Type>(t2.kind_, t2.name_);
-        
+
     // Both are integral types, choose the larger one
     // This is simplified; actual implementation will need detailed ranking
     if (t1.name_ == "long long" || t2.name_ == "long long") return create_integer_type(); // Simplified
     if (t1.name_ == "long" || t2.name_ == "long") return create_integer_type(); // Simplified
     return create_integer_type(); // Default
   }
-    
+
   // Pointer arithmetic
   if (t1.is_pointer_type() && t2.is_integral_type()) {
     return std::make_shared<Type>(t1.kind_, t1.name_);
@@ -177,14 +180,14 @@ auto Type::get_common_type(const Type &t1, const Type &t2) -> std::shared_ptr<Ty
   if (t2.is_pointer_type() && t1.is_integral_type()) {
     return std::make_shared<Type>(t2.kind_, t2.name_);
   }
-    
+
   // Default - return int type as fallback
   return create_integer_type();
 }
 
 auto Type::to_string() const -> std::string {
   std::string result = name_;
-    
+
   switch (kind_) {
     case TypeKind::POINTER:
       result = base_type_ ? base_type_->to_string() + "*" : "void*";
@@ -193,7 +196,7 @@ auto Type::to_string() const -> std::string {
       result = base_type_ ? base_type_->to_string() + "&" : "unknown&";
       break;
     case TypeKind::ARRAY:
-      result = base_type_ ? base_type_->to_string() + "[" + 
+      result = base_type_ ? base_type_->to_string() + "[" +
               (array_size_ >= 0 ? std::to_string(array_size_) : "") + "]" : "unknown[]";
       break;
     case TypeKind::FUNCTION:
@@ -203,16 +206,16 @@ auto Type::to_string() const -> std::string {
       // Keep the name_
       break;
   }
-    
+
   return result;
 }
 
 auto Type::is_integral_type() const -> bool {
   if (kind_ != TypeKind::PRIMITIVE) return false;
-  return name_ == "int" || name_ == "char" || name_ == "short" || 
+  return name_ == "int" || name_ == "char" || name_ == "short" ||
          name_ == "long" || name_ == "long long" || name_ == "bool" ||
-         name_ == "unsigned int" || name_ == "unsigned char" || 
-         name_ == "unsigned short" || name_ == "unsigned long" || 
+         name_ == "unsigned int" || name_ == "unsigned char" ||
+         name_ == "unsigned short" || name_ == "unsigned long" ||
          name_ == "unsigned long long";
 }
 
@@ -260,7 +263,7 @@ auto Type::create_pointer_type(const std::shared_ptr<Type>& base_type) -> std::s
   return ptr_type;
 }
 
-auto Type::create_array_type(const std::shared_ptr<Type>& element_type, int size) -> std::shared_ptr<Type> {
+auto Type::create_array_type(const std::shared_ptr<Type>& element_type, const int size) -> std::shared_ptr<Type> {
   std::string arr_name = element_type->get_name() + "[" +
                           (size >= 0 ? std::to_string(size) : "") + "]";
   auto arrayType = std::make_shared<Type>(TypeKind::ARRAY, arr_name);
@@ -289,8 +292,7 @@ auto Scope::add_symbol(const std::shared_ptr<Symbol>& symbol) -> bool {
 }
 
 auto Scope::lookup_symbol(const std::string &name) const -> std::shared_ptr<Symbol> {
-  auto it = symbols_.find(name);
-  if (it != symbols_.end()) {
+  if (const auto it = symbols_.find(name); it != symbols_.end()) {
     return it->second;
   }
   return nullptr;
@@ -307,8 +309,8 @@ auto Scope::get_scope_name() const -> std::string {
 
 auto Scope::print() const -> void {
   std::cout << "Scope: " << scope_name_ << " (level " << scope_level_ << ")" << std::endl;
-  for (const auto& pair : symbols_) {
-    pair.second->print(2);
+  for (const auto&[fst, snd] : symbols_) {
+    snd->print(2);
   }
 }
 
@@ -323,11 +325,11 @@ SymbolTable::SymbolTable() : current_scope_index_(-1){
 auto SymbolTable::enter_scope(const std::string &scope_name) -> void {
   current_scope_index_++;
   std::string actual_scope_name = scope_name.empty() ?
-                                "scope_" + std::to_string(current_scope_index_) : 
+                                "scope_" + std::to_string(current_scope_index_) :
                                 scope_name;
 
   const auto new_scope = std::make_shared<Scope>(actual_scope_name, current_scope_index_);
-    
+
   // If we're re-entering an existing scope level
   if (current_scope_index_ < scopes_.size()) {
     scopes_[current_scope_index_] = new_scope;
@@ -384,19 +386,21 @@ auto SymbolTable::is_declared_in_current_scope(const std::string &name) const ->
 }
 
 auto SymbolTable::add_type(const std::string &name, const std::shared_ptr<Type>& type) const -> bool {
-  auto type_symbol = std::make_shared<Symbol>(
+  const auto type_symbol = std::make_shared<Symbol>(
         name,
         SymbolKind::TYPE,
         type,
         true  // Type declarations are always defined
     );
-    
+
   return add_symbol(type_symbol);
 }
 
 auto SymbolTable::lookup_type(const std::string &name) const -> std::shared_ptr<Type> {
-  auto symbol = lookup_symbol(name);
-  if (symbol && symbol->get_kind() == SymbolKind::TYPE) {
+  if (
+    const auto symbol = lookup_symbol(name);
+    symbol && symbol->get_kind() == SymbolKind::TYPE)
+  {
     return symbol->get_type();
   }
   return nullptr;
@@ -404,17 +408,21 @@ auto SymbolTable::lookup_type(const std::string &name) const -> std::shared_ptr<
 
 auto SymbolTable::get_instance() -> std::shared_ptr<SymbolTable> {
   if (!instance_) {
-    instance_ = std::shared_ptr<SymbolTable>(new SymbolTable());
-        
-    // Initialize with built-in types
-    instance_->add_type("int", Type::create_integer_type());
-    instance_->add_type("float", Type::create_floating_point_type());
+    instance_ = std::make_shared<SymbolTable>();
+
+    // Initialise with built-in types
+    instance_->add_type("i8", Type::create_integer_type());
+    instance_->add_type("i16", Type::create_integer_type());
+    instance_->add_type("i32", Type::create_integer_type());
+    instance_->add_type("i64", Type::create_integer_type());
+    instance_->add_type("f32", Type::create_floating_point_type());
+    instance_->add_type("f64", Type::create_floating_point_type());
     instance_->add_type("char", Type::create_char_type());
     instance_->add_type("void", Type::create_void_type());
     instance_->add_type("bool", Type::create_bool_type());
-    instance_->add_type("string", Type::create_string_type());
+    instance_->add_type("str", Type::create_string_type());
   }
-    
+
   return instance_;
 }
 
@@ -436,18 +444,19 @@ auto SymbolTable::report_warning(const std::string &message) -> void {
 auto SymbolTable::check_unused_symbols() const -> void {
   for (const auto& scope : scopes_) {
     for (auto it = scope->begin(); it != scope->end(); ++it) {
-      auto symbol = it->second;
-      if (!symbol->get_is_used() &&
-          symbol->get_kind() != SymbolKind::TYPE &&
-          symbol->get_kind() != SymbolKind::MODULE) {
+      if (
+        const auto symbol = it->second;
+        !symbol->get_is_used()
+        && symbol->get_kind() != SymbolKind::TYPE
+        && symbol->get_kind() != SymbolKind::MODULE)
+      {
 
         report_warning("Unused symbol: " + symbol->get_name() +
                     " at " + symbol->get_filename() + ":" +
                     std::to_string(symbol->get_line()));
-          }
+      }
     }
   }
 }
-
 
 

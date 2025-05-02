@@ -1,0 +1,3 @@
+module err
+
+var x i32 = 9 = -

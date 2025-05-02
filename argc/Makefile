@@ -6,7 +6,7 @@ ROOT_DIR = $(shell pwd)
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR)/include -I$(SRC_DIR)
+CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
 
 # Installation prefix
 INSTALL_PREFIX ?= /usr/local
@@ -29,7 +29,7 @@ TARGET = $(BIN_DIR)/argc
 
 # Source files
 BISON_SRC = $(SRC_DIR)/parser.yy
-FLEX_SRC = $(SRC_DIR)/lexer.ll
+FLEX_SRC = $(SRC_DIR)/lexer.l
 BISON_CC = $(SRC_DIR)/parser.cc
 BISON_HH = $(INCLUDE_DIR)/parser.hh
 FLEX_CC = $(SRC_DIR)/lexer.cc
