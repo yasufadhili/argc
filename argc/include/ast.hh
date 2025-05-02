@@ -28,17 +28,11 @@ protected:
   auto location() -> yy::location {
     return location_;
   }
-  static void print_indent(const int level) {
-    for (int i = 0; i < level; ++i) {
-      std::cout << " ";
-    }
-  }
 public:
   Node() : location_() {}
   explicit Node(const yy::location& loc) : location_(loc) {}
   virtual ~Node() = default;
   virtual void accept(Visitor&) = 0;
-  virtual void print(int level) = 0;
   void set_location(const yy::location& loc) { location_ = loc; }
   const yy::location& location() const { return location_; }
 };
@@ -53,7 +47,6 @@ public:
   explicit Identifier(std::string);
   ~Identifier() override = default;
   void accept(Visitor &) override;
-  void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
 
@@ -63,8 +56,6 @@ public:
   explicit TypeIdentifier(std::string);
   ~TypeIdentifier() override = default;
   void accept(Visitor &) override;
-  
-  void print(int level) override;
   auto name() const -> std::string { return name_; };
 };
 
@@ -94,7 +85,6 @@ namespace ast::expr {
     Binary (std::variant<BinaryOp, RelationalOp>, std::shared_ptr<Expression>, std::shared_ptr<Expression>);
     ~Binary () override = default;
     void accept (Visitor &) override;
-    void print(int level) override;
     auto lhs () const -> std::shared_ptr<Expression> { return lhs_; };
     auto rhs () const -> std::shared_ptr<Expression> { return rhs_; };
     auto op () const -> std::variant<BinaryOp, RelationalOp> { return op_; };
@@ -107,8 +97,6 @@ namespace ast::expr {
     Unary(UnaryOp, std::shared_ptr<Expression>);
     ~Unary() override = default;
     void accept(Visitor &) override;
-    
-    void print(int level) override;
     auto operand() const -> std::shared_ptr<Expression> { return operand_; };
     auto op() const -> UnaryOp { return op_; };
   };
@@ -119,7 +107,6 @@ namespace ast::expr {
     explicit Literal(LiteralVariant);
     ~Literal() override = default;
     void accept(Visitor &) override;
-    void print(int level) override;
     auto value() const -> LiteralVariant { return value_; };
   };
 
@@ -130,7 +117,6 @@ namespace ast::expr {
     Variable(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
     ~Variable() override = default;
     void accept(Visitor &) override;
-    void print(int level) override;
     auto identifier() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
     auto set_type(std::shared_ptr<sym_table::Type> t) -> void {
@@ -159,7 +145,6 @@ namespace ast::stmt {
     explicit Empty() = default;
     ~Empty() override = default;
     void accept(Visitor &) override;
-    void print(int level) override;
   };
 
   class Block final : public Statement {
@@ -168,7 +153,6 @@ namespace ast::stmt {
     explicit Block(std::vector<std::shared_ptr<Statement>>);
     ~Block() override = default;
     void accept(Visitor &) override;
-    void print(int level) override;
     auto statements() const -> std::vector<std::shared_ptr<Statement>> {
       return statements_;
     }
@@ -180,7 +164,6 @@ namespace ast::stmt {
     explicit Return(std::optional<std::shared_ptr<expr::Expression>> expr);
     ~Return() override = default;
     void accept(Visitor&) override;
-    void print(int) override;
     auto expression() const -> std::optional<std::shared_ptr<expr::Expression>> {return expression_; }
   };
 
@@ -199,7 +182,6 @@ namespace ast::stmt {
     );
     ~VariableDeclaration() override = default;
     void accept(Visitor&) override;
-    void print(int) override;
     auto identifier() -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto initialiser() -> std::optional<std::shared_ptr<expr::Expression>> { return initialiser_; }
     auto type() -> std::shared_ptr<sym_table::Type> { return type_; }
@@ -218,7 +200,6 @@ namespace ast::stmt {
     );
     ~Assignment() override = default;
     void accept(Visitor&) override;
-    void print(int) override;
     auto target() -> std::shared_ptr<ident::Identifier> { return target_; }
     auto value() -> std::shared_ptr<expr::Expression> { return value_; }
   };
@@ -229,7 +210,6 @@ namespace ast::stmt {
     explicit Print(std::shared_ptr<expr::Expression>);
     ~Print () override = default;
     void accept(Visitor&) override;
-    void print(int) override;
     auto expression() -> std::shared_ptr<expr::Expression> { return expression_; }
   };
 
@@ -292,7 +272,6 @@ namespace ast::mod {
     ) ;
     ~Module () override = default;
     void accept (Visitor&) override;
-    void print (int) override;
     auto identifier () -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto functions () -> std::vector<std::shared_ptr<func::Function>> { return functions_; }
     auto statements () -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
@@ -310,7 +289,6 @@ namespace ast::unit {
     explicit TranslationUnit(std::vector<std::shared_ptr<mod::Module>>);
     ~TranslationUnit() override = default;
     void accept(Visitor &) override;
-    void print(int level) override;
     auto add_module (std::shared_ptr<mod::Module> m) -> void { modules_.emplace_back(m); }
     auto modules () -> std::vector<std::shared_ptr<mod::Module>> { return modules_; }
   };
@@ -374,6 +352,39 @@ namespace ast {
   inline void expr::Binary::accept(Visitor &v) { v.visit(*this); }
   inline void expr::Literal::accept(Visitor &v) { v.visit(*this); }
   inline void expr::Variable::accept(Visitor &v) { v.visit(*this); }
+}
+
+namespace ast {
+
+class Printer final : public Visitor {
+  int indent_level_ = 0;
+
+  void print_indent() const {
+    for (int i = 0; i < indent_level_; ++i) {
+      std::cout << " ";
+    }
+  }
+
+public:
+  void visit(unit::TranslationUnit&) override;
+  void visit(mod::Module&) override;
+  void visit(func::Function&) override;
+  void visit(ident::Identifier&) override;
+  void visit(ident::TypeIdentifier&) override;
+  void visit(stmt::Statement&) override;
+  void visit(stmt::Empty&) override;
+  void visit(stmt::Block&) override;
+  void visit(stmt::Return&) override;
+  void visit(stmt::Print&) override;
+  void visit(stmt::VariableDeclaration&) override;
+  void visit(stmt::Assignment&) override;
+  void visit(expr::Expression&) override;
+  void visit(expr::Literal&) override;
+  void visit(expr::Binary&) override;
+  void visit(expr::Unary&) override;
+  void visit(expr::Variable&) override;
+};
+  
 }
 
 namespace ast {
