@@ -16,7 +16,6 @@ namespace error {
   };
 
   class DiagnosticMessage {
-  private:
     std::string message_;
     Severity severity_;
     yy::location location_;
@@ -35,11 +34,11 @@ namespace error {
         suggestion_(std::move(suggestion)) {
     }
 
-    const std::string &message() const { return message_; }
-    Severity severity() const { return severity_; }
-    const yy::location &location() const { return location_; }
-    const std::optional<std::string> &code_snippet() const { return code_snippet_; }
-    const std::optional<std::string> &suggestion() const { return suggestion_; }
+    auto message () const -> const std::string & { return message_; }
+    auto severity () const-> Severity { return severity_; }
+    auto &location () const -> yy::location { return location_; }
+    auto code_snippet () const -> const std::optional<std::string> &  { return code_snippet_; }
+    auto suggestion () const -> const std::optional<std::string> & { return suggestion_; }
 
     std::string formatted_message() const {
       std::stringstream ss;
