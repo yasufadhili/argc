@@ -172,7 +172,7 @@ void SymbolCollector::visit(func::Function& func) {
   symbol_table_->exit_scope();
 }
 
-void SymbolCollector::visit(func::FunctionCall&) {}
+void SymbolCollector::visit(expr::FunctionCall&) {}
 
 void SymbolCollector::visit(func::Parameter& param) {
   // No action needed here; handled in function
