@@ -1,6 +1,7 @@
 #include "include/ast.hh"
 #include "sym_table.hh"
 #include <memory>
+#include "error_handler.hh"
 
 using namespace ast;
 
@@ -39,8 +40,9 @@ void SymbolCollector::visit(mod::Module& m) {
   );
   
   if (!symbol_table_->add_symbol(module_symbol)) {
+    REPORT_ERROR("Duplicate module declaration: '" + m.identifier()->name() + "'", m.location());
     error_occurred_ = true;
-    // TODO: Add proper error reporting
+    symbol_table_->exit_scope();
     return;
   }
   
@@ -62,25 +64,27 @@ void SymbolCollector::visit(func::Function& func) {
   std::vector<std::shared_ptr<sym_table::Type>> param_types;
   for (const auto& param : func.parameters()) {
     param->accept(*this);
-    if (auto type = symbol_table_->lookup_type(param->type()->name())) {
-      param_types.push_back(type);
-    } else {
+    auto type = symbol_table_->lookup_type(param->type()->name());
+    if (!type) {
+      REPORT_ERROR("Unknown type for parameter '" + param->identifier()->name() + "' in function '" + func.name()->name() + "'", param->location());
       error_occurred_ = true;
-      // TODO: Add proper error reporting for unknown type
     }
+    param_types.push_back(type);
   }
   
   std::shared_ptr<sym_table::Type> return_type;
   if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(func.return_type())) {
     return_type = symbol_table_->lookup_type(single_ret->identifier()->name());
+    if (!return_type) {
+      REPORT_ERROR("Unknown return type '" + single_ret->identifier()->name() + "' for function '" + func.name()->name() + "'", func.location());
+      error_occurred_ = true;
+    }
   } else if (auto multi_ret = std::dynamic_pointer_cast<func::MultipleReturnType>(func.return_type())) {
-    // TODO: Handle multiple return types
+    REPORT_ERROR("Multiple return types are not supported yet", func.location());
     error_occurred_ = true;
-  }
-  
-  if (!return_type) {
-    error_occurred_ = true;
-    // TODO: Add proper error reporting for unknown return type
+    return_type = nullptr;
+  } else {
+    return_type = nullptr; // void
   }
   
   auto func_symbol = std::make_shared<sym_table::Symbol>(
@@ -91,13 +95,32 @@ void SymbolCollector::visit(func::Function& func) {
     func.is_public() ? sym_table::AccessModifier::PUBLIC : sym_table::AccessModifier::PRIVATE,
     func.location().begin.line,
     func.location().begin.column,
-    func.location().begin.filename->c_str()
+    func.location().begin.filename ? func.location().begin.filename->c_str() : ""
   );
   
   if (!symbol_table_->add_symbol(func_symbol)) {
+    REPORT_ERROR("Duplicate function declaration: '" + func.name()->name() + "'", func.location());
     error_occurred_ = true;
-    // TODO: Add proper error reporting
+    symbol_table_->exit_scope();
     return;
+  }
+  
+  for (const auto& param : func.parameters()) {
+    auto param_type = symbol_table_->lookup_type(param->type()->name());
+    auto param_symbol = std::make_shared<sym_table::Symbol>(
+      param->identifier()->name(),
+      sym_table::SymbolKind::PARAM,
+      param_type,
+      true,
+      sym_table::AccessModifier::PRIVATE,
+      param->location().begin.line,
+      param->location().begin.column,
+      param->location().begin.filename ? param->location().begin.filename->c_str() : ""
+    );
+    if (!symbol_table_->add_symbol(param_symbol)) {
+      REPORT_ERROR("Duplicate parameter name: '" + param->identifier()->name() + "' in function '" + func.name()->name() + "'", param->location());
+      error_occurred_ = true;
+    }
   }
   
   func.body()->accept(*this);
@@ -106,29 +129,22 @@ void SymbolCollector::visit(func::Function& func) {
 }
 
 void SymbolCollector::visit(func::Parameter& param) {
-  auto param_symbol = std::make_shared<sym_table::Symbol>(
-    param.identifier()->name(),
-    sym_table::SymbolKind::PARAM,
-    symbol_table_->lookup_type(param.type()->name()),
-    true,  // Parameters are always defined
-    sym_table::AccessModifier::PRIVATE,
-    param.location().begin.line,
-    param.location().begin.column,
-    param.location().begin.filename ? param.location().begin.filename->c_str() : ""
-  );
-  
-  if (!symbol_table_->add_symbol(param_symbol)) {
-    error_occurred_ = true;
-    // TODO: Add proper error reporting
-  }
+  // No action needed here; handled in function
 }
 
 void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
+  auto type = vd.type();
+  if (!type) {
+    REPORT_ERROR("Unknown type for variable '" + vd.identifier()->name() + "'", vd.location());
+    error_occurred_ = true;
+    return;
+  }
+  
   auto var_symbol = std::make_shared<sym_table::Symbol>(
     vd.identifier()->name(),
     vd.is_const() ? sym_table::SymbolKind::CONST : sym_table::SymbolKind::VAR,
-    vd.type(),
-    true,  // Variable is defined
+    type,
+    true,
     sym_table::AccessModifier::PRIVATE,
     vd.location().begin.line,
     vd.location().begin.column,
@@ -136,24 +152,22 @@ void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
   );
   
   if (!symbol_table_->add_symbol(var_symbol)) {
+    REPORT_ERROR("Duplicate variable declaration: '" + vd.identifier()->name() + "'", vd.location());
     error_occurred_ = true;
-    // TODO: Add proper error reporting
     return;
   }
   
-  // Process initializer if present
   if (vd.initialiser()) {
     (*vd.initialiser())->accept(*this);
   }
 }
 
 void SymbolCollector::visit(expr::Variable& var) {
-  
   if (auto symbol = symbol_table_->lookup_symbol(var.identifier()->name())) {
     symbol->set_used(true);
   } else {
+    REPORT_ERROR("Use of undeclared variable '" + var.identifier()->name() + "'", var.location());
     error_occurred_ = true;
-    // TODO: Add proper error reporting for undefined variable
   }
 }
 
