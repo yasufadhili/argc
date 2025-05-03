@@ -14,14 +14,18 @@ bool IncludeHandler::enter_file(const std::string& filename) {
     
     // Check for circular includes
     if (currently_processed_files_.find(abs_filename) != currently_processed_files_.end()) {
-        report_error("Circular include detected: " + filename);
+        yy::location loc;
+        loc.initialize(&abs_filename, 1, 1);
+        report_error("Circular include detected: " + filename, loc);
         return false;
     }
     
     // Open the new file
     auto file = std::make_unique<std::ifstream>(abs_filename);
     if (!file->is_open()) {
-        report_error("Could not open include file: " + filename);
+        yy::location loc;
+        loc.initialize(&abs_filename, 1, 1);
+        report_error("Could not open include file: " + filename, loc);
         return false;
     }
     
@@ -60,10 +64,8 @@ bool IncludeHandler::exit_file() {
     return true;
 }
 
-void IncludeHandler::report_error(const std::string& msg) const {
-    std::string file_info = file_stack_.empty() ?  "unknown" : file_stack_.top().filename + ":" +  std::to_string(file_stack_.top().line_number);
-    
-    std::cerr << file_info << ": " << msg << std::endl;
+void IncludeHandler::report_error(const std::string& msg, const yy::location& loc) const {
+    error::DiagnosticHandler::instance().error(msg, loc);
 }
 
 } // namespace yy 

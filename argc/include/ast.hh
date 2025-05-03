@@ -24,10 +24,6 @@ enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
 class Node {
   yy::location location_;
-protected:
-  auto location() -> yy::location {
-    return location_;
-  }
 public:
   Node() : location_() {}
   explicit Node(const yy::location& loc) : location_(loc) {}
@@ -35,6 +31,10 @@ public:
   virtual void accept(Visitor&) = 0;
   void set_location(const yy::location& loc) { location_ = loc; }
   const yy::location& location() const { return location_; }
+
+  auto location() -> yy::location {
+    return location_;
+  }
 };
 
 }
@@ -222,33 +222,73 @@ namespace ast::stmt {
 namespace ast::func {
 
   class Parameter final : public Node {
-    std::shared_ptr<ident::Identifier> name_;
-    std::shared_ptr<sym_table::Type> type_;
+    std::shared_ptr<ident::Identifier> identifier_;
+    std::shared_ptr<ident::TypeIdentifier> type_;
   public:
-    Parameter(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
-    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
-    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    Parameter(std::shared_ptr<ident::Identifier> id, std::shared_ptr<ident::TypeIdentifier> t)
+    : identifier_(std::move(id)), type_(std::move(t)) {}
+    ~Parameter() override = default;
+    void accept(Visitor&) override;
+    auto identifier () const -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto type () const -> std::shared_ptr<ident::TypeIdentifier> { return type_; }
+  };
+
+  class ReturnTypeInfo : public Node {
+  public:
+    ReturnTypeInfo() = default;
+    ~ReturnTypeInfo() override = default;
+    void accept(Visitor&) override;
+  };
+
+  class SingleReturnType final : public ReturnTypeInfo {
+    std::shared_ptr<ident::TypeIdentifier> identifier_;
+  public:
+    explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id)
+    : identifier_(std::move(id)) {}
+    ~SingleReturnType() override = default;
+    void accept(Visitor&) override;
+    auto identifier () const -> std::shared_ptr<ident::TypeIdentifier> { return identifier_;}
+  };
+
+  class MultipleReturnType final: public ReturnTypeInfo {
+    std::vector<std::shared_ptr<ident::TypeIdentifier>> identifiers_;
+  public:
+    explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids)
+    : identifiers_(std::move(ids)) {}
+    ~MultipleReturnType() override = default;
+    void accept(Visitor&) override;
+    auto identifiers () const -> std::vector<std::shared_ptr<ident::TypeIdentifier>> { return identifiers_; }
+  };
+
+  class Body final : public Node {
+    std::vector<std::shared_ptr<stmt::Statement>> statements_;
+  public:
+    explicit Body(std::vector<std::shared_ptr<stmt::Statement>> stmts) 
+    : statements_ (std::move(stmts)) {}
+    ~Body() override = default;
+    void accept(Visitor&) override;
+    auto statements () const -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
   };
 
   class Function : public Node {
-    std::shared_ptr<ident::Identifier> name_;
+    std::shared_ptr<ident::Identifier> identifier_;
     std::vector<std::shared_ptr<Parameter>> parameters_;
-    std::shared_ptr<sym_table::Type> return_type_;
-    std::shared_ptr<stmt::Block> body_;
+    std::shared_ptr<ReturnTypeInfo> return_type_;
+    std::shared_ptr<Body> body_;
     bool is_public_;
   public:
     Function(
-      std::shared_ptr<ident::Identifier>,
-      std::vector<std::shared_ptr<Parameter>>,
-      std::shared_ptr<sym_table::Type>,
-      std::shared_ptr<stmt::Block>,
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<Parameter>> params,
+      std::shared_ptr<ReturnTypeInfo> rt,
+      std::shared_ptr<Body> b,
       bool is_public = false
-    );
+    ) : identifier_(std::move(id)), parameters_(std::move(params)), return_type_(std::move(rt)), body_(std::move(b)) {}
     void accept(Visitor&) override;
-    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto name() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto parameters() const -> const std::vector<std::shared_ptr<Parameter>>& { return parameters_; }
-    auto return_type() const -> std::shared_ptr<sym_table::Type> { return return_type_; }
-    auto body() const -> std::shared_ptr<stmt::Block> { return body_; }
+    auto return_type() const -> std::shared_ptr<ReturnTypeInfo> { return return_type_; }
+    auto body() const -> std::shared_ptr<Body> { return body_; }
     auto is_public() const -> bool { return is_public_; }
   };
 
@@ -263,8 +303,8 @@ namespace ast::mod {
   public:
     Module (
       std::shared_ptr<ident::Identifier> id,
-      std::vector<std::shared_ptr<func::Function>> fns,
-      std::vector<std::shared_ptr<stmt::Statement>> stmts
+      std::vector<std::shared_ptr<stmt::Statement>> stmts,
+      std::vector<std::shared_ptr<func::Function>> fns
     ) : identifier_(id), functions_(fns), statements_(stmts) {}
   
     Module (
@@ -314,6 +354,11 @@ namespace ast {
     virtual void visit (mod::Module&) = 0;
 
     virtual void visit (func::Function&) = 0;
+    virtual void visit (func::Parameter&) = 0;
+    virtual void visit (func::Body&) = 0;
+    virtual void visit (func::ReturnTypeInfo&) = 0;
+    virtual void visit (func::SingleReturnType&) = 0;
+    virtual void visit (func::MultipleReturnType&) = 0;
 
     virtual void visit (ident::Identifier&) = 0;
     virtual void visit (ident::TypeIdentifier&) = 0;
@@ -342,6 +387,11 @@ namespace ast {
   inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
 
   inline void func::Function::accept(Visitor &v) { v.visit(*this); }
+  inline void func::Body::accept(Visitor &v) { v.visit(*this); }
+  inline void func::Parameter::accept(Visitor &v) { v.visit(*this); }
+  inline void func::ReturnTypeInfo::accept(Visitor &v) { v.visit(*this); }
+  inline void func::MultipleReturnType::accept(Visitor &v) { v.visit(*this); }
+  inline void func::SingleReturnType::accept(Visitor &v) { v.visit(*this); }
 
   inline void ident::TypeIdentifier::accept(Visitor &v) { v.visit(*this); }
   inline void ident::Identifier::accept(Visitor &v) { v.visit(*this); }
@@ -376,6 +426,11 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
+  void visit(func::Parameter&) override;
+  void visit(func::SingleReturnType&) override;
+  void visit(func::MultipleReturnType&) override;
+  void visit(func::Body&) override;
+  void visit(func::ReturnTypeInfo&) override;
   void visit(ident::Identifier&) override;
   void visit(ident::TypeIdentifier&) override;
   void visit(stmt::Statement&) override;
@@ -400,35 +455,33 @@ class SymbolCollector final : public Visitor {
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   bool error_occurred_;
 public:
-  SymbolCollector () :
-  symbol_table_(sym_table::SymbolTable::get_instance()),
-  error_occurred_(false) {}
+  SymbolCollector () ;
   ~SymbolCollector () override = default;
 
   auto has_errors () const -> bool { return error_occurred_; }
 
-  void visit (unit::TranslationUnit&) override;
-
-  void visit (mod::Module&) override;
-
-  void visit (func::Function&) override;
-
-  void visit (ident::Identifier&) override;
-  void visit (ident::TypeIdentifier&) override;
-
-  void visit (stmt::Statement&) override;
-  void visit (stmt::Empty&) override;
-  void visit (stmt::Block&) override;
-  void visit (stmt::Return&) override;
-  void visit (stmt::Print&) override;
-  void visit (stmt::VariableDeclaration&) override;
-  void visit (stmt::Assignment&) override;
-
-  void visit (expr::Expression&) override;
-  void visit (expr::Literal&) override;
-  void visit (expr::Binary&) override;
-  void visit (expr::Unary&) override;
-  void visit (expr::Variable&) override;
+  void visit(unit::TranslationUnit&) override;
+  void visit(mod::Module&) override;
+  void visit(func::Function&) override;
+  void visit(func::Parameter&) override;
+  void visit(func::SingleReturnType&) override;
+  void visit(func::MultipleReturnType&) override;
+  void visit(func::Body&) override;
+  void visit(func::ReturnTypeInfo&) override;
+  void visit(ident::Identifier&) override;
+  void visit(ident::TypeIdentifier&) override;
+  void visit(stmt::Statement&) override;
+  void visit(stmt::Empty&) override;
+  void visit(stmt::Block&) override;
+  void visit(stmt::Return&) override;
+  void visit(stmt::Print&) override;
+  void visit(stmt::VariableDeclaration&) override;
+  void visit(stmt::Assignment&) override;
+  void visit(expr::Expression&) override;
+  void visit(expr::Literal&) override;
+  void visit(expr::Binary&) override;
+  void visit(expr::Unary&) override;
+  void visit(expr::Variable&) override;
 
 };
 
