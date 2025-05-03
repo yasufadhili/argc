@@ -38,7 +38,7 @@ void SymbolCollector::visit(mod::Module& m) {
   for (auto& func : m.functions()) {
     func->accept(*this);
   }
-  
+
   for (auto& stmt : m.statements()) {
     stmt->accept(*this);
   }
