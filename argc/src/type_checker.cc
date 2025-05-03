@@ -260,138 +260,136 @@ void TypeChecker::visit(mod::Module& module) {
 }
 
 void TypeChecker::visit(func::Function& function) {
-    // Save current return type
-    auto prev_return_type = current_return_type_;
+  // Save current return type
+  auto prev_return_type = current_return_type_;
+  
+  // Set current function's return type
+  if (auto single_return = dynamic_cast<func::SingleReturnType*>(function.return_type().get())) {
+    std::string type_name = single_return->identifier()->name();
+    current_return_type_ = symbol_table_->lookup_type(type_name);
     
-    // Set current function's return type
-    if (auto single_return = dynamic_cast<func::SingleReturnType*>(function.return_type().get())) {
-        std::string type_name = single_return->identifier()->name();
-        current_return_type_ = symbol_table_->lookup_type(type_name);
-        
-        if (!current_return_type_) {
-            report_type_error("Return type '" + type_name + "' is not defined",
-                         function.return_type()->location());
-        }
-    } else if (auto multi_return = dynamic_cast<func::MultipleReturnType*>(function.return_type().get())) {
-        // Multiple return types are not fully supported yet
-        report_type_error("Multiple return types are not fully supported",
-                     function.return_type()->location());
-    } else {
-        // If no return type specified, assume void
-        current_return_type_ = sym_table::Type::create_void_type();
+    if (!current_return_type_) {
+      report_type_error("Return type '" + type_name + "' is not defined",
+                      function.return_type()->location());
     }
-    
-    // Check parameters
-    for (const auto& param : function.parameters()) {
-        param->accept(*this);
-    }
-    
-    // Check function body
-    if (function.body()) {
-        function.body()->accept(*this);
-    }
-    
-    // Restore previous return type
-    current_return_type_ = prev_return_type;
+  } else if (auto multi_return = dynamic_cast<func::MultipleReturnType*>(function.return_type().get())) {
+    // Multiple return types are not fully supported yet
+    report_type_error("Multiple return types are not fully supported",
+                  function.return_type()->location());
+  } else {
+      // If no return type specified, assume void
+    current_return_type_ = sym_table::Type::create_void_type();
+  }
+  
+  // Check parameters
+  for (const auto& param : function.parameters()) {
+    param->accept(*this);
+  }
+  
+  // Check function body
+  if (function.body()) {
+    function.body()->accept(*this);
+  }
+  
+  // Restore previous return type
+  current_return_type_ = prev_return_type;
 }
 
 void TypeChecker::visit(func::Parameter& param) {
-    // Verify parameter type exists
-    std::string type_name = param.type()->name();
-    auto param_type = symbol_table_->lookup_type(type_name);
-    
-    if (!param_type) {
-        report_type_error("Parameter type '" + type_name + "' is not defined",
-                     param.type()->location());
-    }
+  // Verify parameter type exists
+  std::string type_name = param.type()->name();
+  auto param_type = symbol_table_->lookup_type(type_name);
+  
+  if (!param_type) {
+    report_type_error("Parameter type '" + type_name + "' is not defined",
+                    param.type()->location());
+  }
 }
 
 void TypeChecker::visit(func::SingleReturnType& ret_type) {
-    // Verify return type exists
-    std::string type_name = ret_type.identifier()->name();
-    auto return_type = symbol_table_->lookup_type(type_name);
-    
-    if (!return_type) {
-        report_type_error("Return type '" + type_name + "' is not defined",
-                     ret_type.location());
-    }
+  // Verify return type exists
+  std::string type_name = ret_type.identifier()->name();
+  auto return_type = symbol_table_->lookup_type(type_name);
+  
+  if (!return_type) {
+    report_type_error("Return type '" + type_name + "' is not defined",
+                    ret_type.location());
+  }
 }
 
 void TypeChecker::visit(func::MultipleReturnType& ret_types) {
-    // Verify all return types exist
-    for (const auto& type_id : ret_types.identifiers()) {
-        std::string type_name = type_id->name();
-        auto return_type = symbol_table_->lookup_type(type_name);
-        
-        if (!return_type) {
-            report_type_error("Return type '" + type_name + "' is not defined",
-                         type_id->location());
-        }
+  // Verify all return types exist
+  for (const auto& type_id : ret_types.identifiers()) {
+    std::string type_name = type_id->name();
+    auto return_type = symbol_table_->lookup_type(type_name);
+    
+    if (!return_type) {
+      report_type_error("Return type '" + type_name + "' is not defined",
+                    type_id->location());
     }
+  }
 }
 
 void TypeChecker::visit(func::Body& body) {
-    // Type check all statements in the function body
-    for (const auto& stmt : body.statements()) {
-        stmt->accept(*this);
-    }
+  // Type check all statements in the function body
+  for (const auto& stmt : body.statements()) {
+    stmt->accept(*this);
+  }
 }
 
 void TypeChecker::visit(func::ReturnTypeInfo&) {
-    // Base class visit, nothing to do here
+  // Base class visit, nothing to do here
 }
 
 void TypeChecker::visit(ident::Identifier&) {
-    // Simple identifier, nothing to check
+  // Simple identifier, nothing to check
 }
 
 void TypeChecker::visit(ident::TypeIdentifier&) {
-    // Simple type identifier, nothing to check
+  // Simple type identifier, nothing to check
 }
 
 void TypeChecker::visit(stmt::Statement&) {
-    // Base class visit, nothing to do here
+  // Base class visit, nothing to do here
 }
 
 void TypeChecker::visit(stmt::Empty&) {
-    // Empty statement, nothing to check
+   // Empty statement, nothing to check
 }
 
 void TypeChecker::visit(stmt::Block& block) {
-    // Type check all statements in the block
-    for (const auto& stmt : block.statements()) {
-        stmt->accept(*this);
-    }
+  for (const auto& stmt : block.statements()) {
+    stmt->accept(*this);
+  }
 }
 
 void TypeChecker::visit(stmt::Return& ret) {
-    // Check if there's an expression to return
-    if (ret.expression()) {
-        // Type check the expression
-        (*ret.expression())->accept(*this);
-        
-        // Get the type of the expression
-        auto expr_type = (*ret.expression())->type();
-        
-        // If we have a current return type, check for compatibility
-        if (current_return_type_) {
-            if (!is_safe_assignment(current_return_type_, expr_type)) {
-                report_type_error(
-                    "Return value type '" + get_type_name(expr_type) + 
-                    "' is not compatible with function return type '" + 
-                    get_type_name(current_return_type_) + "'",
-                    ret.location());
-            }
-        }
-    } else {
-        // No expression, must be a void return
-        if (current_return_type_ && current_return_type_->get_name() != "void") {
-            report_type_error(
-                "Empty return in function with non-void return type '" + 
-                get_type_name(current_return_type_) + "'",
-                ret.location());
-        }
+  if (ret.expression()) {
+    // Type check the expression
+    (*ret.expression())->accept(*this);
+    
+    // Get the type of the expression
+    auto expr_type = (*ret.expression())->type();
+    
+    // If we have a current return type, check for compatibility
+    if (current_return_type_) {
+      if (!is_safe_assignment(current_return_type_, expr_type)) {
+        report_type_error(
+            "Return value type '" + get_type_name(expr_type) + 
+            "' is not compatible with function return type '" + 
+            get_type_name(current_return_type_) + "'",
+            ret.location());
+      }
     }
+  } else {
+    // No expression, must be a void return
+    if (current_return_type_ && current_return_type_->get_name() != "void") {
+      report_type_error(
+          "Empty return in function with non-void return type '" + 
+          get_type_name(current_return_type_) + "'",
+          ret.location());
+    }
+  }
 }
 
 void TypeChecker::visit(stmt::Print& print) {
