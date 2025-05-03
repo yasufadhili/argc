@@ -133,6 +133,8 @@ namespace ast::expr {
     std::vector<std::shared_ptr<Expression>> arguments_;
   public:
     FunctionCall(std::shared_ptr<ident::Identifier>, std::vector<std::shared_ptr<Expression>>);
+    ~FunctionCall () override = default;
+    void accept(Visitor &) override;
     auto function() const -> std::shared_ptr<ident::Identifier> { return function_; }
     auto arguments() const -> const std::vector<std::shared_ptr<Expression>>& { return arguments_; }
   };
@@ -292,12 +294,6 @@ namespace ast::func {
     auto is_public() const -> bool { return is_public_; }
   };
 
-  class FunctionCall : public Node {
-  public:
-    ~FunctionCall () override = default ;
-    void accept (Visitor&) override;
-  };
-
 }
 
 namespace ast::mod {
@@ -360,7 +356,7 @@ namespace ast {
     virtual void visit (mod::Module&) = 0;
 
     virtual void visit (func::Function&) = 0;
-    virtual void visit (func::FunctionCall&) = 0;
+    virtual void visit (expr::FunctionCall&) = 0;
     virtual void visit (func::Parameter&) = 0;
     virtual void visit (func::Body&) = 0;
     virtual void visit (func::ReturnTypeInfo&) = 0;
@@ -394,7 +390,7 @@ namespace ast {
   inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
 
   inline void func::Function::accept(Visitor &v) { v.visit(*this); }
-  inline void func::FunctionCall::accept(Visitor &v) { v.visit(*this); }
+  inline void expr::FunctionCall::accept(Visitor &v) { v.visit(*this); }
 
   inline void func::Body::accept(Visitor &v) { v.visit(*this); }
   inline void func::Parameter::accept(Visitor &v) { v.visit(*this); }
@@ -435,7 +431,7 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
-  void visit(func::FunctionCall&) override;
+  void visit(expr::FunctionCall&) override;
   void visit(func::Parameter&) override;
   void visit(func::SingleReturnType&) override;
   void visit(func::MultipleReturnType&) override;
@@ -474,7 +470,7 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
-  void visit(func::FunctionCall&) override;
+  void visit(expr::FunctionCall&) override;
   void visit(func::Parameter&) override;
   void visit(func::SingleReturnType&) override;
   void visit(func::MultipleReturnType&) override;
@@ -566,7 +562,7 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
-  void visit(func::FunctionCall&) override;
+  void visit(expr::FunctionCall&) override;
   void visit(func::Parameter&) override;
   void visit(func::SingleReturnType&) override;
   void visit(func::MultipleReturnType&) override;
@@ -606,7 +602,7 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
-  void visit(func::FunctionCall&) override;
+  void visit(expr::FunctionCall&) override;
   void visit(func::Parameter&) override;
   void visit(func::SingleReturnType&) override;
   void visit(func::MultipleReturnType&) override;
