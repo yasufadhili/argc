@@ -407,7 +407,7 @@ void TypeChecker::visit(stmt::VariableDeclaration& var_decl) {
     return;
   }
   
-  // If there's an initializer, type check it
+  // If there's an initialiser, type check it
   if (var_decl.initialiser()) {
     auto init_expr = *var_decl.initialiser();
     init_expr->accept(*this);
@@ -423,34 +423,32 @@ void TypeChecker::visit(stmt::VariableDeclaration& var_decl) {
 }
 
 void TypeChecker::visit(stmt::Assignment& assign) {
-    // Lookup the variable being assigned
-    auto var_symbol = symbol_table_->lookup_symbol(assign.target()->name());
-    if (!var_symbol) {
-        report_type_error("Assignment to undefined variable '" + assign.target()->name() + "'",
-                     assign.location());
-        return;
-    }
-    
-    // Check if the variable is const
-    if (var_symbol->get_kind() == sym_table::SymbolKind::CONST) {
-        report_type_error("Cannot assign to const variable '" + assign.target()->name() + "'",
-                     assign.location());
-    }
-    
-    // Type check the value expression
-    assign.value()->accept(*this);
-    
-    // Check type compatibility
-    auto var_type = var_symbol->get_type();
-    auto expr_type = assign.value()->type();
-    
-    if (!is_safe_assignment(var_type, expr_type)) {
-        report_type_error(
-            "Cannot assign value of type '" + get_type_name(expr_type) + 
-            "' to variable '" + assign.target()->name() + "' of type '" + 
-            get_type_name(var_type) + "'",
-            assign.location());
-    }
+  // Lookup the variable being assigned
+  auto var_symbol = symbol_table_->lookup_symbol(assign.target()->name());
+  if (!var_symbol) {
+    report_type_error("Assignment to undefined variable '" + assign.target()->name() + "'",
+                  assign.location());
+    return;
+  }
+  
+  if (var_symbol->get_kind() == sym_table::SymbolKind::CONST) {
+    report_type_error("Cannot assign to const variable '" + assign.target()->name() + "'",
+                  assign.location());
+  }
+  
+  assign.value()->accept(*this);
+  
+  // Check type compatibility
+  auto var_type = var_symbol->get_type();
+  auto expr_type = assign.value()->type();
+  
+  if (!is_safe_assignment(var_type, expr_type)) {
+    report_type_error(
+        "Cannot assign value of type '" + get_type_name(expr_type) + 
+        "' to variable '" + assign.target()->name() + "' of type '" + 
+        get_type_name(var_type) + "'",
+        assign.location());
+  }
 }
 
 void TypeChecker::visit(expr::Expression&) {
@@ -458,97 +456,95 @@ void TypeChecker::visit(expr::Expression&) {
 }
 
 void TypeChecker::visit(expr::Literal& lit) {
-    // Set the type based on the literal variant
-    lit.set_type(get_literal_type(lit.value()));
-    
-    // Validate string literals for UTF-8 encoding
-    if (auto string_val = std::get_if<std::string>(&lit.value())) {
-        if (!is_valid_utf8(*string_val)) {
-            report_type_error("String literal contains invalid UTF-8 encoding", lit.location());
-        }
+  // Set the type based on the literal variant
+  lit.set_type(get_literal_type(lit.value()));
+  
+  // Validate string literals for UTF-8 encoding
+  if (auto string_val = std::get_if<std::string>(&lit.value())) {
+    if (!is_valid_utf8(*string_val)) {
+      report_type_error("String literal contains invalid UTF-8 encoding", lit.location());
     }
+  }
 }
 
 void TypeChecker::visit(expr::Binary& bin) {
-    // Type check both operands
-    bin.lhs()->accept(*this);
-    bin.rhs()->accept(*this);
-    
-    // Get operand types
-    auto lhs_type = bin.lhs()->type();
-    auto rhs_type = bin.rhs()->type();
-    
-    // Determine result type
-    auto result_type = get_result_type(bin.op(), lhs_type, rhs_type);
-    
-    if (!result_type) {
-        // Get readable operation string
-        std::string op_str;
-        if (std::holds_alternative<BinaryOp>(bin.op())) {
-            BinaryOp op = std::get<BinaryOp>(bin.op());
-            switch (op) {
-                case BinaryOp::ADD: op_str = "+"; break;
-                case BinaryOp::SUB: op_str = "-"; break;
-                case BinaryOp::MUL: op_str = "*"; break;
-                case BinaryOp::DIV: op_str = "/"; break;
-                case BinaryOp::MOD: op_str = "%"; break;
-                case BinaryOp::B_AND: op_str = "&"; break;
-                case BinaryOp::B_OR: op_str = "|"; break;
-                case BinaryOp::L_AND: op_str = "&&"; break;
-                case BinaryOp::L_OR: op_str = "||"; break;
-                default: op_str = "unknown"; break;
-            }
-        } else if (std::holds_alternative<RelationalOp>(bin.op())) {
-            RelationalOp op = std::get<RelationalOp>(bin.op());
-            switch (op) {
-                case RelationalOp::EQ: op_str = "=="; break;
-                case RelationalOp::NEQ: op_str = "!="; break;
-                case RelationalOp::LT: op_str = "<"; break;
-                case RelationalOp::GT: op_str = ">"; break;
-                case RelationalOp::LEQ: op_str = "<="; break;
-                case RelationalOp::GEQ: op_str = ">="; break;
-                default: op_str = "unknown"; break;
-            }
-        }
-        
-        report_type_error(
-            "Invalid operation '" + op_str + "' between types '" + 
-            get_type_name(lhs_type) + "' and '" + get_type_name(rhs_type) + "'",
-            bin.location());
-    } else {
-        // Set the type of the binary expression
-        bin.set_type(result_type);
+  // Type check both operands
+  bin.lhs()->accept(*this);
+  bin.rhs()->accept(*this);
+  
+  // Get operand types
+  auto lhs_type = bin.lhs()->type();
+  auto rhs_type = bin.rhs()->type();
+  
+  // Determine result type
+  auto result_type = get_result_type(bin.op(), lhs_type, rhs_type);
+  
+  if (!result_type) {
+    // Get readable operation string
+    std::string op_str;
+    if (std::holds_alternative<BinaryOp>(bin.op())) {
+      BinaryOp op = std::get<BinaryOp>(bin.op());
+      switch (op) {
+        case BinaryOp::ADD: op_str = "+"; break;
+        case BinaryOp::SUB: op_str = "-"; break;
+        case BinaryOp::MUL: op_str = "*"; break;
+        case BinaryOp::DIV: op_str = "/"; break;
+        case BinaryOp::MOD: op_str = "%"; break;
+        case BinaryOp::B_AND: op_str = "&"; break;
+        case BinaryOp::B_OR: op_str = "|"; break;
+        case BinaryOp::L_AND: op_str = "&&"; break;
+        case BinaryOp::L_OR: op_str = "||"; break;
+        default: op_str = "unknown"; break;
+      }
+    } else if (std::holds_alternative<RelationalOp>(bin.op())) {
+      RelationalOp op = std::get<RelationalOp>(bin.op());
+      switch (op) {
+        case RelationalOp::EQ: op_str = "=="; break;
+        case RelationalOp::NEQ: op_str = "!="; break;
+        case RelationalOp::LT: op_str = "<"; break;
+        case RelationalOp::GT: op_str = ">"; break;
+        case RelationalOp::LEQ: op_str = "<="; break;
+        case RelationalOp::GEQ: op_str = ">="; break;
+        default: op_str = "unknown"; break;
+      }
     }
+      
+    report_type_error(
+      "Invalid operation '" + op_str + "' between types '" + 
+      get_type_name(lhs_type) + "' and '" + get_type_name(rhs_type) + "'",
+      bin.location());
+  } else {
+    // Set the type of the binary expression
+    bin.set_type(result_type);
+  }
 }
 
 void TypeChecker::visit(expr::Unary& unary) {
-    // Type check the operand
-    unary.operand()->accept(*this);
-    
-    // Get operand type
-    auto operand_type = unary.operand()->type();
-    
-    // Determine result type
-    auto result_type = get_unary_result_type(unary.op(), operand_type);
-    
-    if (!result_type) {
-        // Get readable operation string
-        std::string op_str;
-        switch (unary.op()) {
-            case UnaryOp::NEG: op_str = "-"; break;
-            case UnaryOp::B_NOT: op_str = "~"; break;
-            case UnaryOp::L_NOT: op_str = "!"; break;
-            default: op_str = "unknown"; break;
-        }
-        
-        report_type_error(
-            "Invalid unary operation '" + op_str + "' on type '" + 
-            get_type_name(operand_type) + "'",
-            unary.location());
-    } else {
-        // Set the type of the unary expression
-        unary.set_type(result_type);
+  unary.operand()->accept(*this);
+  
+  auto operand_type = unary.operand()->type();
+  
+  // Determine result type
+  auto result_type = get_unary_result_type(unary.op(), operand_type);
+  
+  if (!result_type) {
+    // Get readable operation string
+    std::string op_str;
+    switch (unary.op()) {
+        case UnaryOp::NEG: op_str = "-"; break;
+        case UnaryOp::B_NOT: op_str = "~"; break;
+        case UnaryOp::L_NOT: op_str = "!"; break;
+        default: op_str = "unknown"; break;
     }
+      
+    report_type_error(
+        "Invalid unary operation '" + op_str + "' on type '" + 
+        get_type_name(operand_type) + "'",
+        unary.location());
+  } else {
+    // Set the type of the unary expression
+    unary.set_type(result_type);
+  }
 }
 
 void TypeChecker::visit(expr::Variable& var) {
