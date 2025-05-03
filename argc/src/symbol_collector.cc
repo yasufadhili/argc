@@ -26,7 +26,7 @@ void SymbolCollector::visit(mod::Module& m) {
     sym_table::AccessModifier::PUBLIC,
     m.location().begin.line,
     m.location().begin.column,
-    m.location().begin.filename
+    m.location().begin.filename->c_str()
   );
   
   if (!symbol_table_->add_symbol(module_symbol)) {
@@ -82,7 +82,7 @@ void SymbolCollector::visit(func::Function& func) {
     func.is_public() ? sym_table::AccessModifier::PUBLIC : sym_table::AccessModifier::PRIVATE,
     func.location().begin.line,
     func.location().begin.column,
-    func.location().begin.filename
+    func.location().begin.filename->c_str()
   );
   
   if (!symbol_table_->add_symbol(func_symbol)) {
@@ -106,7 +106,7 @@ void SymbolCollector::visit(func::Parameter& param) {
     sym_table::AccessModifier::PRIVATE,
     param.location().begin.line,
     param.location().begin.column,
-    param.location().begin.filename
+    param.location().begin.filename->c_str()
   );
   
   if (!symbol_table_->add_symbol(param_symbol)) {
@@ -125,7 +125,7 @@ void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
     sym_table::AccessModifier::PRIVATE,
     vd.location().begin.line,
     vd.location().begin.column,
-    vd.location().begin.filename
+    vd.location().begin.filename->c_str()
   );
   
   if (!symbol_table_->add_symbol(var_symbol)) {
