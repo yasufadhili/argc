@@ -142,98 +142,98 @@ std::shared_ptr<sym_table::Type> TypeChecker::get_unary_result_type(
 }
 
 bool TypeChecker::is_safe_assignment(
-    const std::shared_ptr<sym_table::Type>& target,
-    const std::shared_ptr<sym_table::Type>& source) {
-    
-    if (!target || !source) {
-        return false;
-    }
-    
-    // Exact match
-    if (target->get_name() == source->get_name() && 
-        target->get_kind() == source->get_kind()) {
-        return true;
-    }
-    
-    // Check if source can be implicitly cast to target
-    return source->can_implicitly_cast_to(*target);
+  const std::shared_ptr<sym_table::Type>& target,
+  const std::shared_ptr<sym_table::Type>& source) {
+  
+  if (!target || !source) {
+    return false;
+  }
+  
+  // Exact match
+  if (target->get_name() == source->get_name() && 
+    target->get_kind() == source->get_kind()) {
+    return true;
+  }
+  
+  // Check if source can be implicitly cast to target
+  return source->can_implicitly_cast_to(*target);
 }
 
 void TypeChecker::report_type_error(const std::string& message, const yy::location& location,
-                             const std::optional<std::string>& code_snippet,
-                             const std::optional<std::string>& suggestion) {
-    error_occurred_ = true;
-    error::DiagnosticHandler::instance().error(message, location, code_snippet, suggestion);
+                            const std::optional<std::string>& code_snippet,
+                            const std::optional<std::string>& suggestion) {
+  error_occurred_ = true;
+  error::DiagnosticHandler::instance().error(message, location, code_snippet, suggestion);
 }
 
 std::string TypeChecker::get_type_name(const std::shared_ptr<sym_table::Type>& type) {
-    if (!type) {
-        return "unknown";
-    }
-    return type->to_string();
+  if (!type) {
+      return "unknown";
+  }
+  return type->to_string();
 }
 
 std::shared_ptr<sym_table::Type> TypeChecker::get_literal_type(const expr::LiteralVariant& value) {
-    if (std::holds_alternative<int64_t>(value)) {
-        return sym_table::Type::create_integer_type();
-    } else if (std::holds_alternative<double>(value)) {
-        return sym_table::Type::create_floating_point_type();
-    } else if (std::holds_alternative<bool>(value)) {
-        return sym_table::Type::create_bool_type();
-    } else if (std::holds_alternative<u_int64_t>(value)) {
-        // Unsigned integer, create appropriate type
-        auto type = std::make_shared<sym_table::Type>(sym_table::Type::TypeKind::PRIMITIVE, "u64");
-        return type;
-    }
-    
-    // Default case (should not happen with well-formed AST)
-    return nullptr;
+  if (std::holds_alternative<int64_t>(value)) {
+      return sym_table::Type::create_integer_type();
+  } else if (std::holds_alternative<double>(value)) {
+      return sym_table::Type::create_floating_point_type();
+  } else if (std::holds_alternative<bool>(value)) {
+      return sym_table::Type::create_bool_type();
+  } else if (std::holds_alternative<u_int64_t>(value)) {
+    // Unsigned integer, create appropriate type
+    auto type = std::make_shared<sym_table::Type>(sym_table::Type::TypeKind::PRIMITIVE, "u64");
+    return type;
+  }
+  
+  // Default case (should not happen with the well-formed AST)
+  return nullptr;
 }
 
 bool TypeChecker::is_valid_utf8(const std::string& str) {
-    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(str.c_str());
-    const unsigned char* end = bytes + str.length();
-    
-    while (bytes < end) {
-        // Single byte (ASCII)
-        if (bytes[0] <= 0x7F) {
-            bytes += 1;
-            continue;
-        }
-        
-        // 2-byte sequence
-        if ((bytes[0] & 0xE0) == 0xC0) {
-            if (bytes + 1 >= end || (bytes[1] & 0xC0) != 0x80) {
-                return false;
-            }
-            bytes += 2;
-            continue;
-        }
-        
-        // 3-byte sequence
-        if ((bytes[0] & 0xF0) == 0xE0) {
-            if (bytes + 2 >= end || (bytes[1] & 0xC0) != 0x80 || (bytes[2] & 0xC0) != 0x80) {
-                return false;
-            }
-            bytes += 3;
-            continue;
-        }
-        
-        // 4-byte sequence
-        if ((bytes[0] & 0xF8) == 0xF0) {
-            if (bytes + 3 >= end || (bytes[1] & 0xC0) != 0x80 || 
-                (bytes[2] & 0xC0) != 0x80 || (bytes[3] & 0xC0) != 0x80) {
-                return false;
-            }
-            bytes += 4;
-            continue;
-        }
-        
-        // Invalid UTF-8 encoding
-        return false;
+  const unsigned char* bytes = reinterpret_cast<const unsigned char*>(str.c_str());
+  const unsigned char* end = bytes + str.length();
+  
+  while (bytes < end) {
+    // Single byte (ASCII)
+    if (bytes[0] <= 0x7F) {
+      bytes += 1;
+      continue;
     }
     
-    return true;
+    // 2-byte sequence
+    if ((bytes[0] & 0xE0) == 0xC0) {
+      if (bytes + 1 >= end || (bytes[1] & 0xC0) != 0x80) {
+          return false;
+      }
+      bytes += 2;
+      continue;
+    }
+    
+    // 3-byte sequence
+    if ((bytes[0] & 0xF0) == 0xE0) {
+      if (bytes + 2 >= end || (bytes[1] & 0xC0) != 0x80 || (bytes[2] & 0xC0) != 0x80) {
+          return false;
+      }
+      bytes += 3;
+      continue;
+    }
+    
+    // 4-byte sequence
+    if ((bytes[0] & 0xF8) == 0xF0) {
+      if (bytes + 3 >= end || (bytes[1] & 0xC0) != 0x80 || 
+          (bytes[2] & 0xC0) != 0x80 || (bytes[3] & 0xC0) != 0x80) {
+          return false;
+      }
+      bytes += 4;
+      continue;
+    }
+    
+    // Invalid UTF-8 encoding
+    return false;
+  }
+  
+  return true;
 }
 
 //============================================================================
@@ -393,10 +393,10 @@ void TypeChecker::visit(stmt::Return& ret) {
 }
 
 void TypeChecker::visit(stmt::Print& print) {
-    // Type check the expression
-    print.expression()->accept(*this);
-    
-    // Any type can be printed, so no additional checks needed
+  // Type check the expression
+  print.expression()->accept(*this);
+  
+  // For now, Any type can be printed, so no additional checks needed
 }
 
 void TypeChecker::visit(stmt::VariableDeclaration& var_decl) {
@@ -548,60 +548,56 @@ void TypeChecker::visit(expr::Unary& unary) {
 }
 
 void TypeChecker::visit(expr::Variable& var) {
-    // Lookup the variable in the symbol table
-    auto symbol = symbol_table_->lookup_symbol(var.identifier()->name());
-    
-    if (!symbol) {
-        report_type_error("Undefined variable '" + var.identifier()->name() + "'",
-                     var.location());
-        return;
-    }
-    
-    // Set the variable's type
-    var.set_type(symbol->get_type());
+  auto symbol = symbol_table_->lookup_symbol(var.identifier()->name());
+  
+  if (!symbol) {
+    report_type_error("Undefined variable '" + var.identifier()->name() + "'",
+                  var.location());
+    return;
+  }
+  
+  var.set_type(symbol->get_type());
 }
 
 void TypeChecker::visit(expr::FunctionCall& call) {
-    // Lookup the function in the symbol table
-    auto func_symbol = symbol_table_->lookup_symbol(call.function()->name());
+  auto func_symbol = symbol_table_->lookup_symbol(call.function()->name());
+  
+  if (!func_symbol || func_symbol->get_kind() != sym_table::SymbolKind::FUNC) {
+    report_type_error("Undefined function '" + call.function()->name() + "'",
+                  call.location());
+    return;
+  }
     
-    if (!func_symbol || func_symbol->get_kind() != sym_table::SymbolKind::FUNC) {
-        report_type_error("Undefined function '" + call.function()->name() + "'",
-                     call.location());
-        return;
+  // Check argument count
+  const auto& params = func_symbol->get_params();
+  const auto& args = call.arguments();
+  
+  if (params.size() != args.size()) {
+    report_type_error(
+        "Function '" + call.function()->name() + "' expects " + 
+        std::to_string(params.size()) + " arguments, but got " + 
+        std::to_string(args.size()),
+        call.location());
+    return;
+  }
+  
+  // Type check each argument
+  for (size_t i = 0; i < args.size(); ++i) {
+    args[i]->accept(*this);
+    
+    // Check argument type compatibility
+    auto param_type = params[i]->get_type();
+    auto arg_type = args[i]->type();
+    
+    if (!is_safe_assignment(param_type, arg_type)) {
+      report_type_error(
+          "Argument " + std::to_string(i+1) + " to function '" + 
+          call.function()->name() + "' has incompatible type '" + 
+          get_type_name(arg_type) + "', expected '" + 
+          get_type_name(param_type) + "'",
+          args[i]->location());
     }
-    
-    // Check argument count
-    const auto& params = func_symbol->get_params();
-    const auto& args = call.arguments();
-    
-    if (params.size() != args.size()) {
-        report_type_error(
-            "Function '" + call.function()->name() + "' expects " + 
-            std::to_string(params.size()) + " arguments, but got " + 
-            std::to_string(args.size()),
-            call.location());
-        return;
-    }
-    
-    // Type check each argument
-    for (size_t i = 0; i < args.size(); ++i) {
-        args[i]->accept(*this);
-        
-        // Check argument type compatibility
-        auto param_type = params[i]->get_type();
-        auto arg_type = args[i]->type();
-        
-        if (!is_safe_assignment(param_type, arg_type)) {
-            report_type_error(
-                "Argument " + std::to_string(i+1) + " to function '" + 
-                call.function()->name() + "' has incompatible type '" + 
-                get_type_name(arg_type) + "', expected '" + 
-                get_type_name(param_type) + "'",
-                args[i]->location());
-        }
-    }
-    
-    // Set the function call's return type
-    call.set_type(func_symbol->get_type());
+  }
+  
+  call.set_type(func_symbol->get_type());
 }
