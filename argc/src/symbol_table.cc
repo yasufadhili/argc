@@ -168,8 +168,8 @@ auto Type::get_common_type(const Type &t1, const Type &t2) -> std::shared_ptr<Ty
 
     // Both are integral types, choose the larger one
     // This is simplified; actual implementation will need detailed ranking
-    if (t1.name_ == "long long" || t2.name_ == "long long") return create_integer_type(); // Simplified
-    if (t1.name_ == "long" || t2.name_ == "long") return create_integer_type(); // Simplified
+    if (t1.name_ == "i64" || t2.name_ == "i64") return create_integer_type(); // Simplified
+    if (t1.name_ == "i32" || t2.name_ == "i32") return create_integer_type(); // Simplified
     return create_integer_type(); // Default
   }
 
@@ -212,16 +212,14 @@ auto Type::to_string() const -> std::string {
 
 auto Type::is_integral_type() const -> bool {
   if (kind_ != TypeKind::PRIMITIVE) return false;
-  return name_ == "int" || name_ == "char" || name_ == "short" ||
-         name_ == "long" || name_ == "long long" || name_ == "bool" ||
-         name_ == "unsigned int" || name_ == "unsigned char" ||
-         name_ == "unsigned short" || name_ == "unsigned long" ||
-         name_ == "unsigned long long";
+  return name_ == "i8" || name_ == "i16" || name_ == "i32" || name_ == "i64" ||
+         name_ == "bool" || name_ == "char" || name_ == "str" ||
+         name_ == "u8" || name_ == "u16" || name_ == "u32" || name_ == "u64";
 }
 
 auto Type::is_floating_point_type() const -> bool {
   if (kind_ != TypeKind::PRIMITIVE) return false;
-  return name_ == "float" || name_ == "double" || name_ == "long double";
+  return name_ == "f32" || name_ == "f64";
 }
 
 auto Type::is_numeric_type() const -> bool {
@@ -234,11 +232,11 @@ auto Type::is_pointer_type() const -> bool {
 
 // Factory methods for common types
 auto Type::create_integer_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "float");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "f32");
 }
 
 auto Type::create_floating_point_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "double");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "f64");
 }
 
 auto Type::create_char_type() -> std::shared_ptr<Type> {
@@ -246,7 +244,7 @@ auto Type::create_char_type() -> std::shared_ptr<Type> {
 }
 
 auto Type::create_string_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "string");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "str");
 }
 
 auto Type::create_void_type() -> std::shared_ptr<Type> {

@@ -492,6 +492,7 @@ namespace ast {
 class SemanticAnalyser final : public Visitor {
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   bool error_occurred_;
+  std::shared_ptr<sym_table::Type> current_return_type_;
 public:
   SemanticAnalyser(std::shared_ptr<sym_table::SymbolTable> st)
   : symbol_table_(std::move(st)), error_occurred_(false) {}
