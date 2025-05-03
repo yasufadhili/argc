@@ -356,6 +356,9 @@ namespace ast {
     virtual void visit (func::Function&) = 0;
     virtual void visit (func::Parameter&) = 0;
     virtual void visit (func::Body&) = 0;
+    virtual void visit (func::ReturnTypeInfo&) = 0;
+    virtual void visit (func::SingleReturnType&) = 0;
+    virtual void visit (func::MultipleReturnType&) = 0;
 
     virtual void visit (ident::Identifier&) = 0;
     virtual void visit (ident::TypeIdentifier&) = 0;
