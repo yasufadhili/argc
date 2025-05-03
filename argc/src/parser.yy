@@ -236,7 +236,10 @@ function_definition
     );
   }
   | FN function_identifier error function_body {
-    std::cerr << "Error: Invalid function parameter declaration" << std::endl;
+    error::DiagnosticHandler::instance().error(
+        "Invalid function parameter declaration",
+        @$
+    );
     // Recovery by assuming no parameters
     $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::func::Parameter>>{}, nullptr, $4);
   }
@@ -334,8 +337,12 @@ statement
     $$ = $1;
   }
   | error {
-    // Create a dummy statement for error recovery with location info
-    error::DiagnosticHandler::instance().error("Invalid statement syntax", @$);
+    error::DiagnosticHandler::instance().error(
+        "Invalid statement syntax",
+        @$,
+        std::nullopt,
+        "Expected a valid statement (declaration, execution, control, or assignment)"
+    );
     $$ = std::make_shared<ast::stmt::Empty>();
     $$->set_location(@$);
   }
@@ -658,5 +665,10 @@ identifier
 
 void yy::Parser::error(const location_type& loc, const std::string& msg)
 {
-  error::DiagnosticHandler::instance().error(msg, loc);
+  error::DiagnosticHandler::instance().error(
+      msg,
+      loc,
+      std::nullopt,
+      "Check the syntax and try again"
+  );
 }
