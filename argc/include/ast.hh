@@ -222,12 +222,13 @@ namespace ast::stmt {
 namespace ast::func {
 
   class Parameter final : public Node {
-    std::shared_ptr<ident::Identifier> name_;
+    std::shared_ptr<ident::Identifier> identifier_;
     std::shared_ptr<sym_table::Type> type_;
   public:
-    Parameter(std::shared_ptr<ident::Identifier>, std::shared_ptr<sym_table::Type>);
-    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
-    auto type() const -> std::shared_ptr<sym_table::Type> { return type_; }
+    Parameter(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
+    : identifier_(std::move(id)), type_(std::move(t)) {}
+    auto identifier () const -> std::shared_ptr<ident::Identifier> { return identifier_; }
+    auto type () const -> std::shared_ptr<sym_table::Type> { return type_; }
   };
 
   class Function : public Node {
