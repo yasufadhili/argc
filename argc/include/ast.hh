@@ -24,10 +24,6 @@ enum class RelationalOp {LT, GT, EQ, LEQ, GEQ, NEQ };
 
 class Node {
   yy::location location_;
-protected:
-  auto location() -> yy::location {
-    return location_;
-  }
 public:
   Node() : location_() {}
   explicit Node(const yy::location& loc) : location_(loc) {}
@@ -35,6 +31,10 @@ public:
   virtual void accept(Visitor&) = 0;
   void set_location(const yy::location& loc) { location_ = loc; }
   const yy::location& location() const { return location_; }
+
+  auto location() -> yy::location {
+    return location_;
+  }
 };
 
 }
