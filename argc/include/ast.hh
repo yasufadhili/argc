@@ -233,6 +233,33 @@ namespace ast::func {
     auto type () const -> std::shared_ptr<sym_table::Type> { return type_; }
   };
 
+  class ReturnTypeInfo : public Node {
+  public:
+    ReturnTypeInfo() = default;
+    ~ReturnTypeInfo() override = default;
+    void accept(Visitor&) override;
+  };
+
+  class SingleReturnType final : public ReturnTypeInfo {
+    std::shared_ptr<ident::TypeIdentifier> identifier_;
+  public:
+    explicit SingleReturnType(std::shared_ptr<ident::TypeIdentifier> id)
+    : identifier_(std::move(id)) {}
+    ~SingleReturnType() override = default;
+    void accept(Visitor&) override;
+    auto identifier () const -> std::shared_ptr<ident::TypeIdentifier> { return identifier_;}
+  };
+
+  class MultipleReturnType final: public ReturnTypeInfo {
+    std::vector<std::shared_ptr<ident::TypeIdentifier>> identifiers_;
+  public:
+    explicit MultipleReturnType(std::vector<std::shared_ptr<ident::TypeIdentifier>> ids)
+    : identifiers_(std::move(ids)) {}
+    ~MultipleReturnType() override = default;
+    void accept(Visitor&) override;
+    auto identifiers () const -> std::vector<std::shared_ptr<ident::TypeIdentifier>> { return identifiers_; }
+  };
+
   class Body final : public Node {
     std::vector<std::shared_ptr<stmt::Statement>> statements_;
   public:
@@ -246,21 +273,21 @@ namespace ast::func {
   class Function : public Node {
     std::shared_ptr<ident::Identifier> identifier_;
     std::vector<std::shared_ptr<Parameter>> parameters_;
-    std::shared_ptr<sym_table::Type> return_type_;
+    std::shared_ptr<ReturnTypeInfo> return_type_;
     std::shared_ptr<Body> body_;
     bool is_public_;
   public:
     Function(
       std::shared_ptr<ident::Identifier> id,
       std::vector<std::shared_ptr<Parameter>> params,
-      std::shared_ptr<sym_table::Type> rt,
+      std::shared_ptr<ReturnTypeInfo> rt,
       std::shared_ptr<Body> b,
       bool is_public = false
     ) : identifier_(std::move(id)), parameters_(std::move(params)), return_type_(std::move(rt)), body_(std::move(b)) {}
     void accept(Visitor&) override;
     auto name() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto parameters() const -> const std::vector<std::shared_ptr<Parameter>>& { return parameters_; }
-    auto return_type() const -> std::shared_ptr<sym_table::Type> { return return_type_; }
+    auto return_type() const -> std::shared_ptr<ReturnTypeInfo> { return return_type_; }
     auto body() const -> std::shared_ptr<Body> { return body_; }
     auto is_public() const -> bool { return is_public_; }
   };
