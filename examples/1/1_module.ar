@@ -1,7 +1,7 @@
 module main;
 
-fn main () i32 {
+fn main () bool {
 
-  ret 0;
+  ret 23;
 }
 

@@ -84,19 +84,22 @@ auto main(const int argc, char* argv[]) -> int {
       return EXIT_FAILURE;
     }
   }
-
-  try {
-    ast::SymbolCollector symbol_collector;
-    translation_unit->accept(symbol_collector);
-
-    if (symbol_collector.has_errors()) {
-      LOG_ERROR("Symbol collection failed");
-      return EXIT_FAILURE;
-    }
-  } catch (const std::exception& e) {
-    LOG_ERROR("Error during symbol collection: " + std::string(e.what()));
+                                                    
+  ast::SymbolCollector symbol_collector;
+  translation_unit->accept(symbol_collector);
+  if (!symbol_collector.successful()) {
+    error::DiagnosticHandler::instance().print_all();
+    std::cout << std::endl;
+    std::cout << "Compilation failed during symbol collection with "
+      << error::DiagnosticHandler::instance().message_count() << " messages: "
+      << error::DiagnosticHandler::instance().error_count() << " errors, "
+      << error::DiagnosticHandler::instance().warning_count() << " warnings"
+      << "\n" << std::endl;
     return EXIT_FAILURE;
   }
+
+  ast::SemanticAnalyser semantic_analyser;
+  translation_unit->accept(semantic_analyser);
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
