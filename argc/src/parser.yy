@@ -1,4 +1,3 @@
-
 %require "3.2"
 %language "c++"
 
@@ -182,6 +181,20 @@ translation_unit
     unit->set_location(@$);
     $$ = unit;
   }
+  | error {
+    error::DiagnosticHandler::instance().error(
+        "Invalid translation unit",
+        @$,
+        std::nullopt,
+        "Expected a valid module declaration"
+    );
+    // Recovery: create empty translation unit
+    unit = std::make_shared<ast::unit::TranslationUnit>(
+        std::vector<std::shared_ptr<ast::mod::Module>>{}
+    );
+    unit->set_location(@$);
+    $$ = unit;
+  }
 ;
 
 
@@ -203,6 +216,31 @@ module_definition
   }
   | MODULE identifier SEMICOLON function_definition_list {
     $$ = std::make_shared<ast::mod::Module>($2, $4);
+    $$->set_location(@$);
+  }
+  | MODULE identifier error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after module declaration",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the module name"
+    );
+    // Recovery: assume empty module
+    $$ = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
+    $$->set_location(@$);
+  }
+  | MODULE error {
+    error::DiagnosticHandler::instance().error(
+        "Invalid module declaration",
+        @$,
+        std::nullopt,
+        "Module must be followed by an identifier"
+    );
+    // Recovery: create empty module with dummy identifier
+    $$ = std::make_shared<ast::mod::Module>(
+        std::make_shared<ast::ident::Identifier>("<invalid_module>"),
+        std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    );
     $$->set_location(@$);
   }
 ;
@@ -374,7 +412,17 @@ block_statement
 
 
 print_statement
-  : PRINT expression {
+  : PRINT expression SEMICOLON {
+    $$ = std::make_shared<ast::stmt::Print>($2);
+    $$->set_location(@$);
+  }
+  | PRINT expression error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after print statement",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the print expression"
+    );
     $$ = std::make_shared<ast::stmt::Print>($2);
     $$->set_location(@$);
   }
@@ -385,11 +433,29 @@ declaration_statement
   : variable_declaration SEMICOLON {
     $$ = $1;
   }
+  | variable_declaration error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after variable declaration",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the variable declaration"
+    );
+    $$ = $1;
+  }
 ;
 
 
 control_statement
   : return_statement SEMICOLON {
+    $$ = $1;
+  }
+  | return_statement error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after return statement",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the return statement"
+    );
     $$ = $1;
   }
 ;
@@ -428,7 +494,17 @@ variable_declaration
 
 
 assignment_statement
-  : identifier ASSIGN expression {
+  : identifier ASSIGN expression SEMICOLON {
+    $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+    $$->set_location(@$);
+  }
+  | identifier ASSIGN expression error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after assignment",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the assignment expression"
+    );
     $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
     $$->set_location(@$);
   }
