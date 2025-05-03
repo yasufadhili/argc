@@ -32,9 +32,7 @@ public:
   void set_location(const yy::location& loc) { location_ = loc; }
   const yy::location& location() const { return location_; }
 
-  auto location() -> yy::location {
-    return location_;
-  }
+  auto location() -> yy::location { return location_; }
 };
 
 }
@@ -493,8 +491,9 @@ class SemanticAnalyser final : public Visitor {
   std::shared_ptr<sym_table::SymbolTable> symbol_table_;
   bool error_occurred_;
   std::shared_ptr<sym_table::Type> current_return_type_;
+  config::Config config_;
 public:
-  SemanticAnalyser() : error_occurred_(false) {}
+  SemanticAnalyser() : symbol_table_(sym_table::SymbolTable::get_instance()), error_occurred_(false) {}
   ~SemanticAnalyser() override = default;
 
   bool has_errors() const { return error_occurred_; }

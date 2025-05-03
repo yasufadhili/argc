@@ -1,7 +1,6 @@
 module main;
 
-fn main () i32 {
-
+fn main {
   ret 0;
 }
 

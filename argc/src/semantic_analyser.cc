@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "include/ast.hh"
+#include "util_logger.hh"
 
 using namespace ast;
 
@@ -12,13 +13,17 @@ void SemanticAnalyser::visit(unit::TranslationUnit& tu) {
 }
 
 void SemanticAnalyser::visit(mod::Module&m) {
+  symbol_table_->enter_scope();
   for (auto& f : m.functions()) {
     f->accept(*this);
   }
+  symbol_table_->exit_scope();
 }
 
-void SemanticAnalyser::visit(func::Function&) {
-
+void SemanticAnalyser::visit(func::Function&f) {
+  symbol_table_->enter_scope(f.name()->name());
+  f.body()->accept(*this);
+  symbol_table_->exit_scope();
 }
 
 void SemanticAnalyser::visit(func::Parameter&) {
