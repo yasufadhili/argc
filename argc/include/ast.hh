@@ -303,8 +303,8 @@ namespace ast::mod {
   public:
     Module (
       std::shared_ptr<ident::Identifier> id,
-      std::vector<std::shared_ptr<func::Function>> fns,
-      std::vector<std::shared_ptr<stmt::Statement>> stmts
+      std::vector<std::shared_ptr<stmt::Statement>> stmts,
+      std::vector<std::shared_ptr<func::Function>> fns
     ) : identifier_(id), functions_(fns), statements_(stmts) {}
   
     Module (
