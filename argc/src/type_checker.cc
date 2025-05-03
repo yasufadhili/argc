@@ -400,26 +400,26 @@ void TypeChecker::visit(stmt::Print& print) {
 }
 
 void TypeChecker::visit(stmt::VariableDeclaration& var_decl) {
-    // Check if the type exists
-    auto var_type = var_decl.type();
-    if (!var_type) {
-        report_type_error("Variable type is undefined", var_decl.location());
-        return;
-    }
+  // Check if the type exists
+  auto var_type = var_decl.type();
+  if (!var_type) {
+    report_type_error("Variable type is undefined", var_decl.location());
+    return;
+  }
+  
+  // If there's an initializer, type check it
+  if (var_decl.initialiser()) {
+    auto init_expr = *var_decl.initialiser();
+    init_expr->accept(*this);
     
-    // If there's an initializer, type check it
-    if (var_decl.initialiser()) {
-        auto init_expr = *var_decl.initialiser();
-        init_expr->accept(*this);
-        
-        // Check type compatibility
-        if (!is_safe_assignment(var_type, init_expr->type())) {
-            report_type_error(
-                "Cannot initialize variable of type '" + get_type_name(var_type) + 
-                "' with expression of type '" + get_type_name(init_expr->type()) + "'",
-                var_decl.location());
-        }
+    // Check type compatibility
+    if (!is_safe_assignment(var_type, init_expr->type())) {
+      report_type_error(
+          "Cannot initialise variable of type '" + get_type_name(var_type) + 
+          "' with expression of type '" + get_type_name(init_expr->type()) + "'",
+          var_decl.location());
     }
+  }
 }
 
 void TypeChecker::visit(stmt::Assignment& assign) {
