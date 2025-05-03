@@ -85,13 +85,21 @@ void Printer::visit(func::Function& func) {
   
   if (func.return_type()) {
     std::cout << " -> ";
-    func.return_type()->accept(*this);
+    try {
+      func.return_type()->accept(*this);
+    } catch (const std::exception& e) {
+      std::cout << "<error: " << e.what() << ">";
+    }
   }
   
   std::cout << "\n";
   
   if (func.body()) {
-    func.body()->accept(*this);
+    try {
+      func.body()->accept(*this);
+    } catch (const std::exception& e) {
+      std::cout << "<error in function body: " << e.what() << ">\n";
+    }
   }
 }
 
@@ -245,6 +253,8 @@ void Printer::visit(func::ReturnTypeInfo&) {
 void Printer::visit(func::SingleReturnType& ret) {
   if (ret.identifier()) {
     std::cout << ret.identifier()->name();
+  } else {
+    std::cout << "<null return type>";
   }
 }
 
