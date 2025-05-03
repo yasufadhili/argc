@@ -48,6 +48,7 @@ public:
   ~Identifier() override = default;
   void accept(Visitor &) override;
   auto name() const -> std::string { return name_; };
+  auto name() -> std::string { return name_; };
 };
 
 class TypeIdentifier final : public Node {
@@ -57,6 +58,7 @@ public:
   ~TypeIdentifier() override = default;
   void accept(Visitor &) override;
   auto name() const -> std::string { return name_; };
+  auto name() -> std::string { return name_; };
 };
 
 }
