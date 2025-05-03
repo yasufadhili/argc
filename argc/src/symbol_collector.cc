@@ -14,6 +14,11 @@ void SymbolCollector::visit(unit::TranslationUnit& tu) {
   symbol_table_->enter_scope("global");
   
   for (auto& m : tu.modules()) {
+    if (!m) {
+      REPORT_ERROR("Null module encountered in translation unit", tu.location());
+      error_occurred_ = true;
+      continue;
+    }
     m->accept(*this);
   }
   
@@ -21,6 +26,11 @@ void SymbolCollector::visit(unit::TranslationUnit& tu) {
 }
 
 void SymbolCollector::visit(mod::Module& m) {
+  if (!m.identifier()) {
+    REPORT_ERROR("Module with null identifier encountered", m.location());
+    error_occurred_ = true;
+    return;
+  }
   if (config_.verbose) {
     LOG_INFO("Collecting module symbols");
   }
@@ -47,10 +57,20 @@ void SymbolCollector::visit(mod::Module& m) {
   }
   
   for (auto& func : m.functions()) {
+    if (!func) {
+      REPORT_ERROR("Null function encountered in module '" + m.identifier()->name() + "'", m.location());
+      error_occurred_ = true;
+      continue;
+    }
     func->accept(*this);
   }
 
   for (auto& stmt : m.statements()) {
+    if (!stmt) {
+      REPORT_ERROR("Null statement encountered in module '" + m.identifier()->name() + "'", m.location());
+      error_occurred_ = true;
+      continue;
+    }
     stmt->accept(*this);
   }
   
@@ -58,11 +78,26 @@ void SymbolCollector::visit(mod::Module& m) {
 }
 
 void SymbolCollector::visit(func::Function& func) {
+  if (!func.name()) {
+    REPORT_ERROR("Function with null identifier encountered", func.location());
+    error_occurred_ = true;
+    return;
+  }
   std::string func_scope_name = "func_" + func.name()->name();
   symbol_table_->enter_scope(func_scope_name);
   
   std::vector<std::shared_ptr<sym_table::Type>> param_types;
   for (const auto& param : func.parameters()) {
+    if (!param) {
+      REPORT_ERROR("Null parameter encountered in function '" + func.name()->name() + "'", func.location());
+      error_occurred_ = true;
+      continue;
+    }
+    if (!param->identifier()) {
+      REPORT_ERROR("Parameter with null identifier in function '" + func.name()->name() + "'", param->location());
+      error_occurred_ = true;
+      continue;
+    }
     param->accept(*this);
     auto type = symbol_table_->lookup_type(param->type()->name());
     if (!type) {
@@ -74,10 +109,16 @@ void SymbolCollector::visit(func::Function& func) {
   
   std::shared_ptr<sym_table::Type> return_type;
   if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(func.return_type())) {
-    return_type = symbol_table_->lookup_type(single_ret->identifier()->name());
-    if (!return_type) {
-      REPORT_ERROR("Unknown return type '" + single_ret->identifier()->name() + "' for function '" + func.name()->name() + "'", func.location());
+    if (!single_ret->identifier()) {
+      REPORT_ERROR("Return type with null identifier in function '" + func.name()->name() + "'", func.location());
       error_occurred_ = true;
+      return_type = nullptr;
+    } else {
+      return_type = symbol_table_->lookup_type(single_ret->identifier()->name());
+      if (!return_type) {
+        REPORT_ERROR("Unknown return type '" + single_ret->identifier()->name() + "' for function '" + func.name()->name() + "'", func.location());
+        error_occurred_ = true;
+      }
     }
   } else if (auto multi_ret = std::dynamic_pointer_cast<func::MultipleReturnType>(func.return_type())) {
     REPORT_ERROR("Multiple return types are not supported yet", func.location());
@@ -106,6 +147,7 @@ void SymbolCollector::visit(func::Function& func) {
   }
   
   for (const auto& param : func.parameters()) {
+    if (!param || !param->identifier()) continue;
     auto param_type = symbol_table_->lookup_type(param->type()->name());
     auto param_symbol = std::make_shared<sym_table::Symbol>(
       param->identifier()->name(),
@@ -123,7 +165,9 @@ void SymbolCollector::visit(func::Function& func) {
     }
   }
   
-  func.body()->accept(*this);
+  if (func.body()) {
+    func.body()->accept(*this);
+  }
   
   symbol_table_->exit_scope();
 }
