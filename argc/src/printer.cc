@@ -213,6 +213,10 @@ void Printer::visit(expr::Variable& var) {
   }
 }
 
+void Printer::visit(expr::FunctionCall&) {
+  std::cout << "Function Call \n";
+}
+
 void Printer::visit(ident::Identifier& id) {
   std::cout << id.name();
 }
