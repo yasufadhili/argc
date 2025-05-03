@@ -13,6 +13,7 @@
 
 #include "lexer.hh"
 #include "sym_table.hh"
+#include "error_handler.hh"
 
 using namespace yy;
 
@@ -154,8 +155,10 @@ COMMENT         \/\/[^\n]*
                     }
 
                     if (!valid || num.empty()) {
-                        include_handler().report_error("Invalid digits for base " + 
-                            std::to_string(base) + " number: " + YYText());
+                        error::DiagnosticHandler::instance().error(
+                            "Invalid digits for base " + std::to_string(base) + " number: " + YYText(),
+                            loc_
+                        );
                         return yy::Parser::make_YYUNDEF(loc_);
                     }
 
@@ -184,8 +187,10 @@ COMMENT         \/\/[^\n]*
                 }
 
 .               { 
-                    include_handler().report_error("Unrecognised character: " + std::string(YYText()));
-
+                    error::DiagnosticHandler::instance().error(
+                        "Unrecognised character: " + std::string(YYText()),
+                        loc_
+                    );
                     return yy::Parser::make_YYUNDEF(loc_);
                 }
 
