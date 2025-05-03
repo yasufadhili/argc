@@ -387,6 +387,11 @@ namespace ast {
   inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
 
   inline void func::Function::accept(Visitor &v) { v.visit(*this); }
+  inline void func::Body::accept(Visitor &v) { v.visit(*this); }
+  inline void func::Parameter::accept(Visitor &v) { v.visit(*this); }
+  inline void func::ReturnTypeInfo::accept(Visitor &v) { v.visit(*this); }
+  inline void func::MultipleReturnType::accept(Visitor &v) { v.visit(*this); }
+  inline void func::SingleReturnType::accept(Visitor &v) { v.visit(*this); }
 
   inline void ident::TypeIdentifier::accept(Visitor &v) { v.visit(*this); }
   inline void ident::Identifier::accept(Visitor &v) { v.visit(*this); }
