@@ -55,6 +55,10 @@ void SemanticAnalyser::visit(func::Function& f) {
   current_return_type_ = nullptr;
 }
 
+void SemanticAnalyser::visit(expr::FunctionCall&){
+
+}
+
 void SemanticAnalyser::visit(func::Parameter& param) {
   // No semantic checks needed here (already checked in symbol collection)
 }
