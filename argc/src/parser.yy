@@ -201,6 +201,10 @@ module_definition
     $$ = std::make_shared<ast::mod::Module>($2, $4, $5);
     $$->set_location(@$);
   }
+  | MODULE identifier SEMICOLON function_definition_list {
+    $$ = std::make_shared<ast::mod::Module>($2, $4);
+    $$->set_location(@$);
+  }
 ;
 
 
