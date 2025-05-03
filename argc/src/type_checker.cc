@@ -460,11 +460,11 @@ void TypeChecker::visit(expr::Literal& lit) {
   lit.set_type(get_literal_type(lit.value()));
   
   // Validate string literals for UTF-8 encoding
-  if (auto string_val = std::get_if<std::string>(&lit.value())) {
-    if (!is_valid_utf8(*string_val)) {
-      report_type_error("String literal contains invalid UTF-8 encoding", lit.location());
-    }
-  }
+  //if (auto string_val = std::get_if<std::string>(&lit.value())) {
+  //  if (!is_valid_utf8(*string_val)) {
+  //    report_type_error("String literal contains invalid UTF-8 encoding", lit.location());
+  //  }
+  //}
 }
 
 void TypeChecker::visit(expr::Binary& bin) {
