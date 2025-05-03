@@ -9,7 +9,7 @@ Argon is a playful experiment in programming language design. It compiles to x86
 
 ## 🚀 What is Argon?
 
-Argon is a modular programming language where components are separated into modules. These modules can be compiled and linked statically to other programs. It even supports linking with C and C++ static libraries! 🎉
+Argon is a modular programming language where components are separated into modules. These modules can be compiled and linked statically to other programs. It should even support linking with C and C++ static libraries! 🎉
 
 But let’s be honest: Argon is a toy language. It’s not here to compete with the big players. It’s here to have fun, learn, and explore.
 
@@ -19,31 +19,13 @@ This repository is divided into several subdirectories, each representing a key 
 
 - **[argc](argc/)**: The Argon Compiler. The heart of the language.  
   
-- **[arlib](arlib/)**: The Argon Standard Library. A collection of utilities (some better than others).  
+- **[arlib](arlib/)**: The Argon Standard Library. (Not yet).  
   
-- **[spec](spec/)**: The Argon Language Specification. For those who love reading specs.  
-  
-- **[docs](docs/)**: Documentation for Argon, including the website.  
+- **[spec](spec/)**: The Argon Language Specification. For those who love reading specs (Work in progress).  
   
 ## 📝 Why Argon Exists
 
-Argon was built for one reason: **to see if I could do it**. It’s a passion project, a learning tool, and a playground for experimentation. 
-
-## ⚠️ Limitations (aka "Why You Shouldn't Use Argon in Production")
-
-Let’s be real. Argon has its quirks:
-
-- 🐢 **Poor Compiler Optimisation**: It’s not going to win any speed contests.  
-  
-- 📜 **Non-Standard Syntax**: Some parts of the syntax might make you scratch your head.
-    
-- 📚 **Sparse Documentation**: We’re working on it (kind of).  
-  
-- 🛠️ **Buggy Standard Library**: Expect some rough edges.  
-  
-- 🧪 **Limited Tests**: Testing is... minimal.  
-
-But hey, it’s all part of the charm, right?
+Argon is being built for one reason: **to see if I can do it**. It’s a passion project, a learning tool, and a playground for experimentation. 
 
 ## 🌟 What Can You Learn from Argon?
 
@@ -51,10 +33,8 @@ Argon is a great way to dive into:
 
 - 🛠️ **Compiler Construction**: Learn how compilers work by exploring the Argon Compiler.  
   
-- 💻 **C++ Programming**: The compiler and part of the standard library are written in C++ and some C. 
+- 💻 **C++ Programming**: The compiler and soon part of the standard library is written in C++. 
    
-- 🌐 **Web Development**: Check out the Argon Online Playground (but maybe don’t take notes).  
-
 ## 📚 Resources
 
 Here are some resources to help you get started:
@@ -65,61 +45,6 @@ Here are some resources to help you get started:
 
 - **[x86 Assembly Guide](https://cs.lmu.edu/~ray/notes/x86assembly/)**: Understand the assembly Argon compiles to.  
 
-## 🛠️ Building and Running Argon
-
-To build the Argon Compiler, clone this repository and follow these steps:
-
-```bash
-# Clone the repository
-git clone https://github.com/yasufadhili/argon.git
-cd argon
-```
-
-```bash
-# From the ./argc directory
-bear -- make
-```
-
-```bash
-# From the ./argc directory
-bear -- make install
-```
-
-```bash
-argc <source.ar>
-```
-
-## 💡 Examples
-
-Here’s a simple "Hello, World!" program in Argon:
-
-```c++
-module main
-
-import sys
-
-def main() {
-    sys::print("Hello, World!")
-    sys::exit(0)
-}
-```
-
-Compile it with the Argon Compiler:
-
-```bash
-argc hello.ar
-```
-
-I know *.ar* is for argchives, But hey, my language, my rules
-
-## 🧪 Contributing
-
-Want to contribute? Awesome! Here’s how you can help:
-
-- Report bugs 🐛  
-- Improve the standard library 📚  
-- Write tests 🧪  
-- Add documentation ✍️  
 
 ## 📜 License
 
