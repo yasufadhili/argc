@@ -494,8 +494,7 @@ class SemanticAnalyser final : public Visitor {
   bool error_occurred_;
   std::shared_ptr<sym_table::Type> current_return_type_;
 public:
-  SemanticAnalyser(std::shared_ptr<sym_table::SymbolTable> st)
-  : symbol_table_(std::move(st)), error_occurred_(false) {}
+  SemanticAnalyser() : error_occurred_(false) {}
   ~SemanticAnalyser() override = default;
 
   bool has_errors() const { return error_occurred_; }

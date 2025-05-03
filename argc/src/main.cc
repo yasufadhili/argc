@@ -85,7 +85,7 @@ auto main(const int argc, char* argv[]) -> int {
     }
   }
 
-  
+  ast::SemanticAnalyser semantic_analyser;
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
