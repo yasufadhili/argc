@@ -184,8 +184,8 @@ module_definition_list
 
 
 module_definition
-  : MODULE identifier statement_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $3);
+  : MODULE identifier SEMICOLON statement_list {
+    $$ = std::make_shared<ast::mod::Module>($2, $4);
     $$->set_location(@$);
   }
 ;
