@@ -9,9 +9,8 @@
 namespace fs = std::filesystem;
 
 auto main(const int argc, char* argv[]) -> int {
-
+  
   auto& logger { logger::Logger::instance() };
-
   const auto console_sink = std::make_shared<logger::ConsoleSink>();
   logger.add_sink(console_sink);
   logger.set_level(logger::LogLevel::TRACE);
@@ -70,14 +69,34 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  if (config.verbose) {
-    LOG_INFO("Code Structure: ");
-    ast::Printer printer;
-    translation_unit->accept(printer);
+  if (!translation_unit) {
+    LOG_FATAL("Translation unit is null after parsing");
+    return EXIT_FAILURE;
   }
 
-  ast::SymbolCollector symbol_collector;
-  translation_unit->accept(symbol_collector);
+  if (config.verbose) {
+    LOG_INFO("Code Structure: ");
+    try {
+      ast::Printer printer;
+      translation_unit->accept(printer);
+    } catch (const std::exception& e) {
+      LOG_ERROR("Error during printing: " + std::string(e.what()));
+      return EXIT_FAILURE;
+    }
+  }
+
+  try {
+    ast::SymbolCollector symbol_collector;
+    translation_unit->accept(symbol_collector);
+
+    if (symbol_collector.has_errors()) {
+      LOG_ERROR("Symbol collection failed");
+      return EXIT_FAILURE;
+    }
+  } catch (const std::exception& e) {
+    LOG_ERROR("Error during symbol collection: " + std::string(e.what()));
+    return EXIT_FAILURE;
+  }
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
