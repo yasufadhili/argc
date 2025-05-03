@@ -47,13 +47,13 @@ std::shared_ptr<sym_table::Type> TypeChecker::get_result_type(
   
   // Check for null types
   if (!left || !right) {
-      return nullptr;
+    return nullptr;
   }
   
   // Handle relational operations
   if (std::holds_alternative<RelationalOp>(op)) {
-      // All relational operations result in a boolean type
-      return sym_table::Type::create_bool_type();
+    // All relational operations result in a boolean type
+    return sym_table::Type::create_bool_type();
   }
   
   // Get the binary operation
@@ -61,46 +61,46 @@ std::shared_ptr<sym_table::Type> TypeChecker::get_result_type(
   
   // Special case for string concatenation with +
   if (binary_op == BinaryOp::ADD && 
-      left->get_name() == "str" && right->get_name() == "str") {
-      return sym_table::Type::create_string_type();
+    left->get_name() == "str" && right->get_name() == "str") {
+    return sym_table::Type::create_string_type();
   }
   
   // Handle pointer arithmetic
   if (binary_op == BinaryOp::ADD || binary_op == BinaryOp::SUB) {
-      if (left->is_pointer_type() && right->is_integral_type()) {
-          return sym_table::Type::create_pointer_type(left->get_base_type());
-      }
-      
-      if (right->is_pointer_type() && left->is_integral_type() && binary_op == BinaryOp::ADD) {
-          return sym_table::Type::create_pointer_type(right->get_base_type());
-      }
+    if (left->is_pointer_type() && right->is_integral_type()) {
+      return sym_table::Type::create_pointer_type(left->get_base_type());
+    }
+    
+    if (right->is_pointer_type() && left->is_integral_type() && binary_op == BinaryOp::ADD) {
+      return sym_table::Type::create_pointer_type(right->get_base_type());
+    }
   }
   
   // Handle pointer subtraction
   if (binary_op == BinaryOp::SUB && 
-      left->is_pointer_type() && right->is_pointer_type()) {
-      // Pointers must have compatible base types
-      if (left->get_base_type()->is_compatible_with(*right->get_base_type())) {
-          return sym_table::Type::create_integer_type();
-      }
-      return nullptr;
+    left->is_pointer_type() && right->is_pointer_type()) {
+    // Pointers must have compatible base types
+    if (left->get_base_type()->is_compatible_with(*right->get_base_type())) {
+      return sym_table::Type::create_integer_type();
+    }
+    return nullptr;
   }
   
   // Logical operations
   if (binary_op == BinaryOp::L_AND || binary_op == BinaryOp::L_OR) {
-      return sym_table::Type::create_bool_type();
+    return sym_table::Type::create_bool_type();
   }
   
   // Numeric operations
   if (left->is_numeric_type() && right->is_numeric_type()) {
-      // Apply type promotion rules
-      return sym_table::Type::get_common_type(*left, *right);
+    // Apply type promotion rules
+    return sym_table::Type::get_common_type(*left, *right);
   }
   
   // Bitwise operations
   if ((binary_op == BinaryOp::B_AND || binary_op == BinaryOp::B_OR) &&
-      left->is_integral_type() && right->is_integral_type()) {
-      return sym_table::Type::get_common_type(*left, *right);
+    left->is_integral_type() && right->is_integral_type()) {
+    return sym_table::Type::get_common_type(*left, *right);
   }
   
   // No compatible operation found
@@ -108,37 +108,37 @@ std::shared_ptr<sym_table::Type> TypeChecker::get_result_type(
 }
 
 std::shared_ptr<sym_table::Type> TypeChecker::get_unary_result_type(
-    UnaryOp op,
-    const std::shared_ptr<sym_table::Type>& operand) {
-    
-    if (!operand) {
-        return nullptr;
-    }
-    
-    switch (op) {
-        case UnaryOp::NEG:
-            // Negation requires numeric type
-            if (operand->is_numeric_type()) {
-                return operand;
-            }
-            break;
-        
-        case UnaryOp::B_NOT:
-            // Bitwise NOT requires integral type
-            if (operand->is_integral_type()) {
-                return operand;
-            }
-            break;
-            
-        case UnaryOp::L_NOT:
-            // Logical NOT works on boolean and produces boolean
-            if (operand->get_name() == "bool" || operand->is_integral_type()) {
-                return sym_table::Type::create_bool_type();
-            }
-            break;
-    }
-    
+  UnaryOp op,
+  const std::shared_ptr<sym_table::Type>& operand) {
+  
+  if (!operand) {
     return nullptr;
+  }
+  
+  switch (op) {
+    case UnaryOp::NEG:
+      // Negation requires numeric type
+      if (operand->is_numeric_type()) {
+        return operand;
+      }
+      break;
+    
+    case UnaryOp::B_NOT:
+      // Bitwise NOT requires integral type
+      if (operand->is_integral_type()) {
+        return operand;
+      }
+      break;
+        
+    case UnaryOp::L_NOT:
+      // Logical NOT works on boolean and produces boolean
+      if (operand->get_name() == "bool" || operand->is_integral_type()) {
+        return sym_table::Type::create_bool_type();
+      }
+      break;
+  }
+  
+  return nullptr;
 }
 
 bool TypeChecker::is_safe_assignment(
@@ -168,18 +168,18 @@ void TypeChecker::report_type_error(const std::string& message, const yy::locati
 
 std::string TypeChecker::get_type_name(const std::shared_ptr<sym_table::Type>& type) {
   if (!type) {
-      return "unknown";
+    return "unknown";
   }
   return type->to_string();
 }
 
 std::shared_ptr<sym_table::Type> TypeChecker::get_literal_type(const expr::LiteralVariant& value) {
   if (std::holds_alternative<int64_t>(value)) {
-      return sym_table::Type::create_integer_type();
+    return sym_table::Type::create_integer_type();
   } else if (std::holds_alternative<double>(value)) {
-      return sym_table::Type::create_floating_point_type();
+    return sym_table::Type::create_floating_point_type();
   } else if (std::holds_alternative<bool>(value)) {
-      return sym_table::Type::create_bool_type();
+    return sym_table::Type::create_bool_type();
   } else if (std::holds_alternative<u_int64_t>(value)) {
     // Unsigned integer, create appropriate type
     auto type = std::make_shared<sym_table::Type>(sym_table::Type::TypeKind::PRIMITIVE, "u64");
@@ -190,7 +190,7 @@ std::shared_ptr<sym_table::Type> TypeChecker::get_literal_type(const expr::Liter
   return nullptr;
 }
 
-bool TypeChecker::is_valid_utf8(const std::string& str) {
+auto TypeChecker::is_valid_utf8(const std::string& str) -> bool {
   const unsigned char* bytes = reinterpret_cast<const unsigned char*>(str.c_str());
   const unsigned char* end = bytes + str.length();
   
@@ -204,7 +204,7 @@ bool TypeChecker::is_valid_utf8(const std::string& str) {
     // 2-byte sequence
     if ((bytes[0] & 0xE0) == 0xC0) {
       if (bytes + 1 >= end || (bytes[1] & 0xC0) != 0x80) {
-          return false;
+        return false;
       }
       bytes += 2;
       continue;
@@ -213,7 +213,7 @@ bool TypeChecker::is_valid_utf8(const std::string& str) {
     // 3-byte sequence
     if ((bytes[0] & 0xF0) == 0xE0) {
       if (bytes + 2 >= end || (bytes[1] & 0xC0) != 0x80 || (bytes[2] & 0xC0) != 0x80) {
-          return false;
+        return false;
       }
       bytes += 3;
       continue;
@@ -222,8 +222,8 @@ bool TypeChecker::is_valid_utf8(const std::string& str) {
     // 4-byte sequence
     if ((bytes[0] & 0xF8) == 0xF0) {
       if (bytes + 3 >= end || (bytes[1] & 0xC0) != 0x80 || 
-          (bytes[2] & 0xC0) != 0x80 || (bytes[3] & 0xC0) != 0x80) {
-          return false;
+        (bytes[2] & 0xC0) != 0x80 || (bytes[3] & 0xC0) != 0x80) {
+        return false;
       }
       bytes += 4;
       continue;
@@ -241,10 +241,10 @@ bool TypeChecker::is_valid_utf8(const std::string& str) {
 //============================================================================
 
 void TypeChecker::visit(unit::TranslationUnit& unit) {
-    // Traverse all modules
-    for (const auto& module : unit.modules()) {
-        module->accept(*this);
-    }
+  // Traverse all modules
+  for (const auto& module : unit.modules()) {
+    module->accept(*this);
+  }
 }
 
 void TypeChecker::visit(mod::Module& module) {
