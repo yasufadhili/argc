@@ -98,6 +98,7 @@ namespace yy {
 %token RETURN
 %token VAR
 %token MODULE
+%token FN
 %token PRINT
 
 
