@@ -216,12 +216,27 @@ void SymbolCollector::visit(expr::Variable& var) {
 }
 
 void SymbolCollector::visit(expr::Binary& e) {
-  e.lhs()->accept(*this);
-  e.rhs()->accept(*this);
+  if (e.lhs()) {
+    e.lhs()->accept(*this);
+  } else {
+    REPORT_ERROR("Null left-hand side in binary expression", e.location());
+    error_occurred_ = true;
+  }
+  if (e.rhs()) {
+    e.rhs()->accept(*this);
+  } else {
+    REPORT_ERROR("Null right-hand side in binary expression", e.location());
+    error_occurred_ = true;
+  }
 }
 
 void SymbolCollector::visit(expr::Unary& e) {
-  e.operand()->accept(*this);
+  if (e.operand()) {
+    e.operand()->accept(*this);
+  } else {
+    REPORT_ERROR("Null operand in unary expression", e.location());
+    error_occurred_ = true;
+  }
 }
 
 void SymbolCollector::visit(stmt::Block& b) {
