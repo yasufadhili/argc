@@ -55,7 +55,7 @@ void SemanticAnalyser::visit(func::Function& f) {
   current_return_type_ = nullptr;
 }
 
-void SemanticAnalyser::visit(func::FunctionCall&){
+void SemanticAnalyser::visit(expr::FunctionCall&){
 
 }
 
