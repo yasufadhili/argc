@@ -227,29 +227,41 @@ namespace ast::func {
   public:
     Parameter(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type> t)
     : identifier_(std::move(id)), type_(std::move(t)) {}
+    ~Parameter() override = default;
+    void accept(Visitor&) override;
     auto identifier () const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto type () const -> std::shared_ptr<sym_table::Type> { return type_; }
   };
 
+  class Body final : public Node {
+    std::vector<std::shared_ptr<stmt::Statement>> statements_;
+  public:
+    explicit Body(std::vector<std::shared_ptr<stmt::Statement>> stmts) 
+    : statements_ (std::move(stmts)) {}
+    ~Body() override = default;
+    void accept(Visitor&) override;
+    auto statements () const -> std::vector<std::shared_ptr<stmt::Statement>> { return statements_; }
+  };
+
   class Function : public Node {
-    std::shared_ptr<ident::Identifier> name_;
+    std::shared_ptr<ident::Identifier> identifier_;
     std::vector<std::shared_ptr<Parameter>> parameters_;
     std::shared_ptr<sym_table::Type> return_type_;
-    std::shared_ptr<stmt::Block> body_;
+    std::shared_ptr<Body> body_;
     bool is_public_;
   public:
     Function(
-      std::shared_ptr<ident::Identifier>,
-      std::vector<std::shared_ptr<Parameter>>,
-      std::shared_ptr<sym_table::Type>,
-      std::shared_ptr<stmt::Block>,
+      std::shared_ptr<ident::Identifier> id,
+      std::vector<std::shared_ptr<Parameter>> params,
+      std::shared_ptr<sym_table::Type> rt,
+      std::shared_ptr<Body> b,
       bool is_public = false
-    );
+    ) : identifier_(std::move(id)), parameters_(std::move(params)), return_type_(std::move(rt)), body_(std::move(b)) {}
     void accept(Visitor&) override;
-    auto name() const -> std::shared_ptr<ident::Identifier> { return name_; }
+    auto name() const -> std::shared_ptr<ident::Identifier> { return identifier_; }
     auto parameters() const -> const std::vector<std::shared_ptr<Parameter>>& { return parameters_; }
     auto return_type() const -> std::shared_ptr<sym_table::Type> { return return_type_; }
-    auto body() const -> std::shared_ptr<stmt::Block> { return body_; }
+    auto body() const -> std::shared_ptr<Body> { return body_; }
     auto is_public() const -> bool { return is_public_; }
   };
 
@@ -315,6 +327,8 @@ namespace ast {
     virtual void visit (mod::Module&) = 0;
 
     virtual void visit (func::Function&) = 0;
+    virtual void visit (func::Parameter&) = 0;
+    virtual void visit (func::Body&) = 0;
 
     virtual void visit (ident::Identifier&) = 0;
     virtual void visit (ident::TypeIdentifier&) = 0;
