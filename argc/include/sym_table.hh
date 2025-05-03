@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <unordered_map>
+#include "location.hh"
 
 namespace sym_table {
 
@@ -111,9 +112,7 @@ class Symbol {
   bool is_defined_;
   bool is_used_;
   AccessModifier access_;
-  int line_;
-  int column_;
-  std::string filename_;
+  yy::location location_;
 
   // For Functions
   std::vector<std::shared_ptr<Symbol>> params_;
@@ -122,7 +121,7 @@ class Symbol {
   std::shared_ptr<SymbolTable> member_symbols_;
 
 public:
-  Symbol(std::string  name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, int line = 0, int column = 0, std::string  filename = "");
+  Symbol(std::string name, SymbolKind kind, std::shared_ptr<Type> type, bool is_defined = false, AccessModifier access = AccessModifier::DEFAULT, const yy::location& location = yy::location());
 
   auto get_name() const -> std::string { return name_; }
   auto get_kind() const -> SymbolKind { return kind_; }
@@ -130,14 +129,16 @@ public:
   auto get_access() const -> AccessModifier { return access_; }
   auto get_is_defined() const -> bool { return is_defined_; }
   auto get_is_used() const -> bool { return is_used_; }
-  auto get_line() const -> int { return line_; }
-  auto get_column() const -> int { return column_; }
-  auto get_filename() const -> std::string { return filename_; }
+  auto get_location() const -> const yy::location& { return location_; }
+  auto get_line() const -> int { return location_.begin.line; }
+  auto get_column() const -> int { return location_.begin.column; }
+  //auto get_filename() const -> const yy::location::filename_type { return location_.begin.filename; }
 
   auto set_defined(const bool defined) -> void { is_defined_ = defined; }
   auto set_used(const bool used) -> void { is_used_ = used; }
   auto set_type(std::shared_ptr<Type> new_type) -> void { type_ = std::move(new_type); }
   auto set_access(const AccessModifier new_access) -> void { access_ = new_access; }
+  auto set_location(const yy::location& location) -> void { location_ = location; }
 
   // Function Specific
   auto add_param(const std::shared_ptr<Symbol>& new_param) -> void;
@@ -226,18 +227,16 @@ public:
 
 
 class SemanticError final : public std::runtime_error {
-  int line_;
-  int column_;
-  std::string filename_;
+  yy::location location_;
 
 public:
-  explicit SemanticError(const std::string& message, const int line = 0, const int column = 0, const std::string& fileName = "")
-        : std::runtime_error(message), line_(line), column_(column), filename_(fileName) {}
+  explicit SemanticError(const std::string& message, const yy::location& location = yy::location())
+        : std::runtime_error(message), location_(location) {}
 
-  auto get_filename() const -> std::string { return filename_; }
-  auto get_line () const -> int { return line_; }
-  auto get_column () const -> int { return column_; }
-
+  //auto get_filename() const -> std::string { return location_.begin.filename; }
+  auto get_line () const -> int { return location_.begin.line; }
+  auto get_column () const -> int { return location_.begin.column; }
+  auto get_location() const -> const yy::location& { return location_; }
 };
 
 

@@ -1,5 +1,3 @@
-
-
 #include "sym_table.hh"
 
 #include <iostream>
@@ -18,11 +16,9 @@ Symbol::Symbol(std::string name,
                std::shared_ptr<Type> type,
                const bool is_defined,
                const AccessModifier access,
-               const int line,
-               const int column,
-               std::string filename)
+               const yy::location& location)
   : name_(std::move(name)), kind_(kind), type_(std::move(type)), is_defined_(is_defined), is_used_(false),
-    access_(access), line_(line), column_(column), filename_(std::move(filename)),
+    access_(access), location_(location),
     member_symbols_(nullptr) {
 }
 
@@ -451,9 +447,10 @@ auto SymbolTable::check_unused_symbols() const -> void {
         && symbol->get_kind() != SymbolKind::MODULE)
       {
 
-        report_warning("Unused symbol: " + symbol->get_name() +
-                    " at " + symbol->get_filename() + ":" +
-                    std::to_string(symbol->get_line()));
+        //report_warning("Unused symbol: " + symbol->get_name() +
+        //            " at " + symbol->get_filename() + ":" +
+        //            std::to_string(symbol->get_line()));
+        continue; // TODO
       }
     }
   }
