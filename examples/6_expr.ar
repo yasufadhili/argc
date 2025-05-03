@@ -1,5 +1,0 @@
-module expressions
-
-var x i32 = 23
-
-var y i16 = 0b1001
