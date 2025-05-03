@@ -75,11 +75,11 @@ void Printer::visit(func::Function& func) {
   bool first = true;
   for (const auto& param : func.parameters()) {
     if (!first) std::cout << ", ";
-    std::cout << param->name()->name() << ": " << param->type()->to_string();
+    std::cout << param->identifier()->name() << ": " << param->type();
     first = false;
   }
   
-  std::cout << ") -> " << func.return_type()->to_string() << "\n";
+  std::cout << ") -> " << func.return_type() << "\n";
   
   func.body()->accept(*this);
 }
@@ -177,6 +177,43 @@ void Printer::visit(ident::Identifier& id) {
 
 void Printer::visit(ident::TypeIdentifier& id) {
   std::cout << id.name();
+}
+
+void Printer::visit(func::Parameter& param) {
+  std::cout << param.identifier()->name() << ": " << param.type()->name();
+}
+
+void Printer::visit(func::Body& body) {
+  print_indent();
+  std::cout << "{\n";
+  
+  indent_level_ += 2;
+  for (auto& stmt : body.statements()) {
+    stmt->accept(*this);
+  }
+  indent_level_ -= 2;
+  
+  print_indent();
+  std::cout << "}\n";
+}
+
+void Printer::visit(func::ReturnTypeInfo&) {
+  // Base class implementation - should not be called directly
+}
+
+void Printer::visit(func::SingleReturnType& ret) {
+  std::cout << ret.identifier()->name();
+}
+
+void Printer::visit(func::MultipleReturnType& ret) {
+  std::cout << "(";
+  bool first = true;
+  for (const auto& id : ret.identifiers()) {
+    if (!first) std::cout << ", ";
+    std::cout << id->name();
+    first = false;
+  }
+  std::cout << ")";
 }
 
 // Default implementations for base classes

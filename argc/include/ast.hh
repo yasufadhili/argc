@@ -426,6 +426,11 @@ public:
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
+  void visit(func::Parameter&) override;
+  void visit(func::SingleReturnType&) override;
+  void visit(func::MultipleReturnType&) override;
+  void visit(func::Body&) override;
+  void visit(func::ReturnTypeInfo&) override;
   void visit(ident::Identifier&) override;
   void visit(ident::TypeIdentifier&) override;
   void visit(stmt::Statement&) override;
