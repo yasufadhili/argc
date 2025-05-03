@@ -5,12 +5,16 @@
 using namespace ast;
 
 
-void SemanticAnalyser::visit(unit::TranslationUnit&) {
-
+void SemanticAnalyser::visit(unit::TranslationUnit& tu) {
+  for (auto& m : tu.modules()) {
+    m->accept(*this);
+  }
 }
 
-void SemanticAnalyser::visit(mod::Module&) {
-
+void SemanticAnalyser::visit(mod::Module&m) {
+  for (auto& f : m.functions()) {
+    f->accept(*this);
+  }
 }
 
 void SemanticAnalyser::visit(func::Function&) {
