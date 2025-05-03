@@ -248,15 +248,15 @@ void TypeChecker::visit(unit::TranslationUnit& unit) {
 }
 
 void TypeChecker::visit(mod::Module& module) {
-    // Type check global statements
-    for (const auto& stmt : module.statements()) {
-        stmt->accept(*this);
-    }
-    
-    // Type check functions
-    for (const auto& func : module.functions()) {
-        func->accept(*this);
-    }
+  // Type check global statements
+  for (const auto& stmt : module.statements()) {
+    stmt->accept(*this);
+  }
+  
+  // Type check functions
+  for (const auto& func : module.functions()) {
+    func->accept(*this);
+  }
 }
 
 void TypeChecker::visit(func::Function& function) {
@@ -270,12 +270,12 @@ void TypeChecker::visit(func::Function& function) {
     
     if (!current_return_type_) {
       report_type_error("Return type '" + type_name + "' is not defined",
-                      function.return_type()->location());
+                  function.return_type()->location());
     }
   } else if (auto multi_return = dynamic_cast<func::MultipleReturnType*>(function.return_type().get())) {
     // Multiple return types are not fully supported yet
     report_type_error("Multiple return types are not fully supported",
-                  function.return_type()->location());
+              function.return_type()->location());
   } else {
       // If no return type specified, assume void
     current_return_type_ = sym_table::Type::create_void_type();
@@ -375,19 +375,19 @@ void TypeChecker::visit(stmt::Return& ret) {
     if (current_return_type_) {
       if (!is_safe_assignment(current_return_type_, expr_type)) {
         report_type_error(
-            "Return value type '" + get_type_name(expr_type) + 
-            "' is not compatible with function return type '" + 
-            get_type_name(current_return_type_) + "'",
-            ret.location());
+          "Return value type '" + get_type_name(expr_type) + 
+          "' is not compatible with function return type '" + 
+          get_type_name(current_return_type_) + "'",
+          ret.location());
       }
     }
   } else {
     // No expression, must be a void return
     if (current_return_type_ && current_return_type_->get_name() != "void") {
       report_type_error(
-          "Empty return in function with non-void return type '" + 
-          get_type_name(current_return_type_) + "'",
-          ret.location());
+        "Empty return in function with non-void return type '" + 
+        get_type_name(current_return_type_) + "'",
+        ret.location());
     }
   }
 }
@@ -415,9 +415,9 @@ void TypeChecker::visit(stmt::VariableDeclaration& var_decl) {
     // Check type compatibility
     if (!is_safe_assignment(var_type, init_expr->type())) {
       report_type_error(
-          "Cannot initialise variable of type '" + get_type_name(var_type) + 
-          "' with expression of type '" + get_type_name(init_expr->type()) + "'",
-          var_decl.location());
+        "Cannot initialise variable of type '" + get_type_name(var_type) + 
+        "' with expression of type '" + get_type_name(init_expr->type()) + "'",
+        var_decl.location());
     }
   }
 }
@@ -444,10 +444,10 @@ void TypeChecker::visit(stmt::Assignment& assign) {
   
   if (!is_safe_assignment(var_type, expr_type)) {
     report_type_error(
-        "Cannot assign value of type '" + get_type_name(expr_type) + 
-        "' to variable '" + assign.target()->name() + "' of type '" + 
-        get_type_name(var_type) + "'",
-        assign.location());
+      "Cannot assign value of type '" + get_type_name(expr_type) + 
+      "' to variable '" + assign.target()->name() + "' of type '" + 
+      get_type_name(var_type) + "'",
+      assign.location());
   }
 }
 
@@ -531,16 +531,16 @@ void TypeChecker::visit(expr::Unary& unary) {
     // Get readable operation string
     std::string op_str;
     switch (unary.op()) {
-        case UnaryOp::NEG: op_str = "-"; break;
-        case UnaryOp::B_NOT: op_str = "~"; break;
-        case UnaryOp::L_NOT: op_str = "!"; break;
-        default: op_str = "unknown"; break;
+      case UnaryOp::NEG: op_str = "-"; break;
+      case UnaryOp::B_NOT: op_str = "~"; break;
+      case UnaryOp::L_NOT: op_str = "!"; break;
+      default: op_str = "unknown"; break;
     }
       
     report_type_error(
-        "Invalid unary operation '" + op_str + "' on type '" + 
-        get_type_name(operand_type) + "'",
-        unary.location());
+      "Invalid unary operation '" + op_str + "' on type '" + 
+      get_type_name(operand_type) + "'",
+      unary.location());
   } else {
     // Set the type of the unary expression
     unary.set_type(result_type);
@@ -574,10 +574,10 @@ void TypeChecker::visit(expr::FunctionCall& call) {
   
   if (params.size() != args.size()) {
     report_type_error(
-        "Function '" + call.function()->name() + "' expects " + 
-        std::to_string(params.size()) + " arguments, but got " + 
-        std::to_string(args.size()),
-        call.location());
+      "Function '" + call.function()->name() + "' expects " + 
+      std::to_string(params.size()) + " arguments, but got " + 
+      std::to_string(args.size()),
+      call.location());
     return;
   }
   
@@ -591,11 +591,11 @@ void TypeChecker::visit(expr::FunctionCall& call) {
     
     if (!is_safe_assignment(param_type, arg_type)) {
       report_type_error(
-          "Argument " + std::to_string(i+1) + " to function '" + 
-          call.function()->name() + "' has incompatible type '" + 
-          get_type_name(arg_type) + "', expected '" + 
-          get_type_name(param_type) + "'",
-          args[i]->location());
+        "Argument " + std::to_string(i+1) + " to function '" + 
+        call.function()->name() + "' has incompatible type '" + 
+        get_type_name(arg_type) + "', expected '" + 
+        get_type_name(param_type) + "'",
+        args[i]->location());
     }
   }
   
