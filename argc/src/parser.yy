@@ -84,6 +84,7 @@ namespace yy {
 
 %token SEMICOLON
 %token ASSIGN
+%token COMMA
 
 %token BACK_TICK
 
@@ -108,6 +109,18 @@ namespace yy {
 
 %type <std::shared_ptr<ast::mod::Module>> module_definition;
 %type <std::vector<std::shared_ptr<ast::mod::Module>>> module_definition_list;
+
+%type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
+%type <std::shared_ptr<ast::func::Function>> function_definition;
+%type <std::shared_ptr<ast::func::Body>> function_body;
+%type <std::shared_ptr<ast::ident::Identifier>> function_identifier;
+
+%type <std::shared_ptr<ast::func::ReturnTypeInfo>> function_return_type;
+%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> multiple_return_types;
+
+%type <std::vector<std::shared_ptr<ast::param::Parameter>>> parameter_list;
+%type <std::vector<std::shared_ptr<ast::param::Parameter>>> non_empty_parameter_list;
+%type <std::shared_ptr<ast::param::Parameter>> parameter;
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
@@ -191,6 +204,107 @@ module_definition
 ;
 
 
+function_definition_list
+  : function_definition {
+    $$ = std::vector<std::shared_ptr<ast::func::Function>> { $1 };
+  }
+  | function_definition_list function_definition {
+    $$ = $1;
+    $$.emplace_back($2);
+  }
+;
+
+
+function_definition
+  : FN function_identifier LPAREN RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, $5, $6);
+  }
+  | FN function_identifier LPAREN parameter_list RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
+  }
+  | FN function_identifier function_body {
+    // No params, no return type
+    $$ = std::make_shared<ast::func::Function>(
+      $2,
+      std::vector<std::shared_ptr<ast::param::Parameter>>{},
+      nullptr, // No return type
+      $3
+    );
+  }
+  | FN function_identifier error function_body {
+    std::cerr << "Error: Invalid function parameter declaration" << std::endl;
+    // Recovery by assuming no parameters
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, nullptr, $4);
+  }
+;
+
+
+function_identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
+  }
+;
+
+
+function_return_type
+  : type_identifier {
+    $$ = std::make_shared<ast::func::SingleReturnType>($1);
+  }
+  | LPAREN multiple_return_types RPAREN {
+    $$ = std::make_shared<ast::func::MultipleReturnType>($2);
+  }
+  | %empty {
+    $$ = nullptr; // No return type
+  }
+;
+
+
+multiple_return_types
+  : type_identifier COMMA type_identifier {
+    $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $1, $3 };
+  }
+  | multiple_return_types COMMA type_identifier {
+    $$ = $1;
+    $$.push_back($3);
+  }
+;
+
+
+parameter_list
+  : %empty {
+    $$ = std::vector<std::shared_ptr<ast::param::Parameter>>{};
+  }
+  | non_empty_parameter_list {
+    $$ = $1;
+  }
+;
+
+
+non_empty_parameter_list
+  : parameter {
+    $$ = std::vector<std::shared_ptr<ast::param::Parameter>> { $1 };
+  }
+  | non_empty_parameter_list COMMA parameter {
+    $$ = $1;
+    $$.push_back($3);
+  }
+;
+
+
+parameter
+  : function_identifier type_identifier {
+    $$ = std::make_shared<ast::param::Parameter>($1, $2);
+  }
+;
+
+
+function_body
+  : statement_list {
+    $$ = std::make_shared<ast::func::Body>($1);
+  }
+;
+
+
 statement_list
   : statement {
     $$ = std::vector<std::shared_ptr<ast::stmt::Statement>>{$1};
@@ -257,14 +371,14 @@ print_statement
 
 
 declaration_statement
-  : variable_declaration {
+  : variable_declaration SEMICOLON {
     $$ = $1;
   }
 ;
 
 
 control_statement
-  : return_statement {
+  : return_statement SEMICOLON {
     $$ = $1;
   }
 ;
