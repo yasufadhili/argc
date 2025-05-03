@@ -457,6 +457,7 @@ public:
   ~SymbolCollector () override = default;
 
   auto has_errors () const -> bool { return error_occurred_; }
+  bool successful() const;
 
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;

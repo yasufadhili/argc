@@ -218,3 +218,7 @@ void SymbolCollector::visit(func::ReturnTypeInfo&) {}
 void SymbolCollector::visit(func::SingleReturnType&) {}
 void SymbolCollector::visit(func::MultipleReturnType&) {}
 
+bool SymbolCollector::successful() const {
+    return !error_occurred_;
+}
+

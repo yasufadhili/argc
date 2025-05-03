@@ -1,6 +1,7 @@
 module main;
 
-fn main () i32 {
-  ret 0;
+fn main () bool {
+  var x i32 = 90;
+  ret x;
 }
 
