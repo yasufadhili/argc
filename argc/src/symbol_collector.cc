@@ -4,6 +4,11 @@
 
 using namespace ast;
 
+SymbolCollector::SymbolCollector() :
+  Visitor(),
+  symbol_table_(sym_table::SymbolTable::get_instance()),
+  error_occurred_(false) {}
+
 void SymbolCollector::visit(unit::TranslationUnit& tu) {
   symbol_table_->enter_scope("global");
   
@@ -15,6 +20,10 @@ void SymbolCollector::visit(unit::TranslationUnit& tu) {
 }
 
 void SymbolCollector::visit(mod::Module& m) {
+  if (config_.verbose) {
+    LOG_INFO("Collecting module symbols");
+  }
+  
   std::string module_scope_name = "module_" + m.identifier()->name();
   symbol_table_->enter_scope(module_scope_name);
   
@@ -26,7 +35,7 @@ void SymbolCollector::visit(mod::Module& m) {
     sym_table::AccessModifier::PUBLIC,
     m.location().begin.line,
     m.location().begin.column,
-    m.location().begin.filename->c_str()
+    m.location().begin.filename ? m.location().begin.filename->c_str() : ""
   );
   
   if (!symbol_table_->add_symbol(module_symbol)) {
@@ -97,7 +106,6 @@ void SymbolCollector::visit(func::Function& func) {
 }
 
 void SymbolCollector::visit(func::Parameter& param) {
-  
   auto param_symbol = std::make_shared<sym_table::Symbol>(
     param.identifier()->name(),
     sym_table::SymbolKind::PARAM,
@@ -106,7 +114,7 @@ void SymbolCollector::visit(func::Parameter& param) {
     sym_table::AccessModifier::PRIVATE,
     param.location().begin.line,
     param.location().begin.column,
-    param.location().begin.filename->c_str()
+    param.location().begin.filename ? param.location().begin.filename->c_str() : ""
   );
   
   if (!symbol_table_->add_symbol(param_symbol)) {
@@ -116,7 +124,6 @@ void SymbolCollector::visit(func::Parameter& param) {
 }
 
 void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
-  
   auto var_symbol = std::make_shared<sym_table::Symbol>(
     vd.identifier()->name(),
     vd.is_const() ? sym_table::SymbolKind::CONST : sym_table::SymbolKind::VAR,
@@ -125,7 +132,7 @@ void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
     sym_table::AccessModifier::PRIVATE,
     vd.location().begin.line,
     vd.location().begin.column,
-    vd.location().begin.filename->c_str()
+    vd.location().begin.filename ? vd.location().begin.filename->c_str() : ""
   );
   
   if (!symbol_table_->add_symbol(var_symbol)) {
