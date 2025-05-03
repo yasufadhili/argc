@@ -118,9 +118,9 @@ namespace yy {
 %type <std::shared_ptr<ast::func::ReturnTypeInfo>> function_return_type;
 %type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> multiple_return_types;
 
-%type <std::vector<std::shared_ptr<ast::param::Parameter>>> parameter_list;
-%type <std::vector<std::shared_ptr<ast::param::Parameter>>> non_empty_parameter_list;
-%type <std::shared_ptr<ast::param::Parameter>> parameter;
+%type <std::vector<std::shared_ptr<ast::func::Parameter>>> parameter_list;
+%type <std::vector<std::shared_ptr<ast::func::Parameter>>> non_empty_parameter_list;
+%type <std::shared_ptr<ast::func::Parameter>> parameter;
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
@@ -197,8 +197,8 @@ module_definition_list
 
 
 module_definition
-  : MODULE identifier SEMICOLON statement_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $4);
+  : MODULE identifier SEMICOLON statement_list function_definition_list {
+    $$ = std::make_shared<ast::mod::Module>($2, $4, $5);
     $$->set_location(@$);
   }
 ;
@@ -217,7 +217,7 @@ function_definition_list
 
 function_definition
   : FN function_identifier LPAREN RPAREN function_return_type function_body {
-    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, $5, $6);
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::func::Parameter>>{}, $5, $6);
   }
   | FN function_identifier LPAREN parameter_list RPAREN function_return_type function_body {
     $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
@@ -226,7 +226,7 @@ function_definition
     // No params, no return type
     $$ = std::make_shared<ast::func::Function>(
       $2,
-      std::vector<std::shared_ptr<ast::param::Parameter>>{},
+      std::vector<std::shared_ptr<ast::func::Parameter>>{},
       nullptr, // No return type
       $3
     );
@@ -234,7 +234,7 @@ function_definition
   | FN function_identifier error function_body {
     std::cerr << "Error: Invalid function parameter declaration" << std::endl;
     // Recovery by assuming no parameters
-    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::param::Parameter>>{}, nullptr, $4);
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::func::Parameter>>{}, nullptr, $4);
   }
 ;
 
@@ -272,7 +272,7 @@ multiple_return_types
 
 parameter_list
   : %empty {
-    $$ = std::vector<std::shared_ptr<ast::param::Parameter>>{};
+    $$ = std::vector<std::shared_ptr<ast::func::Parameter>>{};
   }
   | non_empty_parameter_list {
     $$ = $1;
@@ -282,7 +282,7 @@ parameter_list
 
 non_empty_parameter_list
   : parameter {
-    $$ = std::vector<std::shared_ptr<ast::param::Parameter>> { $1 };
+    $$ = std::vector<std::shared_ptr<ast::func::Parameter>> { $1 };
   }
   | non_empty_parameter_list COMMA parameter {
     $$ = $1;
@@ -293,7 +293,7 @@ non_empty_parameter_list
 
 parameter
   : function_identifier type_identifier {
-    $$ = std::make_shared<ast::param::Parameter>($1, $2);
+    $$ = std::make_shared<ast::func::Parameter>($1, $2);
   }
 ;
 
