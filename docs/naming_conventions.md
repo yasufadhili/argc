@@ -1,4 +1,0 @@
-# Argon Naming Conventions
-
-
-
