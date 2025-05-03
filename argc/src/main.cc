@@ -85,18 +85,7 @@ auto main(const int argc, char* argv[]) -> int {
     }
   }
 
-  try {
-    ast::SymbolCollector symbol_collector;
-    translation_unit->accept(symbol_collector);
-
-    if (symbol_collector.has_errors()) {
-      LOG_ERROR("Symbol collection failed");
-      return EXIT_FAILURE;
-    }
-  } catch (const std::exception& e) {
-    LOG_ERROR("Error during symbol collection: " + std::string(e.what()));
-    return EXIT_FAILURE;
-  }
+  
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
