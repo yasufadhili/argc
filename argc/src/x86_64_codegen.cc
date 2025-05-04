@@ -393,7 +393,27 @@ void x86_64_CodeGenerator::handle_logical_op(expr::Binary& bin, BinaryOp op) {
   output_ << end_label << ":\n";
 }
 
-void x86_64_CodeGenerator::visit(expr::Unary& ){}
+void x86_64_CodeGenerator::visit(expr::Unary& un){
+  output_ << "  # Unary operation\n";
+        
+  un.operand()->accept(*this);  // Result in %rax
+  
+  // Apply operation
+  switch (un.op()) {
+    case UnaryOp::NEG:
+      output_ << "  neg %rax\n";
+      break;
+    case UnaryOp::B_NOT:
+      output_ << "    not %rax\n";
+      break;
+    case UnaryOp::L_NOT:
+      // Logical NOT: !0 = 1, !non-zero = 0
+      output_ << "  cmp $0, %rax\n";
+      output_ << "  sete %al\n";  // Set if equal to zero
+      output_ << "  movzx %al, %rax\n";  // Zero-extend byte to quad word
+      break;
+  }
+}
 
 void x86_64_CodeGenerator::visit(expr::Literal& lit){
   output_ << "  # Literal value\n";
