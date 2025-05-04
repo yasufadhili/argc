@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <string_view>
 #include "ast.hh"
 
 using namespace ast;
@@ -297,12 +298,11 @@ void TypeChecker::visit(func::Function& function) {
 
 void TypeChecker::visit(func::Parameter& param) {
   // Verify parameter type exists
-  std::string type_name = param.type()->name();
+  std::string type_name = param.type()->to_string();
   auto param_type = symbol_table_->lookup_type(type_name);
   
   if (!param_type) {
-    report_type_error("Parameter type '" + type_name + "' is not defined",
-                    param.type()->location());
+    report_type_error("Parameter type '" + type_name + "' is not defined", param.location());
   }
 }
 
