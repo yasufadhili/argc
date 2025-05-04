@@ -134,25 +134,7 @@ auto main(const int argc, char* argv[]) -> int {
   output_file << codegen.get_asm_code();
   output_file.close();
 
-  return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
+  return EXIT_SUCCESS;
 
-  /**
-  ast::CodeGenerator code_generator;
-  code_generator.generate(translation_unit);
-
-  fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
-  std::ofstream output_file { output_path.string() };
-  if (!output_file.is_open()) {
-    LOG_ERROR("Failed to open file '" + output_path.string() + "'");
-    return EXIT_FAILURE;
-  }
-
-  output_file << code_generator.get_output().str();
-  output_file.close();
-
-  if (config.verbose){
-    LOG_INFO("Written to output file");
-  }
-  **/
   return 0;
 }
