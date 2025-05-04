@@ -189,7 +189,14 @@ void x86_64_CodeGenerator::visit(stmt::Empty& ){
   output_ << "  # Empty statement\n";
 }
 
-void x86_64_CodeGenerator::visit(stmt::Block& ){}
+void x86_64_CodeGenerator::visit(stmt::Block& block){
+  output_ << "  # Block start\n";
+  for (auto& stmt : block.statements()) {
+    stmt->accept(*this);
+  }
+  output_ << "  # Block end\n";
+}
+
 void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
 void x86_64_CodeGenerator::visit(stmt::Return& ){}
 void x86_64_CodeGenerator::visit(stmt::Print& ){}
