@@ -22,3 +22,39 @@ void x86_64_CodeGenerator::visit(unit::TranslationUnit& unit) {
     module->accept(*this);
   }
 }
+
+void x86_64_CodeGenerator::visit(mod::Module& module) {
+  current_module_ = module.identifier()->name();
+  current_module_node_ = std::make_shared<mod::Module>(module);
+  
+  // Process global statements first (if any)
+  if (!module.statements().empty()) {
+    // Generate a special "init" function for module-level statements
+    output_ << current_module_ << "_init:\n";
+    output_ << "  push %rbp\n";
+    output_ << "  mov %rsp, %rbp\n";
+    
+    // Reset stack tracking for this function
+    var_offsets_.clear();
+    current_stack_offset_ = 0;
+    
+    for (auto& stmt : module.statements()) {
+        stmt->accept(*this);
+    }
+    
+    // Function epilogue
+    output_ << "  mov %rbp, %rsp\n";
+    output_ << "  pop %rbp\n";
+    output_ << "  ret\n\n";
+  }
+  
+  for (auto& func : module.functions()) {
+    func->accept(*this);
+  }
+  
+  // If this is the main module, generate the main function
+  if (current_module_ == "main" || current_module_ == "Main") {
+    generate_main_function();
+  }
+}
+
