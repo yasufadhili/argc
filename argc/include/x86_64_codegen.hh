@@ -1,8 +1,17 @@
+#include <stack>
 #include "ast.hh"
 
 namespace ast {
 
   class x86_64_CodeGenerator final : public Visitor {
+    std::stringstream output_;
+    std::string current_module_; // Track current module for function prefixing
+    std::unordered_map<std::string, int> var_offsets_; // Map variable names to stack offsets
+    std::unordered_map<std::string, std::shared_ptr<sym_table::Type>> var_types_; // Variable types
+    int current_stack_offset_ = 0; // Track stack allocation
+    int label_counter_ = 0; // For generating unique labels
+    std::stack<std::string> loop_labels_; // For break/continue statements (if you add them later)
+    std::shared_ptr<mod::Module> current_module_node_;
     
   public:
     void visit(unit::TranslationUnit&) override;
