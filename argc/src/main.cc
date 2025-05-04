@@ -7,6 +7,7 @@
 #include "include/driver.hh"
 #include "include/util_logger.hh"
 #include "include/error_handler.hh"
+#include "x86_64_codegen.hh"
 
 namespace fs = std::filesystem;
 
@@ -114,11 +115,15 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  llvm::LLVMContext context;
-  ast::CodeGenerator codegen(context);
+  //llvm::LLVMContext context;
+  //ast::CodeGenerator codegen(context);
+  //translation_unit->accept(codegen);
+  //auto prog_module { codegen.take_module() };
+  //prog_module->print(llvm::outs(), nullptr);
+
+  ast::x86_64_CodeGenerator codegen;
   translation_unit->accept(codegen);
-  auto prog_module { codegen.take_module() };
-  prog_module->print(llvm::outs(), nullptr);
+  codegen.write_to(std::cout);
 
   return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
 
