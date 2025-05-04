@@ -2,13 +2,10 @@
 
 ## Environment
 - Ubuntu 22.04 on x86-64
-- g++ 13.1.0 
-- Cmake 4.0.0 (Think 3.x may work)
-- Ninja 1.12.1
-- Python 3.12
-- GNU Make 4.3
-- PyYAML 5.1
-- zlib 
+- g++ (GCC) ≥ 13.1.0  (tested up through 13.1)
+- CMake ≥ 4.0.1      (compatible with 3.30.x series)
+- Python ≥ 3.12      (latest stable: 3.13.3)
+- LLVM 17.0.0        (minimum tested version)
 
 ## Steps
 
