@@ -7,6 +7,7 @@
 #include "include/driver.hh"
 #include "include/util_logger.hh"
 #include "include/error_handler.hh"
+#include "x86_64_codegen.hh"
 
 namespace fs = std::filesystem;
 
@@ -114,11 +115,24 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  llvm::LLVMContext context;
-  ast::CodeGenerator codegen(context);
+  //llvm::LLVMContext context;
+  //ast::CodeGenerator codegen(context);
+  //translation_unit->accept(codegen);
+  //auto prog_module { codegen.take_module() };
+  //prog_module->print(llvm::outs(), nullptr);
+
+  ast::x86_64_CodeGenerator codegen;
   translation_unit->accept(codegen);
-  auto prog_module { codegen.take_module() };
-  prog_module->print(llvm::outs(), nullptr);
+
+  fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
+  std::ofstream output_file { output_path.string() };
+  if (!output_file.is_open()) {
+    LOG_ERROR("Failed to open file '" + output_path.string() + "'");
+    return EXIT_FAILURE;
+  }
+
+  output_file << codegen.get_asm_code();
+  output_file.close();
 
   return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
 
