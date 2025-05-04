@@ -64,6 +64,19 @@ auto relop_to_asm(RelationalOp op) -> std::string {
     default: return "nop";
   }
 }
+
+auto handle_relational_op(RelationalOp op) -> void {
+  output_ << "  cmp %rax, %rbx\n";
+  std::string true_label = generate_label();
+  std::string end_label = generate_label();
+  
+  output_ << "  " << relop_to_asm(op) << " " << true_label << "\n";
+  output_ << "  mov $0, %rax\n";  // False case
+  output_ << "  jmp " << end_label << "\n";
+  output_ << true_label << ":\n";
+  output_ << "  mov $1, %rax\n";  // True case
+  output_ << end_label << ":\n";
+}
   
 public:
   void visit(unit::TranslationUnit&) override;
