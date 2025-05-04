@@ -169,8 +169,13 @@ void x86_64_CodeGenerator::visit(expr::FunctionCall& call){
   // Result is in %rax
 }
 
-void x86_64_CodeGenerator::visit(func::Body& ){}
-void x86_64_CodeGenerator::visit(func::Parameter& ){}
+void x86_64_CodeGenerator::visit(func::Body& body){
+  for (auto& stmt : body.statements()) {
+    stmt->accept(*this);
+  }
+}
+
+void x86_64_CodeGenerator::visit(func::Parameter& ){ /** Handled in function visit */ }
 void x86_64_CodeGenerator::visit(func::ReturnTypeInfo&){}
 void x86_64_CodeGenerator::visit(func::SingleReturnType& ){}
 void x86_64_CodeGenerator::visit(func::MultipleReturnType& ){}
@@ -179,6 +184,7 @@ void x86_64_CodeGenerator::visit(ident::TypeIdentifier& ){}
 void x86_64_CodeGenerator::visit(ident::Identifier& ){}
 
 void x86_64_CodeGenerator::visit(stmt::Statement& ){}
+
 void x86_64_CodeGenerator::visit(stmt::Empty& ){}
 void x86_64_CodeGenerator::visit(stmt::Block& ){}
 void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
