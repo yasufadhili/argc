@@ -31,6 +31,12 @@ class x86_64_CodeGenerator final : public Visitor {
     if (type->to_string() == "f64") return "8"; 
     return "8"; // Default to 64-bits
 }
+
+auto align_stack() -> void {
+  output_ << "  # Align stack to 16 bytes\n";
+  output_ << "  mov %rsp, %rax\n";
+  output_ << "  and $-16, %rsp\n";
+}
   
 public:
   void visit(unit::TranslationUnit&) override;
