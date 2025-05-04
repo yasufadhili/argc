@@ -6,6 +6,9 @@ fn main () bool {
 }
 
 fn two {
+  {
+    ret ;
+  }
   ret;
 }
 
