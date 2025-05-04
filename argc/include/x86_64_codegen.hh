@@ -1,11 +1,9 @@
 #include <stack>
 #include "ast.hh"
 
-namespace codegen {
+namespace ast {
 
-  using namespace ast;
-
-class x86_64_CodeGenerator final : public ast::Visitor {
+class x86_64_CodeGenerator final : public Visitor {
   std::stringstream output_;
   std::string current_module_; // Track current module for function prefixing
   std::unordered_map<std::string, int> var_offsets_; // Map variable names to stack offsets
