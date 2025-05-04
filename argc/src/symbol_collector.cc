@@ -99,7 +99,7 @@ void SymbolCollector::visit(func::Function& func) {
       continue;
     }
     param->accept(*this);
-    auto type = symbol_table_->lookup_type(param->type()->name());
+    auto type = symbol_table_->lookup_type(param->type()->to_string());
     if (!type) {
       REPORT_ERROR("Unknown type for parameter '" + param->identifier()->name() + "' in function '" + func.name()->name() + "'", param->location());
       error_occurred_ = true;
@@ -148,7 +148,7 @@ void SymbolCollector::visit(func::Function& func) {
   
   for (const auto& param : func.parameters()) {
     if (!param || !param->identifier()) continue;
-    auto param_type = symbol_table_->lookup_type(param->type()->name());
+    auto param_type = symbol_table_->lookup_type(param->type()->to_string());
     auto param_symbol = std::make_shared<sym_table::Symbol>(
       param->identifier()->name(),
       sym_table::SymbolKind::PARAM,
