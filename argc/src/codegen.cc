@@ -53,7 +53,7 @@ void CodeGenerator::visit(func::Function& function) {
   // Map parameter types
   std::vector<llvm::Type*> arg_types;
   for (const auto& param : function.parameters()) {
-    arg_types.push_back(map_type(param->type()));
+    arg_types.push_back(map_type(*param->type()));
   }
 
   // Create function type: assuming return type is int32 for now
