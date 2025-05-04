@@ -124,6 +124,17 @@ auto main(const int argc, char* argv[]) -> int {
   ast::x86_64_CodeGenerator codegen;
   translation_unit->accept(codegen);
 
+  if (error::DiagnosticHandler::instance().has_errors()) {
+    error::DiagnosticHandler::instance().print_all();
+    std::cout << std::endl;
+    std::cout << "Compilation failed with "
+    << error::DiagnosticHandler::instance().message_count() << " messages: "
+    << error::DiagnosticHandler::instance().error_count() << " errors, "
+    << error::DiagnosticHandler::instance().warning_count() << " warnings"
+    << "\n" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
   std::ofstream output_file { output_path.string() };
   if (!output_file.is_open()) {
