@@ -52,6 +52,18 @@ auto op_to_asm(BinaryOp op) -> std::string {
     default: return "nop";
   }
 }
+
+auto relop_to_asm(RelationalOp op) -> std::string {
+  switch(op) {
+    case RelationalOp::LT: return "jl";
+    case RelationalOp::GT: return "jg";
+    case RelationalOp::EQ: return "je";
+    case RelationalOp::LEQ: return "jle";
+    case RelationalOp::GEQ: return "jge";
+    case RelationalOp::NEQ: return "jne";
+    default: return "nop";
+  }
+}
   
 public:
   void visit(unit::TranslationUnit&) override;
