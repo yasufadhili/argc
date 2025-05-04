@@ -215,7 +215,51 @@ void x86_64_CodeGenerator::visit(stmt::Return& ret){
   output_ << "  ret\n";
 }
 
-void x86_64_CodeGenerator::visit(stmt::Print& ){}
+void x86_64_CodeGenerator::visit(stmt::Print& print){
+  output_ << "  # Print statement\n";
+  print.expression()->accept(*this); // Result in %rax
+  
+  // Determine format string based on expression type
+  std::string fmt_label;
+  auto expr_type = print.expression()->type();
+  
+  if (expr_type->to_string() == "i32" || expr_type->to_string() == "i64") {
+      fmt_label = "print_int_fmt";
+  } else if (expr_type->to_string() == "bool") {
+    // Handle boolean specially - convert 0/1 to "false"/"true"
+    std::string false_label = generate_label();
+    std::string end_label = generate_label();
+    output_ << "  cmp $0, %rax\n";
+    output_ << "  je " << false_label << "\n";
+    output_ << "  lea true_str(%rip), %rdi\n";
+    output_ << "  jmp " << end_label << "\n";
+    output_ << false_label << ":\n";
+    output_ << "  lea false_str(%rip), %rdi\n";
+    output_ << end_label << ":\n";
+    output_ << "  lea print_bool_fmt(%rip), %rsi\n";
+    output_ << "  xor %rax, %rax\n";
+    output_ << "  call printf\n";
+    return;  // Already handled
+  } else if (expr_type->to_string() == "f32" || expr_type->to_string() == "f64") {
+    // For floating point, we need to use XMM registers
+    fmt_label = "print_double_fmt";
+    output_ << "  movq %rax, %xmm0\n";
+    output_ << "  lea " << fmt_label << "(%rip), %rdi\n";
+    output_ << "  mov $1, %rax\n";  // One floating point arg
+    output_ << "  call printf\n";
+    return;  // Already handled
+  } else {
+    // Default to int
+    fmt_label = "print_int_fmt";
+  }
+  
+  // Standard printf call
+  output_ << "  mov %rax, %rsi\n";
+  output_ << "  lea " << fmt_label << "(%rip), %rdi\n";
+  output_ << "  xor %rax, %rax\n";  // No floating point args
+  output_ << "  call printf\n";
+}
+
 void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& ){}
 
 void x86_64_CodeGenerator::visit(expr::Expression& ){}
