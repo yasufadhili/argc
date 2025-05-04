@@ -76,7 +76,7 @@ void Printer::visit(func::Function& func) {
   for (const auto& param : func.parameters()) {
     if (!first) std::cout << ", ";
     if (param && param->identifier() && param->type()) {
-      std::cout << param->identifier()->name() << ": " << param->type()->name();
+      std::cout << param->identifier()->name() << ": " << param->type()->to_string();
     }
     first = false;
   }
@@ -227,7 +227,7 @@ void Printer::visit(ident::TypeIdentifier& id) {
 
 void Printer::visit(func::Parameter& param) {
   if (param.identifier() && param.type()) {
-    std::cout << param.identifier()->name() << ": " << param.type()->name();
+    std::cout << param.identifier()->name() << ": " << param.type()->to_string();
   }
 }
 
