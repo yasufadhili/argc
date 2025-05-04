@@ -185,7 +185,10 @@ void x86_64_CodeGenerator::visit(ident::Identifier& ){}
 
 void x86_64_CodeGenerator::visit(stmt::Statement& ){}
 
-void x86_64_CodeGenerator::visit(stmt::Empty& ){}
+void x86_64_CodeGenerator::visit(stmt::Empty& ){
+  output_ << "  # Empty statement\n";
+}
+
 void x86_64_CodeGenerator::visit(stmt::Block& ){}
 void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
 void x86_64_CodeGenerator::visit(stmt::Return& ){}
