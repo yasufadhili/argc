@@ -83,6 +83,7 @@ public:
   x86_64_CodeGenerator() = default;
   auto get_asm_code() -> std::string const { return output_.str(); }
   auto write_to(std::ostream& os) -> void { os << output_.str(); }
+  auto generate_main_function() -> void ;
 
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;

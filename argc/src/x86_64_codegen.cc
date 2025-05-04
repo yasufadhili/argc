@@ -58,3 +58,30 @@ void x86_64_CodeGenerator::visit(mod::Module& module) {
   }
 }
 
+auto x86_64_CodeGenerator::generate_main_function() -> void {
+  output_ << "main:\n";
+  output_ << "  push %rbp\n";
+  output_ << "  mov %rsp, %rbp\n";
+  
+  // Call initialisation function if there were global statements
+  if (!current_module_node_->statements().empty()) {
+    output_ << "  call " << current_module_ << "_init\n";
+  }
+  
+  // Call the Main module's main function if it exists
+  bool has_main_func = false;
+  for (auto& func : current_module_node_->functions()) {
+    if (func->name()->name() == "main") {
+      has_main_func = true;
+      output_ << "  call " << current_module_ << "_main\n";
+      break;
+    }
+  }
+  
+  // Return 0 from main
+  output_ << "  mov $0, %rax\n";
+  output_ << "  mov %rbp, %rsp\n";
+  output_ << "  pop %rbp\n";
+  output_ << "  ret\n\n";
+}
+
