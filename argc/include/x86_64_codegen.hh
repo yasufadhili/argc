@@ -85,6 +85,7 @@ public:
   auto write_to(std::ostream& os) -> void { os << output_.str(); }
   auto generate_main_function() -> void ;
   auto handle_div_mod(expr::Binary& bin, BinaryOp op) -> void ;
+  auto handle_logical_op(expr::Binary& bin, BinaryOp op) -> void ;
 
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;

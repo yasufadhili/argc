@@ -352,6 +352,47 @@ auto x86_64_CodeGenerator::handle_div_mod(expr::Binary& bin, BinaryOp op) -> voi
   }
 }
 
+void x86_64_CodeGenerator::handle_logical_op(expr::Binary& bin, BinaryOp op) {
+  // Short-circuit evaluation for logical operators
+  std::string short_circuit_label = generate_label();
+  std::string end_label = generate_label();
+  
+  if (op == BinaryOp::L_AND) {
+    // Evaluate left operand
+    bin.lhs()->accept(*this);
+    output_ << "  cmp $0, %rax\n";
+    output_ << "  je " << short_circuit_label << "\n";  // If left is false, short-circuit
+    
+    // Evaluate right operand only if left is true
+    bin.rhs()->accept(*this);
+    output_ << "  cmp $0, %rax\n";
+    output_ << "  movne $1, %rax\n";  // Normalise to 0/1
+    output_ << "  jmp " << end_label << "\n";
+    
+    // Short-circuit case (result is false)
+    output_ << short_circuit_label << ":\n";
+    output_ << "  xor %rax, %rax\n";  // Set result to false
+      
+  } else if (op == BinaryOp::L_OR) {
+    // Evaluate left operand
+    bin.lhs()->accept(*this);
+    output_ << "  cmp $0, %rax\n";
+    output_ << "  jne " << short_circuit_label << "\n";  // If left is true, short-circuit
+    
+    // Evaluate right operand only if left is false
+    bin.rhs()->accept(*this);
+    output_ << "  cmp $0, %rax\n";
+    output_ << "  movne $1, %rax\n";  // Normalise to 0/1
+    output_ << "  jmp " << end_label << "\n";
+    
+    // Short-circuit case (result is true)
+    output_ << short_circuit_label << ":\n";
+    output_ << "  mov $1, %rax\n";  // Set result to true
+  }
+  
+  output_ << end_label << ":\n";
+}
+
 void x86_64_CodeGenerator::visit(expr::Unary& ){}
 
 void x86_64_CodeGenerator::visit(expr::Literal& lit){
