@@ -17,6 +17,7 @@
 #include <unordered_set>
 #include <filesystem>
 #include <memory>
+#include "error_handler.hh"
 
 namespace yy {
 
@@ -47,7 +48,7 @@ public:
     void set_module_declared(bool value) { module_declared_ = value; }
     const FileInfo& current_file() const { return file_stack_.top(); }
     bool has_files() const { return !file_stack_.empty(); }
-    void report_error(const std::string& msg) const;
+    void report_error(const std::string& msg, const yy::location& loc) const;
 };
 
 } // namespace yy 

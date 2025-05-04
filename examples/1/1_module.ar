@@ -1,0 +1,15 @@
+module main;
+
+fn main () bool {
+
+  ret 23;
+}
+
+fn two {
+  {
+    ret ;
+  }
+  ret;
+}
+
+

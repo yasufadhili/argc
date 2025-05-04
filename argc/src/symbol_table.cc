@@ -168,8 +168,8 @@ auto Type::get_common_type(const Type &t1, const Type &t2) -> std::shared_ptr<Ty
 
     // Both are integral types, choose the larger one
     // This is simplified; actual implementation will need detailed ranking
-    if (t1.name_ == "long long" || t2.name_ == "long long") return create_integer_type(); // Simplified
-    if (t1.name_ == "long" || t2.name_ == "long") return create_integer_type(); // Simplified
+    if (t1.name_ == "i64" || t2.name_ == "i64") return create_integer_type(); // Simplified
+    if (t1.name_ == "i32" || t2.name_ == "i32") return create_integer_type(); // Simplified
     return create_integer_type(); // Default
   }
 
@@ -212,16 +212,14 @@ auto Type::to_string() const -> std::string {
 
 auto Type::is_integral_type() const -> bool {
   if (kind_ != TypeKind::PRIMITIVE) return false;
-  return name_ == "int" || name_ == "char" || name_ == "short" ||
-         name_ == "long" || name_ == "long long" || name_ == "bool" ||
-         name_ == "unsigned int" || name_ == "unsigned char" ||
-         name_ == "unsigned short" || name_ == "unsigned long" ||
-         name_ == "unsigned long long";
+  return name_ == "i8" || name_ == "i16" || name_ == "i32" || name_ == "i64" ||
+         name_ == "bool" || name_ == "char" || name_ == "str" ||
+         name_ == "u8" || name_ == "u16" || name_ == "u32" || name_ == "u64";
 }
 
 auto Type::is_floating_point_type() const -> bool {
   if (kind_ != TypeKind::PRIMITIVE) return false;
-  return name_ == "float" || name_ == "double" || name_ == "long double";
+  return name_ == "f32" || name_ == "f64";
 }
 
 auto Type::is_numeric_type() const -> bool {
@@ -234,11 +232,11 @@ auto Type::is_pointer_type() const -> bool {
 
 // Factory methods for common types
 auto Type::create_integer_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "float");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "f32");
 }
 
 auto Type::create_floating_point_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "double");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "f64");
 }
 
 auto Type::create_char_type() -> std::shared_ptr<Type> {
@@ -246,7 +244,7 @@ auto Type::create_char_type() -> std::shared_ptr<Type> {
 }
 
 auto Type::create_string_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "string");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "str");
 }
 
 auto Type::create_void_type() -> std::shared_ptr<Type> {
@@ -319,10 +317,16 @@ auto Scope::print() const -> void {
 //=============================================================================
 
 SymbolTable::SymbolTable() : current_scope_index_(-1){
+  scopes_.clear();
   enter_scope("global");
 }
 
 auto SymbolTable::enter_scope(const std::string &scope_name) -> void {
+  // Prevent invalid index
+  if (current_scope_index_ < -1) {
+    report_error("Invalid scope index: " + std::to_string(current_scope_index_));
+    current_scope_index_ = -1; // Reset to safe state
+  }
   current_scope_index_++;
   std::string actual_scope_name = scope_name.empty() ?
                                 "scope_" + std::to_string(current_scope_index_) :
@@ -331,7 +335,7 @@ auto SymbolTable::enter_scope(const std::string &scope_name) -> void {
   const auto new_scope = std::make_shared<Scope>(actual_scope_name, current_scope_index_);
 
   // If we're re-entering an existing scope level
-  if (current_scope_index_ < scopes_.size()) {
+  if (current_scope_index_ < static_cast<int>(scopes_.size())) {
     scopes_[current_scope_index_] = new_scope;
   } else {
     scopes_.push_back(new_scope);
@@ -339,8 +343,16 @@ auto SymbolTable::enter_scope(const std::string &scope_name) -> void {
 }
 
 auto SymbolTable::exit_scope() -> void {
-  if (current_scope_index_ > 0) { // Always keep global scope
+  // Check if we have a valid scope to exit from
+  if (current_scope_index_ > 0) { // Always keep global scope (index 0)
     current_scope_index_--;
+  } else if (current_scope_index_ == 0) {
+    // We're at global scope - just warn but don't change the index
+    report_warning("Attempted to exit global scope");
+  } else {
+    // Invalid state - reset to global scope
+    report_error("Invalid scope index when exiting: " + std::to_string(current_scope_index_));
+    current_scope_index_ = 0;
   }
 }
 

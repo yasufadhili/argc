@@ -1,4 +1,3 @@
-
 %require "3.2"
 %language "c++"
 
@@ -84,6 +83,7 @@ namespace yy {
 
 %token SEMICOLON
 %token ASSIGN
+%token COMMA
 
 %token BACK_TICK
 
@@ -98,6 +98,7 @@ namespace yy {
 %token RETURN
 %token VAR
 %token MODULE
+%token FN
 %token PRINT
 
 
@@ -107,6 +108,18 @@ namespace yy {
 
 %type <std::shared_ptr<ast::mod::Module>> module_definition;
 %type <std::vector<std::shared_ptr<ast::mod::Module>>> module_definition_list;
+
+%type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
+%type <std::shared_ptr<ast::func::Function>> function_definition;
+%type <std::shared_ptr<ast::func::Body>> function_body;
+%type <std::shared_ptr<ast::ident::Identifier>> function_identifier;
+
+%type <std::shared_ptr<ast::func::ReturnTypeInfo>> function_return_type;
+%type <std::vector<std::shared_ptr<ast::ident::TypeIdentifier>>> multiple_return_types;
+
+%type <std::vector<std::shared_ptr<ast::func::Parameter>>> parameter_list;
+%type <std::vector<std::shared_ptr<ast::func::Parameter>>> non_empty_parameter_list;
+%type <std::shared_ptr<ast::func::Parameter>> parameter;
 
 %type <std::vector<std::shared_ptr<ast::stmt::Statement>>> statement_list;
 %type <std::shared_ptr<ast::stmt::Statement>> statement;
@@ -168,6 +181,20 @@ translation_unit
     unit->set_location(@$);
     $$ = unit;
   }
+  | error {
+    error::DiagnosticHandler::instance().error(
+        "Invalid translation unit",
+        @$,
+        std::nullopt,
+        "Expected a valid module declaration"
+    );
+    // Recovery: create empty translation unit
+    unit = std::make_shared<ast::unit::TranslationUnit>(
+        std::vector<std::shared_ptr<ast::mod::Module>>{}
+    );
+    unit->set_location(@$);
+    $$ = unit;
+  }
 ;
 
 
@@ -183,9 +210,148 @@ module_definition_list
 
 
 module_definition
-  : MODULE identifier statement_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $3);
+  : MODULE identifier SEMICOLON statement_list function_definition_list {
+    $$ = std::make_shared<ast::mod::Module>($2, $4, $5);
     $$->set_location(@$);
+  }
+  | MODULE identifier SEMICOLON function_definition_list {
+    $$ = std::make_shared<ast::mod::Module>($2, $4);
+    $$->set_location(@$);
+  }
+  | MODULE identifier error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after module declaration",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the module name"
+    );
+    // Recovery: assume empty module
+    $$ = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
+    $$->set_location(@$);
+  }
+  | MODULE error {
+    error::DiagnosticHandler::instance().error(
+        "Invalid module declaration",
+        @$,
+        std::nullopt,
+        "Module must be followed by an identifier"
+    );
+    // Recovery: create empty module with dummy identifier
+    $$ = std::make_shared<ast::mod::Module>(
+        std::make_shared<ast::ident::Identifier>("<invalid_module>"),
+        std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    );
+    $$->set_location(@$);
+  }
+;
+
+
+function_definition_list
+  : function_definition {
+    $$ = std::vector<std::shared_ptr<ast::func::Function>> { $1 };
+  }
+  | function_definition_list function_definition {
+    $$ = $1;
+    $$.emplace_back($2);
+  }
+;
+
+
+function_definition
+  : FN function_identifier LPAREN RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::func::Parameter>>{}, $5, $6);
+  }
+  | FN function_identifier LPAREN parameter_list RPAREN function_return_type function_body {
+    $$ = std::make_shared<ast::func::Function>($2, $4, $6, $7);
+  }
+  | FN function_identifier function_body {
+    // No params, no return type
+    $$ = std::make_shared<ast::func::Function>(
+      $2,
+      std::vector<std::shared_ptr<ast::func::Parameter>>{},
+      nullptr, // No return type
+      $3
+    );
+  }
+  | FN function_identifier error function_body {
+    error::DiagnosticHandler::instance().error(
+        "Invalid function parameter declaration",
+        @$
+    );
+    // Recovery by assuming no parameters
+    $$ = std::make_shared<ast::func::Function>($2, std::vector<std::shared_ptr<ast::func::Parameter>>{}, nullptr, $4);
+  }
+;
+
+
+function_identifier
+  : IDENT {
+    $$ = std::make_shared<ast::ident::Identifier>($1);
+  }
+;
+
+
+function_return_type
+  : type_identifier {
+    $$ = std::make_shared<ast::func::SingleReturnType>($1);
+  }
+  | LPAREN multiple_return_types RPAREN {
+    $$ = std::make_shared<ast::func::MultipleReturnType>($2);
+  }
+  | %empty {
+    $$ = nullptr; // No return type
+  }
+;
+
+
+multiple_return_types
+  : type_identifier COMMA type_identifier {
+    $$ = std::vector<std::shared_ptr<ast::ident::TypeIdentifier>> { $1, $3 };
+  }
+  | multiple_return_types COMMA type_identifier {
+    $$ = $1;
+    $$.push_back($3);
+  }
+;
+
+
+parameter_list
+  : %empty {
+    $$ = std::vector<std::shared_ptr<ast::func::Parameter>>{};
+  }
+  | non_empty_parameter_list {
+    $$ = $1;
+  }
+;
+
+
+non_empty_parameter_list
+  : parameter {
+    $$ = std::vector<std::shared_ptr<ast::func::Parameter>> { $1 };
+  }
+  | non_empty_parameter_list COMMA parameter {
+    $$ = $1;
+    $$.push_back($3);
+  }
+;
+
+
+parameter
+  : function_identifier type_identifier {
+    auto st = sym_table::SymbolTable::get_instance();
+    auto t = st->lookup_type($2->name());
+    if (t) {
+      $$ = std::make_shared<ast::func::Parameter>($1, t);
+    } else {
+      $$ = std::make_shared<ast::func::Parameter>($1, nullptr);
+    }
+  }
+;
+
+
+function_body
+  : statement_list {
+    $$ = std::make_shared<ast::func::Body>($1);
   }
 ;
 
@@ -215,8 +381,12 @@ statement
     $$ = $1;
   }
   | error {
-    // Create a dummy statement for error recovery with location info
-    error::DiagnosticHandler::instance().error("Invalid statement syntax", @$);
+    error::DiagnosticHandler::instance().error(
+        "Invalid statement syntax",
+        @$,
+        std::nullopt,
+        "Expected a valid statement (declaration, execution, control, or assignment)"
+    );
     $$ = std::make_shared<ast::stmt::Empty>();
     $$->set_location(@$);
   }
@@ -248,7 +418,17 @@ block_statement
 
 
 print_statement
-  : PRINT expression {
+  : PRINT expression SEMICOLON {
+    $$ = std::make_shared<ast::stmt::Print>($2);
+    $$->set_location(@$);
+  }
+  | PRINT expression error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after print statement",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the print expression"
+    );
     $$ = std::make_shared<ast::stmt::Print>($2);
     $$->set_location(@$);
   }
@@ -256,14 +436,32 @@ print_statement
 
 
 declaration_statement
-  : variable_declaration {
+  : variable_declaration SEMICOLON {
+    $$ = $1;
+  }
+  | variable_declaration error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after variable declaration",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the variable declaration"
+    );
     $$ = $1;
   }
 ;
 
 
 control_statement
-  : return_statement {
+  : return_statement SEMICOLON {
+    $$ = $1;
+  }
+  | return_statement error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after return statement",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the return statement"
+    );
     $$ = $1;
   }
 ;
@@ -302,7 +500,17 @@ variable_declaration
 
 
 assignment_statement
-  : identifier ASSIGN expression {
+  : identifier ASSIGN expression SEMICOLON {
+    $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
+    $$->set_location(@$);
+  }
+  | identifier ASSIGN expression error {
+    error::DiagnosticHandler::instance().error(
+        "Missing semicolon after assignment",
+        @$,
+        std::nullopt,
+        "Add a semicolon after the assignment expression"
+    );
     $$ = std::make_shared<ast::stmt::Assignment>($1, $3);
     $$->set_location(@$);
   }
@@ -539,5 +747,10 @@ identifier
 
 void yy::Parser::error(const location_type& loc, const std::string& msg)
 {
-  error::DiagnosticHandler::instance().error(msg, loc);
+  error::DiagnosticHandler::instance().error(
+      msg,
+      loc,
+      std::nullopt,
+      "Check the syntax and try again"
+  );
 }
