@@ -79,6 +79,10 @@ auto handle_relational_op(RelationalOp op) -> void {
 }
   
 public:
+
+  x86_64_CodeGenerator() = default;
+  auto get_asm_code() -> std::string const { return output_.str(); }
+
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
