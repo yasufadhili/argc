@@ -235,14 +235,15 @@ namespace ast::func {
 
   class Parameter final : public Node {
     std::shared_ptr<ident::Identifier> identifier_;
-    std::shared_ptr<ident::TypeIdentifier> type_;
+    //std::shared_ptr<ident::TypeIdentifier> type_;
+    std::shared_ptr<sym_table::Type>  type_;
   public:
-    Parameter(std::shared_ptr<ident::Identifier> id, std::shared_ptr<ident::TypeIdentifier> t)
+    Parameter(std::shared_ptr<ident::Identifier> id, std::shared_ptr<sym_table::Type>  t)
     : identifier_(std::move(id)), type_(std::move(t)) {}
     ~Parameter() override = default;
     void accept(Visitor&) override;
     auto identifier () const -> std::shared_ptr<ident::Identifier> { return identifier_; }
-    auto type () const -> std::shared_ptr<ident::TypeIdentifier> { return type_; }
+    auto type () const -> std::shared_ptr<sym_table::Type> { return type_; }
   };
 
   class ReturnTypeInfo : public Node {
@@ -644,13 +645,13 @@ class CodeGenerator final : public Visitor {
   std::unique_ptr<llvm_backend::Module> module_;
   std::unique_ptr<llvm_backend::IRBuilder<>> builder_;
   std::map<std::string, llvm_backend::Value*> named_values_;
-
+  llvm::Type* map_type(const sym_table::Type& type);
 public:
   explicit CodeGenerator(llvm_backend::LLVMContext& context);
   ~CodeGenerator() override = default;
 
   // Accessors
-  std::unique_ptr<llvm_backend::Module> take_module();
+  auto take_module() -> std::unique_ptr<llvm_backend::Module>;
 
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;

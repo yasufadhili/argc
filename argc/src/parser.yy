@@ -338,7 +338,13 @@ non_empty_parameter_list
 
 parameter
   : function_identifier type_identifier {
-    $$ = std::make_shared<ast::func::Parameter>($1, $2);
+    auto st = sym_table::SymbolTable::get_instance();
+    auto t = st->lookup_type($2->name());
+    if (t) {
+      $$ = std::make_shared<ast::func::Parameter>($1, t);
+    } else {
+      $$ = std::make_shared<ast::func::Parameter>($1, nullptr);
+    }
   }
 ;
 

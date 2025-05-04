@@ -4,11 +4,15 @@
 
 ROOT_DIR = $(shell pwd)
 
-# Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
+CXXFLAGS = -Wall -Wextra -std=c++23  -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
 
-# Installation prefix
+LLVM_CXXFLAGS = $(shell llvm-config --cxxflags)
+LLVM_LDFLAGS = $(shell llvm-config --ldflags)
+LLVM_LIBS     = $(shell llvm-config --libs core irreader bitwriter)
+
+CXXFLAGS += $(LLVM_CXXFLAGS) -fexceptions
+
 INSTALL_PREFIX ?= /usr/local
 
 # Flex and Bison
@@ -51,7 +55,7 @@ all: $(TARGET)
 # Linking
 $(TARGET): $(OBJ_FILES)
 	@echo "Linking $(TARGET)"
-	@$(CXX) $(CXXFLAGS) -o $@ $^
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LLVM_LDFLAGS) $(LLVM_LIBS) -lpthread -lz -ldl
 
 # Bison rules
 $(BISON_CC) $(BISON_HH): $(BISON_SRC)
@@ -78,6 +82,12 @@ $(FLEX_OBJ): $(FLEX_CC)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
 	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+# Getting LLVM info
+llvm_info:
+	@echo "LLVM CXXFLAGS: $(LLVM_CXXFLAGS)"
+	@echo "LLVM LDFLAGS: $(LLVM_LDFLAGS)"
+	@echo "LLVM LIBS: $(LLVM_LIBS)"
 
 # Clean target
 clean:

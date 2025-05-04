@@ -1,5 +1,7 @@
 #include <filesystem>
 #include <fstream>
+#include <llvm-17/llvm/Support/raw_ostream.h>
+#include <llvm-17/llvm/IR/LLVMContext.h>
 #include "ast.hh"
 #include "lexer.hh"
 #include "include/driver.hh"
@@ -111,6 +113,12 @@ auto main(const int argc, char* argv[]) -> int {
     << "\n" << std::endl;
     return EXIT_FAILURE;
   }
+
+  llvm::LLVMContext context;
+  ast::CodeGenerator codegen(context);
+  translation_unit->accept(codegen);
+  auto prog_module { codegen.take_module() };
+  prog_module->print(llvm::outs(), nullptr);
 
   return EXIT_SUCCESS; // Temporary till we get lexing, parsing, analysis working
 
