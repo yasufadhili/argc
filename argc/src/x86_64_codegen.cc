@@ -1,4 +1,5 @@
 #include "x86_64_codegen.hh"
+#include "ast.hh"
 
 using namespace ast;
 
@@ -84,4 +85,57 @@ auto x86_64_CodeGenerator::generate_main_function() -> void {
   output_ << "  pop %rbp\n";
   output_ << "  ret\n\n";
 }
+
+void x86_64_CodeGenerator::visit(func::Function& func){
+  // Reset stack tracking for this function
+  var_offsets_.clear();
+  current_stack_offset_ = 0;
+
+  output_ << current_module_ << "_" << func.name()->name() << ":\n";
+  output_ << "  push %rbp\n";
+  output_ << "  mov %rsp, %rbp\n";
+  
+  // Allocate space for parameters
+  int param_offset = 16; // First param is at 16(%rbp),  64-bit for now
+  for (auto& param : func.parameters()) {
+    param->accept(*this);
+    std::string param_name = param->identifier()->name();
+    var_offsets_[param_name] = param_offset;
+    var_types_[param_name] = param->type();
+    param_offset += 8; // All parameters are 8 bytes for now
+  }
+
+  if (func.body()) {
+    func.body()->accept(*this);
+  }
+  
+  // Function epilogue
+  output_ << "  mov %rbp, %rsp\n";
+  output_ << "  pop %rbp\n";
+  output_ << "  ret\n\n";
+}
+
+void x86_64_CodeGenerator::visit(func::Body& ){}
+void x86_64_CodeGenerator::visit(func::Parameter& ){}
+void x86_64_CodeGenerator::visit(func::ReturnTypeInfo&){}
+void x86_64_CodeGenerator::visit(func::SingleReturnType& ){}
+void x86_64_CodeGenerator::visit(func::MultipleReturnType& ){}
+
+void x86_64_CodeGenerator::visit(ident::TypeIdentifier& ){}
+void x86_64_CodeGenerator::visit(ident::Identifier& ){}
+
+void x86_64_CodeGenerator::visit(stmt::Statement& ){}
+void x86_64_CodeGenerator::visit(stmt::Empty& ){}
+void x86_64_CodeGenerator::visit(stmt::Block& ){}
+void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
+void x86_64_CodeGenerator::visit(stmt::Return& ){}
+void x86_64_CodeGenerator::visit(stmt::Print& ){}
+void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& ){}
+
+void x86_64_CodeGenerator::visit(expr::Expression& ){}
+void x86_64_CodeGenerator::visit(expr::Binary& ){}
+void x86_64_CodeGenerator::visit(expr::Unary& ){}
+void x86_64_CodeGenerator::visit(expr::Literal& ){}
+void x86_64_CodeGenerator::visit(expr::Variable& ){}
+void x86_64_CodeGenerator::visit(expr::FunctionCall& ){}
 
