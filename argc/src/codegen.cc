@@ -44,3 +44,28 @@ void CodeGenerator::visit(mod::Module& module) {
     builder_->CreateRet(builder_->getInt32(0));
   }
 }
+
+void CodeGenerator::visit(func::Function&){}
+void CodeGenerator::visit(func::Body&){}
+void CodeGenerator::visit(func::Parameter&){}
+void CodeGenerator::visit(func::ReturnTypeInfo&){}
+void CodeGenerator::visit(func::MultipleReturnType&){}
+void CodeGenerator::visit(func::SingleReturnType&){}
+
+void CodeGenerator::visit(ident::TypeIdentifier&){}
+void CodeGenerator::visit(ident::Identifier&){}
+
+void CodeGenerator::visit(stmt::Statement&){}
+void CodeGenerator::visit(stmt::Empty&){}
+void CodeGenerator::visit(stmt::Block&){}
+void CodeGenerator::visit(stmt::Print&){}
+void CodeGenerator::visit(stmt::Return&){}
+void CodeGenerator::visit(stmt::VariableDeclaration&){}
+void CodeGenerator::visit(stmt::Assignment&){}
+
+void CodeGenerator::visit(expr::Expression&){}
+void CodeGenerator::visit(expr::Binary&){}
+void CodeGenerator::visit(expr::Unary&){}
+void CodeGenerator::visit(expr::Literal&){}
+void CodeGenerator::visit(expr::FunctionCall&){}
+void CodeGenerator::visit(expr::Variable&){}
