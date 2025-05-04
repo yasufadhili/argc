@@ -294,7 +294,30 @@ void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& var_decl){
 void x86_64_CodeGenerator::visit(expr::Expression& ){}
 void x86_64_CodeGenerator::visit(expr::Binary& ){}
 void x86_64_CodeGenerator::visit(expr::Unary& ){}
-void x86_64_CodeGenerator::visit(expr::Literal& ){}
+
+void x86_64_CodeGenerator::visit(expr::Literal& lit){
+  output_ << "  # Literal value\n";
+        
+  std::visit([this](auto&& value) {
+    using T = std::decay_t<decltype(value)>;
+    if constexpr (std::is_same_v<T, int64_t>) {
+      output_ << "  mov $" << value << ", %rax\n";
+    } else if constexpr (std::is_same_v<T, u_int64_t>) {
+        output_ << "  mov $" << value << ", %rax\n";
+    } else if constexpr (std::is_same_v<T, bool>) {
+        output_ << "  mov $" << (value ? 1 : 0) << ", %rax\n";
+    } else if constexpr (std::is_same_v<T, double>) {
+      // TODO
+      // For floating point, we'd need to handle this differently
+      // This is simplified; we'd typically load from a data section
+      int64_t bits;
+      memcpy(&bits, &value, sizeof(bits));
+      output_ << "  # Float value: " << value << "\n";
+      output_ << "  mov $" << bits << ", %rax\n";
+    }
+  }, lit.value());
+}
+
 void x86_64_CodeGenerator::visit(expr::Variable& ){}
 
 
