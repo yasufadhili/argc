@@ -198,7 +198,23 @@ void x86_64_CodeGenerator::visit(stmt::Block& block){
 }
 
 void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
-void x86_64_CodeGenerator::visit(stmt::Return& ){}
+
+void x86_64_CodeGenerator::visit(stmt::Return& ret){
+  output_ << "  # Return statement\n";
+  if (ret.expression()) {
+    (*ret.expression())->accept(*this);
+    // Result is already in %rax, which is the return register
+  } else {
+    // Void return
+    output_ << "  xor %rax, %rax\n";
+  }
+  
+  // Jump to function epilogue
+  output_ << "  mov %rbp, %rsp\n";
+  output_ << "  pop %rbp\n";
+  output_ << "  ret\n";
+}
+
 void x86_64_CodeGenerator::visit(stmt::Print& ){}
 void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& ){}
 
