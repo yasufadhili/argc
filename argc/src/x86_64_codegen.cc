@@ -366,7 +366,8 @@ void x86_64_CodeGenerator::handle_logical_op(expr::Binary& bin, BinaryOp op) {
     // Evaluate right operand only if left is true
     bin.rhs()->accept(*this);
     output_ << "  cmp $0, %rax\n";
-    output_ << "  movne $1, %rax\n";  // Normalise to 0/1
+    output_ << "  setne %al\n";
+    output_ << "  movzx %al, %rax\n";
     output_ << "  jmp " << end_label << "\n";
     
     // Short-circuit case (result is false)
@@ -382,7 +383,8 @@ void x86_64_CodeGenerator::handle_logical_op(expr::Binary& bin, BinaryOp op) {
     // Evaluate right operand only if left is false
     bin.rhs()->accept(*this);
     output_ << "  cmp $0, %rax\n";
-    output_ << "  movne $1, %rax\n";  // Normalise to 0/1
+    output_ << "  setne %al\n";
+    output_ << "  movzx %al, %rax\n";
     output_ << "  jmp " << end_label << "\n";
     
     // Short-circuit case (result is true)
