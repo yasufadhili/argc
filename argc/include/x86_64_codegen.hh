@@ -37,6 +37,21 @@ auto align_stack() -> void {
   output_ << "  mov %rsp, %rax\n";
   output_ << "  and $-16, %rsp\n";
 }
+
+auto op_to_asm(BinaryOp op) -> std::string {
+  switch(op) {
+    case BinaryOp::ADD: return "add";
+    case BinaryOp::SUB: return "sub";
+    case BinaryOp::MUL: return "imul";
+    case BinaryOp::DIV: return "idiv"; // Requires special handling
+    case BinaryOp::MOD: return "idiv"; // Uses remainder from div
+    case BinaryOp::B_AND: return "and";
+    case BinaryOp::B_OR: return "or";
+    case BinaryOp::L_AND: return "and"; // Logical operations need special handling
+    case BinaryOp::L_OR: return "or";   // with conditional jumps
+    default: return "nop";
+  }
+}
   
 public:
   void visit(unit::TranslationUnit&) override;
