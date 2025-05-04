@@ -197,7 +197,21 @@ void x86_64_CodeGenerator::visit(stmt::Block& block){
   output_ << "  # Block end\n";
 }
 
-void x86_64_CodeGenerator::visit(stmt::Assignment& ){}
+void x86_64_CodeGenerator::visit(stmt::Assignment& assign){
+  output_ << "    # Assignment to: " << assign.target()->name() << "\n";
+        
+  assign.value()->accept(*this);  // Result in %rax
+  
+  // Store in variable location
+  auto var_name = assign.target()->name();
+  if (var_offsets_.find(var_name) == var_offsets_.end()) {
+    std::cerr << "Gen: Error: Variable " << var_name << " not declared" << std::endl; // TODO
+    return;
+  }
+  
+  int offset = var_offsets_[var_name];
+  output_ << "    mov %rax, " << offset << "(%rbp)\n";
+}
 
 void x86_64_CodeGenerator::visit(stmt::Return& ret){
   output_ << "  # Return statement\n";
