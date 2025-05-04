@@ -292,7 +292,48 @@ void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& var_decl){
 }
 
 void x86_64_CodeGenerator::visit(expr::Expression& ){}
-void x86_64_CodeGenerator::visit(expr::Binary& ){}
+
+void x86_64_CodeGenerator::visit(expr::Binary& bin){
+  output_ << "  # Binary operation\n";
+        
+  // Visit left and right expressions
+  if (std::holds_alternative<BinaryOp>(bin.op())) {
+    BinaryOp op = std::get<BinaryOp>(bin.op());
+    
+    // Special handling for logical operators
+    if (op == BinaryOp::L_AND || op == BinaryOp::L_OR) {
+      handle_logical_op(bin, op);
+      return;
+    }
+    
+    // Special handling for division and modulus
+    if (op == BinaryOp::DIV || op == BinaryOp::MOD) {
+      handle_div_mod(bin, op);
+      return;
+    }
+    
+    // Standard binary operation
+    bin.rhs()->accept(*this);    // Result in %rax
+    output_ << "  push %rax\n";  // Save right operand
+    bin.lhs()->accept(*this);    // Result in %rax
+    output_ << "  pop %rbx\n";   // Get right operand
+    
+    // Perform operation
+    output_ << "  " << op_to_asm(op) << " %rbx, %rax\n";
+      
+  } else if (std::holds_alternative<RelationalOp>(bin.op())) {
+    RelationalOp op = std::get<RelationalOp>(bin.op());
+    
+    bin.rhs()->accept(*this);    // Result in %rax
+    output_ << "  push %rax\n";  // Save right operand
+    bin.lhs()->accept(*this);    // Result in %rax
+    output_ << "  mov %rax, %rbx\n"; // Move left operand to %rbx
+    output_ << "  pop %rax\n";   // Get right operand
+    
+    handle_relational_op(op);
+  }
+}
+
 void x86_64_CodeGenerator::visit(expr::Unary& ){}
 
 void x86_64_CodeGenerator::visit(expr::Literal& lit){
