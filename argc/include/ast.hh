@@ -650,7 +650,7 @@ public:
   ~CodeGenerator() override = default;
 
   // Accessors
-  std::unique_ptr<llvm_backend::Module> take_module();
+  auto take_module() -> std::unique_ptr<llvm_backend::Module>;
 
   void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;

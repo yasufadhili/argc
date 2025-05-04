@@ -5,13 +5,13 @@
 ROOT_DIR = $(shell pwd)
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++23 -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
+CXXFLAGS = -Wall -Wextra -std=c++23  -I$(ROOT_DIR) -I$(SRC_DIR) -I$(ROOT_DIR)/include
 
 LLVM_CXXFLAGS = $(shell llvm-config --cxxflags)
 LLVM_LDFLAGS = $(shell llvm-config --ldflags)
 LLVM_LIBS     = $(shell llvm-config --libs core irreader bitwriter)
 
-CXXFLAGS += $(LLVM_CXXFLAGS)
+CXXFLAGS += $(LLVM_CXXFLAGS) -fexceptions
 
 INSTALL_PREFIX ?= /usr/local
 
