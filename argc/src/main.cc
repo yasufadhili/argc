@@ -121,7 +121,7 @@ auto main(const int argc, char* argv[]) -> int {
   //auto prog_module { codegen.take_module() };
   //prog_module->print(llvm::outs(), nullptr);
 
-  ast::x86_64_CodeGenerator codegen;
+  codegen::x86_64_CodeGenerator codegen;
   translation_unit->accept(codegen);
 
   fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".asm");
