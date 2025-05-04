@@ -16,6 +16,21 @@ class x86_64_CodeGenerator final : public Visitor {
   auto generate_label() -> std::string {
     return ".L" + std::to_string(label_counter_++);
   }
+
+  auto get_type_size(const std::shared_ptr<sym_table::Type>& type) -> std::string {
+    if (type->to_string() == "bool") return "1"; 
+    if (type->to_string() == "i8") return "1"; 
+    if (type->to_string() == "i16") return "2"; 
+    if (type->to_string() == "i32") return "4"; 
+    if (type->to_string() == "i64") return "8"; 
+    if (type->to_string() == "u8") return "1"; 
+    if (type->to_string() == "u16") return "2"; 
+    if (type->to_string() == "u32") return "4"; 
+    if (type->to_string() == "u64") return "8"; 
+    if (type->to_string() == "f32") return "4"; 
+    if (type->to_string() == "f64") return "8"; 
+    return "8"; // Default to 64-bits
+}
   
 public:
   void visit(unit::TranslationUnit&) override;
