@@ -115,6 +115,60 @@ void x86_64_CodeGenerator::visit(func::Function& func){
   output_ << "  ret\n\n";
 }
 
+void x86_64_CodeGenerator::visit(expr::FunctionCall& call){
+  // Save registers that might be overwritten by the call
+  output_ << "  # Function call: " << call.function()->name() << "\n";
+  output_ << "  push %rdi\n";
+  output_ << "  push %rsi\n";
+  output_ << "  push %rdx\n";
+  output_ << "  push %rcx\n";
+  output_ << "  push %r8\n";
+  output_ << "  push %r9\n";
+  
+  // Evaluate arguments in reverse order and push them onto the stack
+  const auto& args = call.arguments();
+  for (auto it = args.rbegin(); it != args.rend(); ++it) {
+    (*it)->accept(*this); // Result will be in %rax
+    output_ << "  push %rax\n";
+  }
+  
+  // Pop arguments into the correct registers
+  std::vector<std::string> reg_names = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+  int reg_idx = 0;
+  
+  for (size_t i = 0; i < std::min(args.size(), reg_names.size()); ++i) {
+    output_ << "  pop " << reg_names[reg_idx++] << "\n";
+  }
+  
+  // TODO : Handle any additional args still on stack if more than 6 arguments
+  
+  // Ensure 16-byte stack alignment before the call
+  align_stack();
+  
+  // Call the function
+  std::string full_func_name;
+  // Check if we're calling a function from this module or another
+  if (call.function()->name().find('.') != std::string::npos) {
+    // Calling function from another module
+    full_func_name = call.function()->name();
+  } else {
+    // Calling function from current module
+    full_func_name = current_module_ + "_" + call.function()->name();
+  }
+  
+  output_ << "  call " << full_func_name << "\n";
+  
+  // Restore registers
+  output_ << "  pop %r9\n";
+  output_ << "  pop %r8\n";
+  output_ << "  pop %rcx\n";
+  output_ << "  pop %rdx\n";
+  output_ << "  pop %rsi\n";
+  output_ << "  pop %rdi\n";
+  
+  // Result is in %rax
+}
+
 void x86_64_CodeGenerator::visit(func::Body& ){}
 void x86_64_CodeGenerator::visit(func::Parameter& ){}
 void x86_64_CodeGenerator::visit(func::ReturnTypeInfo&){}
@@ -137,5 +191,5 @@ void x86_64_CodeGenerator::visit(expr::Binary& ){}
 void x86_64_CodeGenerator::visit(expr::Unary& ){}
 void x86_64_CodeGenerator::visit(expr::Literal& ){}
 void x86_64_CodeGenerator::visit(expr::Variable& ){}
-void x86_64_CodeGenerator::visit(expr::FunctionCall& ){}
+
 
