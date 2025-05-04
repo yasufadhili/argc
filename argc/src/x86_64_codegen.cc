@@ -260,7 +260,22 @@ void x86_64_CodeGenerator::visit(stmt::Print& print){
   output_ << "  call printf\n";
 }
 
-void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& ){}
+void x86_64_CodeGenerator::visit(stmt::VariableDeclaration& var_decl){
+  output_ << "  # Variable declaration: " << var_decl.identifier()->name() << "\n";
+        
+  std::string var_name = var_decl.identifier()->name();
+  
+  // Allocate space on the stack
+  current_stack_offset_ -= 8;  //  All variables use 8 bytes for now
+  var_offsets_[var_name] = current_stack_offset_;
+  var_types_[var_name] = var_decl.type();
+  
+  // Initialise if initialiser is present
+  if (var_decl.initialiser()) {
+    (*var_decl.initialiser())->accept(*this);  // Result in %rax
+    output_ << "  mov %rax, " << current_stack_offset_ << "(%rbp)\n";
+  }
+}
 
 void x86_64_CodeGenerator::visit(expr::Expression& ){}
 void x86_64_CodeGenerator::visit(expr::Binary& ){}
