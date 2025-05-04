@@ -334,6 +334,24 @@ void x86_64_CodeGenerator::visit(expr::Binary& bin){
   }
 }
 
+auto x86_64_CodeGenerator::handle_div_mod(expr::Binary& bin, BinaryOp op) -> void {
+  bin.rhs()->accept(*this);    // Result in %rax (divisor)
+  output_ << "  mov %rax, %rbx\n";  // Save divisor in %rbx
+  bin.lhs()->accept(*this);    // Result in %rax (dividend)
+  
+  // Sign extend %rax into %rdx:%rax
+  output_ << "  cqo\n";  // Convert quadword to octaword
+  
+  // Perform division: %rdx:%rax / %rbx
+  output_ << "  idiv %rbx\n";
+  
+  // For division, result is in %rax
+  // For modulus, remainder is in %rdx
+  if (op == BinaryOp::MOD) {
+      output_ << "  mov %rdx, %rax\n";  // Move remainder to %rax
+  }
+}
+
 void x86_64_CodeGenerator::visit(expr::Unary& ){}
 
 void x86_64_CodeGenerator::visit(expr::Literal& lit){
