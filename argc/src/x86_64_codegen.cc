@@ -438,6 +438,17 @@ void x86_64_CodeGenerator::visit(expr::Literal& lit){
   }, lit.value());
 }
 
-void x86_64_CodeGenerator::visit(expr::Variable& ){}
+void x86_64_CodeGenerator::visit(expr::Variable& var){
+  std::string var_name = var.identifier()->name();
+  output_ << "  # Variable access: " << var_name << "\n";
+  
+  if (var_offsets_.find(var_name) == var_offsets_.end()) {
+    std::cerr << "Error: Variable " << var_name << " not declared" << std::endl; // TODO
+    return;
+  }
+  
+  int offset = var_offsets_[var_name];
+  output_ << "  mov " << offset << "(%rbp), %rax\n";
+}
 
 
