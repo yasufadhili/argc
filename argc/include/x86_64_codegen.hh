@@ -12,6 +12,7 @@ class x86_64_CodeGenerator final : public Visitor {
   int label_counter_ = 0; // For generating unique labels
   std::stack<std::string> loop_labels_; // For break/continue statements (if you add them later)
   std::shared_ptr<mod::Module> current_module_node_;
+  bool is_main_func { false };
 
   auto generate_label() -> std::string {
     return ".L" + std::to_string(label_counter_++);
@@ -77,6 +78,8 @@ auto handle_relational_op(RelationalOp op) -> void {
   output_ << "  mov $1, %rax\n";  // True case
   output_ << end_label << ":\n";
 }
+
+auto set_is_main_func (bool s) -> void { is_main_func = s; }
   
 public:
 
