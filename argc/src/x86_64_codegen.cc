@@ -419,7 +419,6 @@ void x86_64_CodeGenerator::visit(expr::Unary& un){
 
 void x86_64_CodeGenerator::visit(expr::Literal& lit){
   output_ << "  # Literal value\n";
-        
   std::visit([this](auto&& value) {
     using T = std::decay_t<decltype(value)>;
     if constexpr (std::is_same_v<T, int64_t>) {
