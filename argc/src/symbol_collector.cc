@@ -1,4 +1,4 @@
-#include "include/ast.hh"
+#include "symbol_collector.hh"
 #include "sym_table.hh"
 #include <memory>
 #include "error_handler.hh"
