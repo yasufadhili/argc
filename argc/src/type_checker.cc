@@ -1,7 +1,4 @@
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <string_view>
+#include "error_handler.hh"
 #include "type_checker.hh"
 
 using namespace ast;
