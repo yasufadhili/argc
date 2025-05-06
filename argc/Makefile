@@ -55,7 +55,7 @@ all: $(TARGET)
 # Linking
 $(TARGET): $(OBJ_FILES)
 	@echo "Linking $(TARGET)"
-	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LLVM_LDFLAGS) $(LLVM_LIBS) -lpthread -lz -ldl
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LLVM_LDFLAGS) $(LLVM_LIBS) -lpthread -lz -ldl -lfmt
 
 # Bison rules
 $(BISON_CC) $(BISON_HH): $(BISON_SRC)
