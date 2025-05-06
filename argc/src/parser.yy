@@ -102,12 +102,10 @@ namespace yy {
 %token PRINT
 
 
-%parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
+%parse-param  { std::shared_ptr<ast::mod::Module>& module }
 
-%type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
-
+%type <std::shared_ptr<ast::mod::Module>> module;
 %type <std::shared_ptr<ast::mod::Module>> module_definition;
-%type <std::vector<std::shared_ptr<ast::mod::Module>>> module_definition_list;
 
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
@@ -168,43 +166,18 @@ namespace yy {
 %precedence UNARY_MINUS
 
 
-%start translation_unit
-
+%start module
 
 
 
 %%
 
-translation_unit
-  : module_definition_list {
-    unit = std::make_shared<ast::unit::TranslationUnit>($1);
-    unit->set_location(@$);
-    $$ = unit;
-  }
-  | error {
-    error::DiagnosticHandler::instance().error(
-        "Invalid translation unit",
-        @$,
-        std::nullopt,
-        "Expected a valid module declaration"
-    );
-    // Recovery: create empty translation unit
-    unit = std::make_shared<ast::unit::TranslationUnit>(
-        std::vector<std::shared_ptr<ast::mod::Module>>{}
-    );
-    unit->set_location(@$);
-    $$ = unit;
-  }
-;
 
-
-module_definition_list
+module
   : module_definition {
-    $$ = std::vector<std::shared_ptr<ast::mod::Module>> { $1 };
-  }
-  | module_definition_list module_definition {
-    $$ = $1;
-    $$.emplace_back($2);
+    module = std::make_shared<ast::mod::Module>($1);
+    module->set_location(@$);
+    $$ = module;
   }
 ;
 
