@@ -1,0 +1,15 @@
+module functions;
+
+// Function returns void
+fn one {
+  ret;
+}
+
+fn two () i32 {
+  ret 23;
+}
+
+fn three () {
+
+  ret;
+}
