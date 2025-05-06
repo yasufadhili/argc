@@ -128,7 +128,7 @@ auto main(const int argc, char* argv[]) -> int {
     << "\n" << std::endl;
     return EXIT_FAILURE;
   }
-  /** 
+  
   llvm::LLVMContext context;
   ast::CodeGenerator codegen(context);
   module_definition->accept(codegen);
@@ -146,19 +146,6 @@ auto main(const int argc, char* argv[]) -> int {
 
   auto prog_module { codegen.take_module() };
   prog_module->print(llvm::outs(), nullptr);
-
-  //fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".s");
-  //std::ofstream output_file { output_path.string() };
-  //if (!output_file.is_open()) {
-  //  LOG_ERROR("Failed to open file '" + output_path.string() + "'");
-  //  return EXIT_FAILURE;
-  //}
-
-  //output_file << codegen.get_asm_code();
-  //output_file.close();
-
-  return EXIT_SUCCESS;
-  **/
 
   return 0;
 }
