@@ -80,6 +80,10 @@ COMMENT         \/\/[^\n]*
                   return yy::Parser::make_SEMICOLON(loc_);
                 }
 
+","             {
+                  return yy::Parser::make_COMMA(loc_);
+                }
+
 "+"             {
                   return yy::Parser::make_PLUS(loc_);
                 }
