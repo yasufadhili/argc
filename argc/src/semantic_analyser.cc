@@ -209,7 +209,8 @@ auto SemanticAnalyser::is_valid_utf8(const std::string& str) -> bool {
 //============================================================================
 
 void SemanticAnalyser::visit(mod::Module& m) {
-  symbol_table_->enter_scope(m.identifier()->name());
+  std::string module_scope_name = "module_" + m.identifier()->name();
+  symbol_table_->enter_scope(module_scope_name);
   
   // Process functions first to allow forward references and populate function symbols
   // (SymbolCollector already does this, but visiting here for semantic checks)
@@ -225,7 +226,8 @@ void SemanticAnalyser::visit(mod::Module& m) {
 }
 
 void SemanticAnalyser::visit(func::Function& f) {
-  symbol_table_->enter_scope(f.name()->name());
+  std::string func_scope_name = "func_" + f.name()->name();
+  symbol_table_->enter_scope(func_scope_name);
 
   // Set current return type for checking return statements within this function
   if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(f.return_type())) {

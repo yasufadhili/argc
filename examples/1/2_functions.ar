@@ -6,7 +6,8 @@ fn one {
 }
 
 fn two () i32 {
-  ret 23;
+  var x i32;
+  ret x;
 }
 
 fn three () {
