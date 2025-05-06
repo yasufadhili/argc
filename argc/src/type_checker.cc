@@ -469,11 +469,9 @@ void TypeChecker::visit(expr::Binary& bin) {
   bin.lhs()->accept(*this);
   bin.rhs()->accept(*this);
   
-  // Get operand types
   auto lhs_type = bin.lhs()->type();
   auto rhs_type = bin.rhs()->type();
   
-  // Determine result type
   auto result_type = get_result_type(bin.op(), lhs_type, rhs_type);
   
   if (!result_type) {
@@ -511,7 +509,6 @@ void TypeChecker::visit(expr::Binary& bin) {
       get_type_name(lhs_type) + "' and '" + get_type_name(rhs_type) + "'",
       bin.location());
   } else {
-    // Set the type of the binary expression
     bin.set_type(result_type);
   }
 }
@@ -521,7 +518,6 @@ void TypeChecker::visit(expr::Unary& unary) {
   
   auto operand_type = unary.operand()->type();
   
-  // Determine result type
   auto result_type = get_unary_result_type(unary.op(), operand_type);
   
   if (!result_type) {
@@ -539,7 +535,7 @@ void TypeChecker::visit(expr::Unary& unary) {
       get_type_name(operand_type) + "'",
       unary.location());
   } else {
-    // Set the type of the unary expression
+    
     unary.set_type(result_type);
   }
 }
@@ -565,7 +561,6 @@ void TypeChecker::visit(expr::FunctionCall& call) {
     return;
   }
     
-  // Check argument count
   const auto& params = func_symbol->get_params();
   const auto& args = call.arguments();
   
