@@ -175,8 +175,6 @@ namespace yy {
 
 module
   : module_definition {
-    module = std::make_shared<ast::mod::Module>($1);
-    module->set_location(@$);
     $$ = module;
   }
 ;
