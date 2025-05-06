@@ -1,5 +1,6 @@
 #include "symbol_collector.hh"
 #include "sym_table.hh"
+#include "util_logger.hh"
 #include <memory>
 #include "error_handler.hh"
 
