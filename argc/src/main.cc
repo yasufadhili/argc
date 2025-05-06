@@ -4,10 +4,11 @@
 #include <llvm-17/llvm/IR/LLVMContext.h>
 #include "ast.hh"
 #include "lexer.hh"
-#include "include/driver.hh"
-#include "include/util_logger.hh"
-#include "include/error_handler.hh"
+#include "driver.hh"
+#include "util_logger.hh"
+#include "error_handler.hh"
 #include "x86_64_codegen.hh"
+#include "symbol_collector.hh"
 
 namespace fs = std::filesystem;
 
@@ -93,7 +94,7 @@ auto main(const int argc, char* argv[]) -> int {
   if (!symbol_collector.successful()) {
     error::DiagnosticHandler::instance().print_all();
     std::cout << std::endl;
-    std::cout << "Compilation failed during symbol collection with "
+    std::cout << "Compilation failed with "
       << error::DiagnosticHandler::instance().message_count() << " messages: "
       << error::DiagnosticHandler::instance().error_count() << " errors, "
       << error::DiagnosticHandler::instance().warning_count() << " warnings"
