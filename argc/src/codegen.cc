@@ -12,12 +12,6 @@ auto CodeGenerator::take_module() -> std::unique_ptr<llvm_backend::Module> {
   return std::move(module_);
 }
 
-void CodeGenerator::visit(unit::TranslationUnit& tu) {
-  for (auto& mod : tu.modules()) {
-    mod->accept(*this);
-  }
-}
-
 void CodeGenerator::visit(mod::Module& module) {
   module_ = std::make_unique<llvm::Module>(module.identifier()->name(), context_);
   builder_ = std::make_unique<llvm::IRBuilder<>>(context_);

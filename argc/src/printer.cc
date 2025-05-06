@@ -40,16 +40,6 @@ namespace {
   }
 }
 
-
-void Printer::visit(unit::TranslationUnit& unit) {
-  std::cout << "Translation Unit:\n";
-  indent_level_ += 2;
-  for (auto& module : unit.modules()) {
-    module->accept(*this);
-  }
-  indent_level_ -= 2;
-}
-
 void Printer::visit(mod::Module& module) {
   print_indent();
   std::cout << "Module " << module.identifier()->name() << ":\n";
