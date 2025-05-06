@@ -102,12 +102,9 @@ namespace yy {
 %token PRINT
 
 
-%parse-param  { std::shared_ptr<ast::unit::TranslationUnit>& unit }
-
-%type <std::shared_ptr<ast::unit::TranslationUnit>> translation_unit;
+%parse-param  { std::shared_ptr<ast::mod::Module>& module }
 
 %type <std::shared_ptr<ast::mod::Module>> module_definition;
-%type <std::vector<std::shared_ptr<ast::mod::Module>>> module_definition_list;
 
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
 %type <std::shared_ptr<ast::func::Function>> function_definition;
@@ -168,80 +165,50 @@ namespace yy {
 %precedence UNARY_MINUS
 
 
-%start translation_unit
-
+%start module_definition
 
 
 
 %%
 
-translation_unit
-  : module_definition_list {
-    unit = std::make_shared<ast::unit::TranslationUnit>($1);
-    unit->set_location(@$);
-    $$ = unit;
-  }
-  | error {
-    error::DiagnosticHandler::instance().error(
-        "Invalid translation unit",
-        @$,
-        std::nullopt,
-        "Expected a valid module declaration"
-    );
-    // Recovery: create empty translation unit
-    unit = std::make_shared<ast::unit::TranslationUnit>(
-        std::vector<std::shared_ptr<ast::mod::Module>>{}
-    );
-    unit->set_location(@$);
-    $$ = unit;
-  }
-;
-
-
-module_definition_list
-  : module_definition {
-    $$ = std::vector<std::shared_ptr<ast::mod::Module>> { $1 };
-  }
-  | module_definition_list module_definition {
-    $$ = $1;
-    $$.emplace_back($2);
-  }
-;
-
 
 module_definition
   : MODULE identifier SEMICOLON statement_list function_definition_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $4, $5);
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, $4, $5);
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE identifier SEMICOLON function_definition_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $4);
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, $4);
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE identifier error {
     error::DiagnosticHandler::instance().error(
-        "Missing semicolon after module declaration",
-        @$,
-        std::nullopt,
-        "Add a semicolon after the module name"
+      "Missing semicolon after module declaration",
+      @$,
+      std::nullopt,
+      "Add a semicolon after the module name"
     );
     // Recovery: assume empty module
-    $$ = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE error {
     error::DiagnosticHandler::instance().error(
-        "Invalid module declaration",
-        @$,
-        std::nullopt,
-        "Module must be followed by an identifier"
+      "Invalid module declaration",
+      @$,
+      std::nullopt,
+      "Module must be followed by an identifier"
     );
     // Recovery: create empty module with dummy identifier
-    $$ = std::make_shared<ast::mod::Module>(
-        std::make_shared<ast::ident::Identifier>("<invalid_module>"),
-        std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    module = std::make_shared<ast::mod::Module>(
+      std::make_shared<ast::ident::Identifier>("<invalid_module>"),
+      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
-    $$->set_location(@$);
+    module->set_location(@$);
+    $$ = module;
   }
 ;
 

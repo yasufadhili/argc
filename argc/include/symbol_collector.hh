@@ -14,7 +14,6 @@ namespace ast {
     auto has_errors () const -> bool { return error_occurred_; }
     bool successful() const;
   
-    void visit(unit::TranslationUnit&) override;
     void visit(mod::Module&) override;
     void visit(func::Function&) override;
     void visit(expr::FunctionCall&) override;

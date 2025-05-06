@@ -28,7 +28,6 @@ public:
   // Accessors
   auto take_module() -> std::unique_ptr<llvm_backend::Module>;
 
-  void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
   void visit(expr::FunctionCall&) override;

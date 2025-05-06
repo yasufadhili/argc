@@ -5,6 +5,7 @@
 #include "ast.hh"
 #include "lexer.hh"
 #include "driver.hh"
+#include "sym_table.hh"
 #include "util_logger.hh"
 #include "error_handler.hh"
 #include "codegen.hh"
@@ -62,20 +63,20 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  std::shared_ptr<ast::unit::TranslationUnit> translation_unit;
+  std::shared_ptr<ast::mod::Module> module_definition;
 
-  yy::Parser parser { lexer, translation_unit };
+  yy::Parser parser { lexer, module_definition };
   if (config.debug) {
     parser.set_debug_level(1);
   }
 
   if (parser.parse() != 0) {
-    LOG_FATAL("Failed to parse translation unit");
+    LOG_FATAL("Failed to parse module unit");
     return EXIT_FAILURE;
   }
 
-  if (!translation_unit) {
-    LOG_FATAL("Translation unit is null after parsing");
+  if (!module_definition) {
+    LOG_FATAL("Module is null after parsing");
     return EXIT_FAILURE;
   }
 
@@ -83,7 +84,7 @@ auto main(const int argc, char* argv[]) -> int {
     LOG_INFO("Code Structure: ");
     try {
       ast::Printer printer;
-      translation_unit->accept(printer);
+      module_definition->accept(printer);
     } catch (const std::exception& e) {
       LOG_ERROR("Error during printing: " + std::string(e.what()));
       return EXIT_FAILURE;
@@ -91,7 +92,7 @@ auto main(const int argc, char* argv[]) -> int {
   }
                                                     
   ast::SymbolCollector symbol_collector;
-  translation_unit->accept(symbol_collector);
+  module_definition->accept(symbol_collector);
   if (!symbol_collector.successful()) {
     error::DiagnosticHandler::instance().print_all();
     std::cout << std::endl;
@@ -103,8 +104,19 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
+  if (config.verbose) {
+    std::cout << "Symbols: \n";
+    sym_table::SymbolTable::get_instance()->print();
+  }
+
+  
   ast::SemanticAnalyser semantic_analyser;
-  translation_unit->accept(semantic_analyser);
+  module_definition->accept(semantic_analyser);
+
+  if (config.verbose) {
+    std::cout << "Symbols: \n";
+    sym_table::SymbolTable::get_instance()->print();
+  }
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
@@ -116,10 +128,10 @@ auto main(const int argc, char* argv[]) -> int {
     << "\n" << std::endl;
     return EXIT_FAILURE;
   }
-
+  /** 
   llvm::LLVMContext context;
   ast::CodeGenerator codegen(context);
-  translation_unit->accept(codegen);
+  module_definition->accept(codegen);
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
@@ -146,6 +158,7 @@ auto main(const int argc, char* argv[]) -> int {
   //output_file.close();
 
   return EXIT_SUCCESS;
+  **/
 
   return 0;
 }

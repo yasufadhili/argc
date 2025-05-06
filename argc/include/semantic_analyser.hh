@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast.hh"
+#include "error_handler.hh"
 
 namespace ast {
 
@@ -9,13 +10,39 @@ class SemanticAnalyser final : public Visitor {
   bool error_occurred_;
   std::shared_ptr<sym_table::Type> current_return_type_;
   config::Config config_;
+
+  auto is_compatible(const std::shared_ptr<sym_table::Type>& left,
+                      const std::shared_ptr<sym_table::Type>& right) -> bool;
+
+  auto get_result_type(
+      const std::variant<BinaryOp, RelationalOp>& op,
+      const std::shared_ptr<sym_table::Type>& left,
+      const std::shared_ptr<sym_table::Type>& right) -> std::shared_ptr<sym_table::Type>;
+
+  auto get_unary_result_type(
+      UnaryOp op,
+      const std::shared_ptr<sym_table::Type>& operand) -> std::shared_ptr<sym_table::Type>;
+
+  auto is_safe_assignment(
+      const std::shared_ptr<sym_table::Type>& target,
+      const std::shared_ptr<sym_table::Type>& source) -> bool;
+
+  // auto initialise_type_rules() -> void; // Not needed for now since rules are hardcoded in get_result_type
+
+  // Get type name for reporting
+  auto get_type_name(const std::shared_ptr<sym_table::Type>& type) -> std::string;
+
+  // Helper methods for handling literals
+  auto get_literal_type(const expr::LiteralVariant& value) -> std::shared_ptr<sym_table::Type>;
+
+  bool is_valid_utf8(const std::string& str); 
+
 public:
   SemanticAnalyser() : symbol_table_(sym_table::SymbolTable::get_instance()), error_occurred_(false) {}
   ~SemanticAnalyser() override = default;
 
   bool has_errors() const { return error_occurred_; }
   
-  void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
   void visit(expr::FunctionCall&) override;
