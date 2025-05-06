@@ -7,7 +7,7 @@
 #include "driver.hh"
 #include "util_logger.hh"
 #include "error_handler.hh"
-#include "x86_64_codegen.hh"
+#include "codegen.hh"
 #include "symbol_collector.hh"
 #include "semantic_analyser.hh"
 
@@ -117,13 +117,8 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  //llvm::LLVMContext context;
-  //ast::CodeGenerator codegen(context);
-  //translation_unit->accept(codegen);
-  //auto prog_module { codegen.take_module() };
-  //prog_module->print(llvm::outs(), nullptr);
-
-  ast::x86_64_CodeGenerator codegen;
+  llvm::LLVMContext context;
+  ast::CodeGenerator codegen(context);
   translation_unit->accept(codegen);
 
   if (error::DiagnosticHandler::instance().has_errors()) {
@@ -137,15 +132,18 @@ auto main(const int argc, char* argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".s");
-  std::ofstream output_file { output_path.string() };
-  if (!output_file.is_open()) {
-    LOG_ERROR("Failed to open file '" + output_path.string() + "'");
-    return EXIT_FAILURE;
-  }
+  auto prog_module { codegen.take_module() };
+  prog_module->print(llvm::outs(), nullptr);
 
-  output_file << codegen.get_asm_code();
-  output_file.close();
+  //fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".s");
+  //std::ofstream output_file { output_path.string() };
+  //if (!output_file.is_open()) {
+  //  LOG_ERROR("Failed to open file '" + output_path.string() + "'");
+  //  return EXIT_FAILURE;
+  //}
+
+  //output_file << codegen.get_asm_code();
+  //output_file.close();
 
   return EXIT_SUCCESS;
 
