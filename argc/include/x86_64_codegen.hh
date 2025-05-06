@@ -1,5 +1,6 @@
 #include <stack>
 #include "ast.hh"
+#include <sstream>
 
 namespace ast {
 
