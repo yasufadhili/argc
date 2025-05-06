@@ -9,6 +9,7 @@
 #include "error_handler.hh"
 #include "x86_64_codegen.hh"
 #include "symbol_collector.hh"
+#include "semantic_analyser.hh"
 
 namespace fs = std::filesystem;
 
