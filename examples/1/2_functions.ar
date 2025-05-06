@@ -1,6 +1,5 @@
-module main;
+                                                                                      module main;
 
-// Function returns void
 fn main () i32 {
   var x i32;
   ret x;
