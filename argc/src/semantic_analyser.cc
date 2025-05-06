@@ -1,7 +1,4 @@
-#include <memory>
-
-#include "include/ast.hh"
-#include "sym_table.hh"
+#include "semantic_analyser.hh"
 #include "error_handler.hh"
 
 using namespace ast;
