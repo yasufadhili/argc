@@ -1,16 +1,8 @@
-module functions;
+module main;
 
 // Function returns void
-fn one {
+fn main () i32 {
   var x i32;
-  ret;
+  ret x;
 }
 
-fn two () i32 {
-  ret 23;
-}
-
-fn three () {
-
-  ret;
-}

@@ -109,8 +109,14 @@ auto main(const int argc, char* argv[]) -> int {
     sym_table::SymbolTable::get_instance()->print();
   }
 
+  /** 
   ast::SemanticAnalyser semantic_analyser;
   module_definition->accept(semantic_analyser);
+
+  if (config.verbose) {
+    std::cout << "Symbols: \n";
+    sym_table::SymbolTable::get_instance()->print();
+  }
 
   if (error::DiagnosticHandler::instance().has_errors()) {
     error::DiagnosticHandler::instance().print_all();
@@ -152,6 +158,7 @@ auto main(const int argc, char* argv[]) -> int {
   //output_file.close();
 
   return EXIT_SUCCESS;
+  **/
 
   return 0;
 }

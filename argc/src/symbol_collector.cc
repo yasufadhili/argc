@@ -182,12 +182,12 @@ void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
     vd.location().begin.column,
     vd.location().begin.filename ? vd.location().begin.filename->c_str() : ""
   );
-  
+
   if (!symbol_table_->add_symbol(var_symbol)) {
     REPORT_ERROR("Duplicate variable declaration: '" + vd.identifier()->name() + "'", vd.location());
     error_occurred_ = true;
     return;
-  }
+  } 
   
   if (vd.initialiser()) {
     (*vd.initialiser())->accept(*this);
@@ -197,7 +197,8 @@ void SymbolCollector::visit(stmt::VariableDeclaration& vd) {
 void SymbolCollector::visit(expr::Variable& var) {
   if (auto symbol = symbol_table_->lookup_symbol(var.identifier()->name())) {
     symbol->set_used(true);
-  } else {
+  } 
+  else {
     REPORT_ERROR("Use of undeclared variable '" + var.identifier()->name() + "'", var.location());
     error_occurred_ = true;
   }

@@ -175,7 +175,7 @@ namespace ast::stmt {
     std::shared_ptr<sym_table::Symbol> symbol_;
     std::shared_ptr<sym_table::Type> type_;
     std::optional<std::shared_ptr<expr::Expression>> initialiser_;
-    bool is_const_;
+    bool is_const_ { false };
   public:
     VariableDeclaration (
       std::shared_ptr<ident::Identifier> id,
@@ -193,6 +193,7 @@ namespace ast::stmt {
     auto symbol() -> std::shared_ptr<sym_table::Symbol> { return symbol_; }
     auto set_symbol(std::shared_ptr<sym_table::Symbol> sym) -> void { symbol_ = std::move(sym); }
     auto is_const() const -> bool { return is_const_; }
+    auto set_is_const (bool s) -> void { is_const_ = s; }
   };
 
   class Assignment final : public Statement {
