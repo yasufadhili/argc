@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string_view>
-#include "ast.hh"
+#include "type_checker.hh"
 
 using namespace ast;
 
