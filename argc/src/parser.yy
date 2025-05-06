@@ -166,6 +166,9 @@ namespace yy {
 %precedence UNARY_MINUS
 
 
+%parse-param  { std::shared_ptr<ast::mod::Module>& module_definition }
+
+
 %start module
 
 
