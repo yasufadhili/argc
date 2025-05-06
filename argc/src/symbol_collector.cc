@@ -11,21 +11,6 @@ SymbolCollector::SymbolCollector() :
   symbol_table_(sym_table::SymbolTable::get_instance()),
   error_occurred_(false) {}
 
-void SymbolCollector::visit(unit::TranslationUnit& tu) {
-  symbol_table_->enter_scope("global");
-  
-  for (auto& m : tu.modules()) {
-    if (!m) {
-      REPORT_ERROR("Null module encountered in translation unit", tu.location());
-      error_occurred_ = true;
-      continue;
-    }
-    m->accept(*this);
-  }
-  
-  symbol_table_->exit_scope();
-}
-
 void SymbolCollector::visit(mod::Module& m) {
   if (!m.identifier()) {
     REPORT_ERROR("Module with null identifier encountered", m.location());

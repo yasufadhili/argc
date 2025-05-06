@@ -7,7 +7,6 @@
 
 namespace config {
 
-
 struct Config {
   std::ifstream input_file;
   std::vector<std::string> input_files;

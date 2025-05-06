@@ -15,7 +15,6 @@ public:
 
   bool has_errors() const { return error_occurred_; }
   
-  void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
   void visit(expr::FunctionCall&) override;

@@ -238,13 +238,6 @@ auto TypeChecker::is_valid_utf8(const std::string& str) -> bool {
 // Visitor implementations
 //============================================================================
 
-void TypeChecker::visit(unit::TranslationUnit& unit) {
-  // Traverse all modules
-  for (const auto& module : unit.modules()) {
-    module->accept(*this);
-  }
-}
-
 void TypeChecker::visit(mod::Module& module) {
   // Type check global statements
   for (const auto& stmt : module.statements()) {

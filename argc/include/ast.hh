@@ -349,7 +349,6 @@ namespace ast {
     config::Config config_;
   public:
     virtual ~Visitor() = default;
-    virtual void visit (unit::TranslationUnit&) = 0;
 
     virtual void visit (mod::Module&) = 0;
 
@@ -383,7 +382,6 @@ namespace ast {
 }
 
 namespace ast {
-  inline void unit::TranslationUnit::accept(Visitor &v) { v.visit(*this); }
 
   inline void mod::Module::accept(Visitor &v) { v.visit(*this); }
 
@@ -426,7 +424,6 @@ class Printer final : public Visitor {
   }
 
 public:
-  void visit(unit::TranslationUnit&) override;
   void visit(mod::Module&) override;
   void visit(func::Function&) override;
   void visit(expr::FunctionCall&) override;

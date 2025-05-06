@@ -3,12 +3,6 @@
 
 using namespace ast;
 
-void SemanticAnalyser::visit(unit::TranslationUnit& tu) {
-  for (auto& m : tu.modules()) {
-    m->accept(*this);
-  }
-}
-
 void SemanticAnalyser::visit(mod::Module& m) {
   symbol_table_->enter_scope(m.identifier()->name());
   
