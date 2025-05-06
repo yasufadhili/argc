@@ -104,7 +104,6 @@ namespace yy {
 
 %parse-param  { std::shared_ptr<ast::mod::Module>& module }
 
-%type <std::shared_ptr<ast::mod::Module>> module;
 %type <std::shared_ptr<ast::mod::Module>> module_definition;
 
 %type <std::vector<std::shared_ptr<ast::func::Function>>> function_definition_list;
@@ -166,56 +165,50 @@ namespace yy {
 %precedence UNARY_MINUS
 
 
-%parse-param  { std::shared_ptr<ast::mod::Module>& module_definition }
-
-
-%start module
+%start module_definition
 
 
 
 %%
 
 
-module
-  : module_definition {
-    $$ = $1;
-  }
-;
-
-
 module_definition
   : MODULE identifier SEMICOLON statement_list function_definition_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $4, $5);
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, $4, $5);
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE identifier SEMICOLON function_definition_list {
-    $$ = std::make_shared<ast::mod::Module>($2, $4);
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, $4);
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE identifier error {
     error::DiagnosticHandler::instance().error(
-        "Missing semicolon after module declaration",
-        @$,
-        std::nullopt,
-        "Add a semicolon after the module name"
+      "Missing semicolon after module declaration",
+      @$,
+      std::nullopt,
+      "Add a semicolon after the module name"
     );
     // Recovery: assume empty module
-    $$ = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
-    $$->set_location(@$);
+    module = std::make_shared<ast::mod::Module>($2, std::vector<std::shared_ptr<ast::stmt::Statement>>{});
+    module->set_location(@$);
+    $$ = module;
   }
   | MODULE error {
     error::DiagnosticHandler::instance().error(
-        "Invalid module declaration",
-        @$,
-        std::nullopt,
-        "Module must be followed by an identifier"
+      "Invalid module declaration",
+      @$,
+      std::nullopt,
+      "Module must be followed by an identifier"
     );
     // Recovery: create empty module with dummy identifier
-    $$ = std::make_shared<ast::mod::Module>(
-        std::make_shared<ast::ident::Identifier>("<invalid_module>"),
-        std::vector<std::shared_ptr<ast::stmt::Statement>>{}
+    module = std::make_shared<ast::mod::Module>(
+      std::make_shared<ast::ident::Identifier>("<invalid_module>"),
+      std::vector<std::shared_ptr<ast::stmt::Statement>>{}
     );
-    $$->set_location(@$);
+    module->set_location(@$);
+    $$ = module;
   }
 ;
 
