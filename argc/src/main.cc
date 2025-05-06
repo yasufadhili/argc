@@ -109,7 +109,7 @@ auto main(const int argc, char* argv[]) -> int {
     sym_table::SymbolTable::get_instance()->print();
   }
 
-  /** 
+  
   ast::SemanticAnalyser semantic_analyser;
   module_definition->accept(semantic_analyser);
 
@@ -128,7 +128,7 @@ auto main(const int argc, char* argv[]) -> int {
     << "\n" << std::endl;
     return EXIT_FAILURE;
   }
-
+  /** 
   llvm::LLVMContext context;
   ast::CodeGenerator codegen(context);
   module_definition->accept(codegen);

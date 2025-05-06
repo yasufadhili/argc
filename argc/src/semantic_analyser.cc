@@ -113,7 +113,7 @@ void SemanticAnalyser::visit(stmt::VariableDeclaration& vd) {
     error_occurred_ = true;
     return;
   }
-  // Check initialiser type
+  // Check initialiser type 
   if (vd.initialiser()) {
     auto expr = *vd.initialiser();
     expr->accept(*this);
