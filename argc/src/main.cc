@@ -5,6 +5,7 @@
 #include "ast.hh"
 #include "lexer.hh"
 #include "driver.hh"
+#include "sym_table.hh"
 #include "util_logger.hh"
 #include "error_handler.hh"
 #include "codegen.hh"
@@ -101,6 +102,11 @@ auto main(const int argc, char* argv[]) -> int {
       << error::DiagnosticHandler::instance().warning_count() << " warnings"
       << "\n" << std::endl;
     return EXIT_FAILURE;
+  }
+
+  if (config.verbose) {
+    std::cout << "Symbols: \n";
+    sym_table::SymbolTable::get_instance()->print();
   }
 
   ast::SemanticAnalyser semantic_analyser;

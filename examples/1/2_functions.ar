@@ -2,6 +2,7 @@ module functions;
 
 // Function returns void
 fn one {
+  var x i32;
   ret;
 }
 
