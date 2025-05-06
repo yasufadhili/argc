@@ -175,7 +175,7 @@ namespace yy {
 
 module
   : module_definition {
-    $$ = module;
+    $$ = $1;
   }
 ;
 
