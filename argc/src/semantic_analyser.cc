@@ -227,7 +227,6 @@ void SemanticAnalyser::visit(mod::Module& m) {
 void SemanticAnalyser::visit(func::Function& f) {
   symbol_table_->enter_scope(f.name()->name());
 
-  // --- Semantic/Type checking for Function ---
   // Set current return type for checking return statements within this function
   if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(f.return_type())) {
     // Lookup the declared return type in the symbol table
