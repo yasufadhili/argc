@@ -15,7 +15,7 @@ void SemanticAnalyser::visit(func::Function& f) {
   auto func_symbol = std::make_shared<sym_table::Symbol>(
     f.name()->name(),
     sym_table::SymbolKind::FUNC,
-    nullptr, // Type will be set by SemanticAnalyser
+    nullptr, // Type will be set by later down
     true,  // Function declaration means it's defined
     f.is_public() ? sym_table::AccessModifier::PUBLIC : sym_table::AccessModifier::PRIVATE,
     f.location().begin.line,
@@ -60,19 +60,19 @@ void SemanticAnalyser::visit(func::Function& f) {
         current_return_type_ = nullptr; // Cannot resolve type
       } else {
         current_return_type_ = ret_type; // Set the resolved return type
-         // Also update the function symbol's type in the symbol table if it was set to nullptr by SymbolCollector
+         // Also update the function symbol's type in the symbol table since it was set to nullptr initially
          if (auto func_symbol = symbol_table_->lookup_symbol(f.name()->name())) {
-              if (!func_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
-                   func_symbol->set_type(ret_type);
-              } else if (func_symbol->get_type() != ret_type) {
-                   // This case indicates an inconsistency if SymbolCollector already set the type.
-                   // For now, prefer the type looked up here.
-                   func_symbol->set_type(ret_type);
-              }
+            if (!func_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
+              func_symbol->set_type(ret_type);
+            } else if (func_symbol->get_type() != ret_type) {
+              // This case indicates an inconsistency if SymbolCollector already set the type.
+              // For now, prefer the type looked up here.
+              func_symbol->set_type(ret_type);
+            }
          } else {
-             // This should not happen if SymbolCollector ran successfully
-              REPORT_ERROR("Internal Error: Function symbol '" + f.name()->name() + "' not found during semantic analysis.", f.location());
-              error_occurred_ = true;
+            // This should not happen
+            REPORT_ERROR("Internal Error: Function symbol '" + f.name()->name() + "' not found during semantic analysis.", f.location());
+            error_occurred_ = true;
          }
       }
     }
@@ -114,8 +114,6 @@ void SemanticAnalyser::visit(func::Function& f) {
     param->accept(*this); // Visit parameter node - this will validate its type
   }
 
-
-  // 3. Validate function body
   if (f.body()) {
     f.body()->accept(*this);
   }
