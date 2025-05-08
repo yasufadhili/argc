@@ -263,11 +263,50 @@ void SemanticAnalyser::visit(mod::Module& m) {
 }
 
 void SemanticAnalyser::visit(func::Function& f) {
-  // SemanticAnalyser assumes SymbolCollector has already entered the function scope.
-  // We don't manage scopes here.
+  
+  if (!f.name()) {
+    REPORT_ERROR("Function with null identifier encountered", f.location());
+    error_occurred_ = true;
+    return;
+  }
+  std::string func_scope_name = "func_" + f.name()->name();
+  symbol_table_->enter_scope(func_scope_name);
+  
+  auto func_symbol = std::make_shared<sym_table::Symbol>(
+    f.name()->name(),
+    sym_table::SymbolKind::FUNC,
+    nullptr, // Type will be set by SemanticAnalyser
+    true,  // Function declaration means it's defined
+    f.is_public() ? sym_table::AccessModifier::PUBLIC : sym_table::AccessModifier::PRIVATE,
+    f.location().begin.line,
+    f.location().begin.column,
+    f.location().begin.filename ? f.location().begin.filename->c_str() : ""
+  );
 
-  // 1. Determine and set current return type for checking return statements
-  // Lookup the declared return type in the symbol table. The symbol should exist.
+  symbol_table_->add_symbol(func_symbol);
+
+  // Visit parameters first to add them to the symbol table within the function's scope
+  std::vector<std::shared_ptr<sym_table::Type>> param_types; // This vector is no longer populated with resolved types here
+  for (const auto& param : f.parameters()) {
+    if (!param) {
+      REPORT_ERROR("Null parameter encountered in function '" + f.name()->name() + "'", f.location());
+      error_occurred_ = true;
+      continue;
+    }
+    if (!param->identifier()) {
+      REPORT_ERROR("Parameter with null identifier in function '" + f.name()->name() + "'", param->location());
+      error_occurred_ = true;
+      continue;
+    }
+    // Visit parameter to add its symbol to the current scope
+    param->accept(*this);
+    // Type lookup and error reporting for unknown parameter types are moved to SemanticAnalyser
+  }
+
+  if (f.return_type()) {
+    f.return_type()->accept(*this);
+  }
+
   if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(f.return_type())) {
     if (!single_ret->identifier()) {
          REPORT_ERROR("Function '" + f.name()->name() + "' has return type with null identifier", single_ret->location());
@@ -326,12 +365,11 @@ void SemanticAnalyser::visit(func::Function& f) {
   }
 
   // 2. Validate parameters
-  // Parameters symbols are added by SymbolCollector. We check their declared types here.
   for (const auto& param : f.parameters()) {
     if (!param) {
-        REPORT_ERROR("Null parameter node in function '" + f.name()->name() + "'", f.location());
-        error_occurred_ = true;
-        continue;
+      REPORT_ERROR("Null parameter node in function '" + f.name()->name() + "'", f.location());
+      error_occurred_ = true;
+      continue;
     }
     param->accept(*this); // Visit parameter node - this will validate its type
   }
@@ -342,8 +380,7 @@ void SemanticAnalyser::visit(func::Function& f) {
     f.body()->accept(*this);
   }
 
-  // SemanticAnalyser assumes SymbolCollector will exit the function scope.
-  // Reset current return type after conceptually leaving function scope
+  symbol_table_->exit_scope();
   current_return_type_ = nullptr;
 }
 
