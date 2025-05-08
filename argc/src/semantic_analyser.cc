@@ -303,58 +303,6 @@ void SemanticAnalyser::visit(expr::FunctionCall& call) {
   call.set_type(func_symbol->get_type());
 }
 
-
-void SemanticAnalyser::visit(func::Parameter& param) {
-  // Parameters symbols are added by SymbolCollector.
-  // Here, we validate the parameter's declared type by looking it up.
-  if (!param.identifier()) {
-       REPORT_ERROR("Null identifier for parameter node", param.location());
-       error_occurred_ = true;
-       return;
-  }
-   if (!param.type()) {
-       REPORT_ERROR("Parameter '" + param.identifier()->name() + "' has a null type node.", param.location());
-       error_occurred_ = true;
-       // Cannot lookup type if the type node is null, exit.
-       return;
-   }
-
-   // Lookup the declared type in the symbol table
-  auto declared_type = symbol_table_->lookup_type(param.type()->get_name()); // Use get_name() from the attached Type object
-
-  if (!declared_type) {
-    REPORT_ERROR("Unknown type '" + param.type()->get_name() + "' for parameter '" + param.identifier()->name() + "'", param.location());
-    error_occurred_ = true;
-     // The parameter symbol's type remains null in the symbol table if lookup fails
-  } else {
-     // If type is resolved, find the parameter symbol (added by SymbolCollector)
-     // and set its resolved type.
-     if (auto param_symbol = symbol_table_->lookup_symbol_in_current_scope(param.identifier()->name())) {
-         if (!param_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
-             param_symbol->set_type(declared_type);
-         } else if (param_symbol->get_type() != declared_type) {
-             // This case indicates an inconsistency if SymbolCollector already set the type.
-             // Prefer the type looked up here.
-             param_symbol->set_type(declared_type);
-         }
-     } else {
-         // This should not happen if SymbolCollector ran correctly and we are in the function scope
-         REPORT_ERROR("Internal Error: Parameter symbol '" + param.identifier()->name() + "' not found in current scope during semantic analysis.", param.location());
-         error_occurred_ = true;
-     }
-  }
-}
-
-void SemanticAnalyser::visit(func::ReturnTypeInfo&) {
-    // Base class, no specific semantic/type logic here
-}
-void SemanticAnalyser::visit(func::MultipleReturnType&) {
-    // Semantic/Type logic for MultipleReturnType is handled in func::Function visitor
-}
-void SemanticAnalyser::visit(func::SingleReturnType&) {
-    // Semantic/Type logic for SingleReturnType is handled in func::Function visitor
-}
-
 void SemanticAnalyser::visit(func::Body& body) {
   // SemanticAnalyser assumes SymbolCollector has already entered the block scope for the function body.
   // We don't manage scopes here.
