@@ -1,7 +1,6 @@
 #include "semantic_analyser.hh"
 #include "error_handler.hh"
 #include <variant> 
-#include <iostream>
 #include <string> 
 #include <vector> 
 #include <memory> 
@@ -229,28 +228,16 @@ auto SemanticAnalyser::is_valid_utf8(const std::string& str) -> bool {
   return true;
 }
 
-
-//============================================================================
-// Visitor implementations (Merged with TypeChecker logic)
-// SemanticAnalyser now ASSUMES SymbolTable is already populated by SymbolCollector
-// and focuses on type and usage validation.
-//============================================================================
-
 void SemanticAnalyser::visit(mod::Module& m) {
-  // SemanticAnalyser assumes SymbolCollector has already entered the module scope.
-  // We don't manage scopes here.
-
-  // Validate functions
+  
   for (auto& f : m.functions()) {
     if (f) f->accept(*this);
   }
 
-  // Validate statements
   for (auto& s : m.statements()) {
     if (s) s->accept(*this);
   }
 
-  // SemanticAnalyser assumes SymbolCollector will exit the module scope.
 }
 
 void SemanticAnalyser::visit(func::Function& f) {

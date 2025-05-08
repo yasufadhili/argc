@@ -1,0 +1,6 @@
+module test_return;
+
+fn main () i32 {
+
+  ret 5;
+}

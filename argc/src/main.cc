@@ -90,7 +90,8 @@ auto main(const int argc, char* argv[]) -> int {
       return EXIT_FAILURE;
     }
   }
-                                                    
+    
+  /** 
   ast::SymbolCollector symbol_collector;
   module_definition->accept(symbol_collector);
   if (!symbol_collector.successful()) {
@@ -108,7 +109,7 @@ auto main(const int argc, char* argv[]) -> int {
     std::cout << "Symbols: \n";
     sym_table::SymbolTable::get_instance()->print();
   }
-
+  **/
   
   ast::SemanticAnalyser semantic_analyser;
   module_definition->accept(semantic_analyser);
