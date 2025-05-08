@@ -1,6 +1,6 @@
 module test_return;
 
-fn main () i32 {
+fn main (x i32) i32 {
 
-  ret 5;
+  ret x;
 }

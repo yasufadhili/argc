@@ -123,13 +123,27 @@ void SemanticAnalyser::visit(func::Function& f) {
 }
 
 void SemanticAnalyser::visit(func::Parameter& param) {
-  // Parameters symbols are added by SymbolCollector.
-  // Here, we validate the parameter's declared type by looking it up.
   if (!param.identifier()) {
-    REPORT_ERROR("Null identifier for parameter node", param.location());
+    REPORT_ERROR("Parameter with null identifier", param.location());
     error_occurred_ = true;
     return;
   }
+  // Create parameter symbol without resolving the type here.
+  // Type resolution will happen in later down.
+  auto param_symbol = std::make_shared<sym_table::Symbol>(
+    param.identifier()->name(),
+    sym_table::SymbolKind::PARAM,
+    nullptr, // Type will be set by later down
+    true,    // Parameters are considered defined by the function signature
+    sym_table::AccessModifier::PRIVATE, // Parameters are local to the function
+    param.location().begin.line,
+    param.location().begin.column,
+    param.location().begin.filename ? param.location().begin.filename->c_str() : ""
+  );
+
+  symbol_table_->add_symbol(param_symbol);
+
+  // Here, we validate the parameter's declared type by looking it up.
    if (!param.type()) {
     REPORT_ERROR("Parameter '" + param.identifier()->name() + "' has a null type node.", param.location());
     error_occurred_ = true;
@@ -145,7 +159,7 @@ void SemanticAnalyser::visit(func::Parameter& param) {
     error_occurred_ = true;
      // The parameter symbol's type remains null in the symbol table if lookup fails
   } else {
-     // If type is resolved, find the parameter symbol (added by SymbolCollector)
+     // If type is resolved, find the parameter symbol 
      // and set its resolved type.
      if (auto param_symbol = symbol_table_->lookup_symbol_in_current_scope(param.identifier()->name())) {
          if (!param_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
