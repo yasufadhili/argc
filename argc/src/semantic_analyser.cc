@@ -692,26 +692,22 @@ void SemanticAnalyser::visit(expr::Unary& un) {
 
 void SemanticAnalyser::visit(expr::Variable& var) {
    if (!var.identifier()) {
-       REPORT_ERROR("Variable expression with null identifier node", var.location());
-       error_occurred_ = true;
-       var.set_type(nullptr);
-       return;
+      REPORT_ERROR("Variable expression with null identifier node", var.location());
+      error_occurred_ = true;
+      var.set_type(nullptr);
+      return;
    }
   // 1. Lookup the variable symbol in the symbol table
-  // SymbolCollector ensures the symbol exists if declared.
   auto symbol = symbol_table_->lookup_symbol(var.identifier()->name());
 
-  // 2. Check if the symbol exists
-  if (!symbol) {
-    // This error should ideally be caught by SymbolCollector, but we re-check here
-    // for robustness or cases where SymbolCollector might have missed something.
-    // However, the previous SymbolCollector refactor already reports this.
-    // Let's assume SymbolCollector is the primary source for this error now.
-    // Keeping the check but maybe changing the error message or making it an internal error.
-    // For now, keep the existing user-facing error.
+  // 2.
+  if (symbol) {
+    symbol->set_used(true);
+  }
+  else {
     REPORT_ERROR("Use of undeclared variable '" + var.identifier()->name() + "'", var.location());
     error_occurred_ = true;
-    var.set_type(nullptr); // Cannot determine type if symbol is undefined
+    var.set_type(nullptr);
     return;
   }
 
@@ -725,13 +721,13 @@ void SemanticAnalyser::visit(expr::Variable& var) {
         // These kinds are expected to have a type and be usable as an expression
         break;
     case sym_table::SymbolKind::FUNC:
-         // Using a function name directly as a variable (e.g., `x = myFunc;`) might not be allowed
-         REPORT_ERROR("Usage of function '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
+         // Using a function name directly as a variable (e.g., `x = myFunc();`) is not yet allowed
+         REPORT_ERROR("Usage of function '" + var.identifier()->name() + "' as a variable is not yet supported", var.location());
          error_occurred_ = true;
          var.set_type(nullptr);
          return;
     case sym_table::SymbolKind::TYPE:
-         // Using a type name directly as a variable (e.g., `x = int;`) is not allowed
+         // Using a type name directly as a variable (e.g., `x = i32;`) is not allowed
          REPORT_ERROR("Usage of type name '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
          error_occurred_ = true;
          var.set_type(nullptr);
@@ -752,8 +748,8 @@ void SemanticAnalyser::visit(expr::Variable& var) {
         // Catch any other unexpected kinds
         REPORT_ERROR("Usage of symbol '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
         error_occurred_ = true;
-        var.set_type(nullptr); // Invalid usage means type is unknown
-        return; // Exit if usage is invalid
+        var.set_type(nullptr);
+        return;
   }
 
 
