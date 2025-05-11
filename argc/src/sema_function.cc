@@ -40,7 +40,7 @@ void SemanticAnalyser::visit(func::Function& f) {
     }
     // Visit parameter to add its symbol to the current scope
     param->accept(*this);
-    // Type lookup and error reporting for unknown parameter types are moved to SemanticAnalyser
+    // Type lookup and error reporting for unknown parameter types are moved to down
   }
 
   if (f.return_type()) {
@@ -62,7 +62,7 @@ void SemanticAnalyser::visit(func::Function& f) {
         current_return_type_ = ret_type; // Set the resolved return type
          // Also update the function symbol's type in the symbol table since it was set to nullptr initially
          if (auto func_symbol = symbol_table_->lookup_symbol(f.name()->name())) {
-            if (!func_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
+            if (!func_symbol->get_type()) { // Only set if not already set (should be nullptr from above)
               func_symbol->set_type(ret_type);
             } else if (func_symbol->get_type() != ret_type) {
               // This case indicates an inconsistency if SymbolCollector already set the type.
