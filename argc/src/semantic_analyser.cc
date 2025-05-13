@@ -1,7 +1,6 @@
 #include "semantic_analyser.hh"
 #include "error_handler.hh"
 #include <variant> 
-#include <iostream>
 #include <string> 
 #include <vector> 
 #include <memory> 
@@ -54,11 +53,23 @@ std::shared_ptr<sym_table::Type> SemanticAnalyser::get_result_type(
   // Handle pointer arithmetic (pointer + integral, integral + pointer, pointer - integral)
   if (binary_op == BinaryOp::ADD || binary_op == BinaryOp::SUB) {
     if (left->is_pointer_type() && right->is_integral_type()) {
-      return sym_table::Type::create_pointer_type(left->get_base_type());
+      // Ensure left->get_base_type() is not null before creating pointer type
+      if (left->get_base_type()) {
+         return sym_table::Type::create_pointer_type(left->get_base_type());
+      } else {
+         // This might indicate an issue with the pointer type itself from symbol collection
+         return nullptr;
+      }
     }
 
     if (right->is_pointer_type() && left->is_integral_type() && binary_op == BinaryOp::ADD) {
-      return sym_table::Type::create_pointer_type(right->get_base_type());
+      // Ensure right->get_base_type() is not null before creating pointer type
+      if (right->get_base_type()) {
+         return sym_table::Type::create_pointer_type(right->get_base_type());
+      } else {
+         // This might indicate an issue with the pointer type itself from symbol collection
+         return nullptr;
+      }
     }
   }
 
@@ -163,6 +174,7 @@ std::shared_ptr<sym_table::Type> SemanticAnalyser::get_literal_type(const expr::
   // Use std::visit to handle the different possible types in the variant
   return std::visit([&](auto&& val) -> std::shared_ptr<sym_table::Type> {
     using T = std::decay_t<decltype(val)>;
+    // Lookup built-in types from the symbol table
     if constexpr (std::is_same_v<T, int64_t>) {
       return symbol_table_->lookup_type("i64"); // Assume i64 for integer literals
     } else if constexpr (std::is_same_v<T, double>) {
@@ -171,9 +183,22 @@ std::shared_ptr<sym_table::Type> SemanticAnalyser::get_literal_type(const expr::
       return symbol_table_->lookup_type("bool"); // Assume bool for boolean literals
     } else if constexpr (std::is_same_v<T, u_int64_t>) {
       return symbol_table_->lookup_type("u64"); // Assume u64 for unsigned integer literals
-    } else {
+    }
+     else if constexpr (std::is_same_v<T, std::string>) { // Added string literal handling
+        // Validate UTF-8 for string literals
+        // This requires is_valid_utf8 function
+        // For now, just return str type if available
+        if (!is_valid_utf8(val)) {
+             REPORT_ERROR("String literal contains invalid UTF-8 encoding", yy::location()); // Report error with dummy location
+             error_occurred_ = true;
+        }
+        return symbol_table_->lookup_type("str"); // Assume str for string literals
+    }
+
+    else {
       // Fallback for any other unexpected types in the variant
       REPORT_ERROR("Unknown literal type encountered", yy::location()); // Report error with dummy location
+      error_occurred_ = true; // Mark error
       return nullptr;
     }
   }, value);
@@ -203,85 +228,25 @@ auto SemanticAnalyser::is_valid_utf8(const std::string& str) -> bool {
   return true;
 }
 
-
-//============================================================================
-// Visitor implementations (Merged with TypeChecker logic)
-//============================================================================
-
-void SemanticAnalyser::visit(mod::Module& m) {
-  symbol_table_->enter_scope(m.identifier()->name());
-  
-  // Process functions first to allow forward references and populate function symbols
-  // (SymbolCollector already does this, but visiting here for semantic checks)
-  for (auto& f : m.functions()) {
-    if (f) f->accept(*this);
-  }
-
-  for (auto& s : m.statements()) {
-    if (s) s->accept(*this);
-  }
-
-  symbol_table_->exit_scope();
-}
-
-void SemanticAnalyser::visit(func::Function& f) {
-  symbol_table_->enter_scope(f.name()->name());
-
-  // Set current return type for checking return statements within this function
-  if (auto single_ret = std::dynamic_pointer_cast<func::SingleReturnType>(f.return_type())) {
-    // Lookup the declared return type in the symbol table
-    auto ret_type = symbol_table_->lookup_type(single_ret->identifier()->name());
-    if (!ret_type) {
-      REPORT_ERROR("Unknown return type '" + single_ret->identifier()->name() + "' for function '" + f.name()->name() + "'", single_ret->location());
-      error_occurred_ = true;
-      current_return_type_ = nullptr; // Cannot resolve type
-    } else {
-      current_return_type_ = ret_type; // Set the resolved return type
-    }
-  } else if (auto multi_ret = std::dynamic_pointer_cast<func::MultipleReturnType>(f.return_type())) {
-    // Handle multiple return types (currently not supported)
-    REPORT_ERROR("Multiple return types are not supported yet", multi_ret->location());
-    error_occurred_ = true;
-    current_return_type_ = nullptr; // Cannot handle multiple types
-  } else {
-    // If no explicit return type is specified, assume void
-    current_return_type_ = symbol_table_->lookup_type("void"); // Use symbol table to get void type
-    if (!current_return_type_) {
-      // Should not happen if built-in types are added, but safe check
-      REPORT_ERROR("Built-in type 'void' not found in symbol table", f.location());
-      error_occurred_ = true;
-    }
-  }
-
-  // Check parameters (visit them for any nested expressions if parameters could have initializers or complex types)
-  // In this language version, parameters seem simple (identifier + type), primarily handled by SymbolCollector
-  // But we visit here to adhere to the visitor pattern for all nodes.
-  for (const auto& param : f.parameters()) {
-    if (param) param->accept(*this);
-  }
-
-  if (f.body()) {
-    f.body()->accept(*this);
-  }
-
-  symbol_table_->exit_scope();
-  // Reset current return type after exiting function scope
-  current_return_type_ = nullptr;
-}
-
 void SemanticAnalyser::visit(expr::FunctionCall& call) {
+  // 1. Lookup the function symbol in the symbol table
+  // SymbolCollector ensures the symbol exists if declared.
   auto func_symbol = symbol_table_->lookup_symbol(call.function()->name());
 
   // Check if the symbol exists and is actually a function
   if (!func_symbol || func_symbol->get_kind() != sym_table::SymbolKind::FUNC) {
-    REPORT_ERROR("Call to undefined function '" + call.function()->name() + "'", call.location());
+    REPORT_ERROR("Call to undefined or non-function symbol '" + call.function()->name() + "'", call.location());
     error_occurred_ = true;
     call.set_type(nullptr); // Cannot determine type if function is undefined
+     // Still visit arguments to find potential errors within them
+    for (auto& arg : call.arguments()) {
+        if (arg) arg->accept(*this);
+    }
     return;
   }
 
   // 2. Check argument count
-  const auto& params = func_symbol->get_params();
+  const auto& params = func_symbol->get_params(); // Get parameters from the function symbol
   const auto& args = call.arguments();
 
   if (params.size() != args.size()) {
@@ -296,16 +261,27 @@ void SemanticAnalyser::visit(expr::FunctionCall& call) {
   }
 
   // 3. Type check each argument and compare with parameter types
-  bool args_match = true; // Assume true initially
   size_t num_args_to_check = std::min(params.size(), args.size()); // Avoid out-of-bounds access
 
   for (size_t i = 0; i < num_args_to_check; ++i) {
     // Visit the argument expression first to determine its type
-    if (args[i]) args[i]->accept(*this);
+    if (args[i]) args[i]->accept(*this); else {
+         REPORT_ERROR("Null argument node in function call to '" + call.function()->name() + "'", call.location());
+         error_occurred_ = true;
+         continue; // Skip type check for this null argument
+    }
 
     // Get the types of the parameter and the argument
+    // Parameter type is from the symbol table entry created by SymbolCollector
     auto param_type = params[i]->get_type();
-    auto arg_type = args[i] ? args[i]->type() : nullptr;
+    auto arg_type = args[i]->type(); // Argument type comes from visiting the expression
+
+    // Ensure parameter type was resolved by SemanticAnalyser pass on Function/Parameter nodes
+     if (!param_type) {
+          REPORT_ERROR("Internal Error: Type for parameter '" + params[i]->get_name() + "' of function '" + func_symbol->get_name() + "' is unresolved.", call.location());
+          error_occurred_ = true;
+          continue; // Cannot check type if param type is unknown
+     }
 
     // Check argument type compatibility using is_safe_assignment (allows implicit casts)
     if (!arg_type || !is_safe_assignment(param_type, arg_type)) {
@@ -314,9 +290,8 @@ void SemanticAnalyser::visit(expr::FunctionCall& call) {
         call.function()->name() + "' has incompatible type '" +
         get_type_name(arg_type) + "', expected '" +
         get_type_name(param_type) + "'",
-        args[i] ? args[i]->location() : call.location()); // Use arg location if available
+        args[i]->location()); // Report error at argument location
       error_occurred_ = true;
-      args_match = false; // Mark that there's a type mismatch
     }
   }
 
@@ -324,46 +299,33 @@ void SemanticAnalyser::visit(expr::FunctionCall& call) {
    // If params.size() > args.size(), the missing arguments were covered by the count check.
 
   // 4. Set the function call expression's type to the function's return type
-  // Only set the type if the function symbol was found, even if argument checks failed
-  // This allows subsequent checks that use the return type to proceed, potentially finding more errors.
+  // Get the function's return type from the symbol table (set during visit(func::Function&))
   call.set_type(func_symbol->get_type());
 }
 
-
-void SemanticAnalyser::visit(func::Parameter& param) {
-  // Parameters are primarily handled during symbol collection.
-  // This visit ensures consistency in traversing the AST.
-  // A basic check to ensure the parameter's declared type exists could be added here,
-  // but it's already done in SymbolCollector and TypeChecker (before integration).
-  // Leaving it minimal for now as per original SemanticAnalyser.
-   if (!param.type()) {
-       REPORT_ERROR("Parameter type is undefined", param.location());
-       error_occurred_ = true;
-   }
-}
-
-void SemanticAnalyser::visit(func::ReturnTypeInfo&) {
-    // Base class, no specific semantic/type logic here
-}
-void SemanticAnalyser::visit(func::MultipleReturnType&) {
-    // Semantic/Type logic for MultipleReturnType is handled in func::Function visitor
-}
-void SemanticAnalyser::visit(func::SingleReturnType&) {
-    // Semantic/Type logic for SingleReturnType is handled in func::Function visitor
-}
-
 void SemanticAnalyser::visit(func::Body& body) {
+  // SemanticAnalyser assumes SymbolCollector has already entered the block scope for the function body.
+  // We don't manage scopes here.
+
   // Visit all statements within the function body
   for (auto& stmt : body.statements()) {
-    if (stmt) stmt->accept(*this);
+    if (stmt) {
+      stmt->accept(*this);
+    } else {
+        REPORT_ERROR("Null statement node in function body", body.location());
+        error_occurred_ = true;
+    }
   }
+
+  // SemanticAnalyser assumes SymbolCollector will exit the block scope.
 }
 
 void SemanticAnalyser::visit(ident::Identifier&) {
-  // Simple identifier, no semantic/type logic here
+  // Simple identifier, no specific semantic/type logic here.
+  // Handled when used in expressions (expr::Variable) or statements (stmt::Assignment, func::FunctionCall).
 }
 void SemanticAnalyser::visit(ident::TypeIdentifier&) {
-  // Simple type identifier, no semantic/type logic here
+  // Simple type identifier. Type lookup happens when needed (e.g., VariableDeclaration, Parameter, Function return type).
 }
 
 void SemanticAnalyser::visit(stmt::Statement&) {
@@ -374,18 +336,25 @@ void SemanticAnalyser::visit(stmt::Empty&) {
 }
 
 void SemanticAnalyser::visit(stmt::Block& block) {
-  symbol_table_->enter_scope("block");
+  // SemanticAnalyser assumes SymbolCollector has already entered the block scope.
+  // We don't manage scopes here.
 
   for (auto& stmt : block.statements()) {
-    if (stmt) stmt->accept(*this);
+    if (stmt) {
+      stmt->accept(*this);
+    } else {
+        REPORT_ERROR("Null statement node in block", block.location());
+        error_occurred_ = true;
+    }
   }
 
-  symbol_table_->exit_scope();
+  // SemanticAnalyser assumes SymbolCollector will exit the block scope.
 }
 
 void SemanticAnalyser::visit(stmt::Return& ret) {
   auto expr = ret.expression(); // Get the optional expression
 
+  // Check against the current function's return type (set in visit(func::Function&))
   if (!current_return_type_ || current_return_type_->get_name() == "void") {
     // Function is declared as void or return type is unresolved
     if (expr) {
@@ -409,7 +378,7 @@ void SemanticAnalyser::visit(stmt::Return& ret) {
 
   // Visit the return expression to determine its type
   (*expr)->accept(*this);
-  auto expr_type = (*expr)->type();
+  auto expr_type = (*expr)->type(); // Get type from the visited expression
 
   // Check if the expression's type is compatible with (can be assigned to) the function's return type
   if (!expr_type || !is_safe_assignment(current_return_type_, expr_type)) {
@@ -423,7 +392,7 @@ void SemanticAnalyser::visit(stmt::Return& ret) {
 }
 
 void SemanticAnalyser::visit(stmt::Print& ps) {
-  auto expr = ps.expression(); 
+  auto expr = ps.expression();
   if (expr) {
     // Visit the expression to determine its type
     expr->accept(*this);
@@ -437,20 +406,65 @@ void SemanticAnalyser::visit(stmt::Print& ps) {
 }
 
 void SemanticAnalyser::visit(stmt::VariableDeclaration& vd) {
-  auto declared_type = vd.type();
+  // Variable symbol is added by SymbolCollector.
+  // Here, we validate the declared type and the initializer.
 
-  // Ensure the declared type was resolved by the SymbolCollector/SymbolTable
+  if (!vd.identifier()) {
+       REPORT_ERROR("Variable declaration with null identifier node", vd.location());
+       error_occurred_ = true;
+       // Cannot proceed without identifier, exit.
+       return;
+  }
+
+  // Lookup the variable symbol added by SymbolCollector. It should exist.
+  auto var_symbol = symbol_table_->lookup_symbol_in_current_scope(vd.identifier()->name());
+
+  if (!var_symbol || (var_symbol->get_kind() != sym_table::SymbolKind::VAR && var_symbol->get_kind() != sym_table::SymbolKind::CONST)) {
+      // This should not happen if SymbolCollector ran correctly and we are in the correct scope
+      REPORT_ERROR("Internal Error: Variable symbol '" + vd.identifier()->name() + "' not found or has incorrect kind in current scope during semantic analysis.", vd.location());
+      error_occurred_ = true;
+      // Still visit initializer to find errors within it
+      if (vd.initialiser()) {
+         (*vd.initialiser())->accept(*this);
+      }
+      return;
+  }
+
+  // Validate and set the declared type on the symbol
+  auto declared_type_node = vd.type(); // Get the AST node for the type
+
+  if (!declared_type_node) {
+       REPORT_ERROR("Variable '" + vd.identifier()->name() + "' has a null type node.", vd.location());
+       error_occurred_ = true;
+       // The variable symbol's type remains null in the symbol table
+       // Still visit initializer
+       if (vd.initialiser()) {
+          (*vd.initialiser())->accept(*this);
+       }
+       return;
+  }
+
+  // Lookup the declared type name in the symbol table
+  auto declared_type = symbol_table_->lookup_type(declared_type_node->get_name()); // Use get_name() from the Type object attached by parser
+
   if (!declared_type) {
-    // This error should ideally be caught during symbol collection or type resolution,
-    // but we report it here defensively if the type pointer is null.
-    REPORT_ERROR("Undefined type for variable '" + (vd.identifier() ? vd.identifier()->name() : "<unknown>") + "'", vd.location());
-    error_occurred_ = true;
-    // Cannot proceed with type checking for the initializer if the variable's type is unknown
-    if (vd.initialiser()) {
-      // Still visit the initializer expression to find errors within it
-      (*vd.initialiser())->accept(*this);
-    }
-    return;
+      REPORT_ERROR("Unknown type '" + declared_type_node->get_name() + "' for variable '" + vd.identifier()->name() + "'", vd.location());
+      error_occurred_ = true;
+       // The variable symbol's type remains null in the symbol table
+      // Still visit initializer
+      if (vd.initialiser()) {
+         (*vd.initialiser())->accept(*this);
+      }
+      return;
+  } else {
+       // Set the resolved type on the variable symbol
+       if (!var_symbol->get_type()) { // Only set if not already set (should be nullptr from SymbolCollector)
+            var_symbol->set_type(declared_type);
+       } else if (var_symbol->get_type() != declared_type) {
+           // Inconsistency or type mismatch if SymbolCollector already set the type.
+           // Prefer the type looked up here.
+            var_symbol->set_type(declared_type);
+       }
   }
 
   // Check the initialiser expression if present
@@ -458,10 +472,11 @@ void SemanticAnalyser::visit(stmt::VariableDeclaration& vd) {
     auto initialiser_expr = *vd.initialiser();
     // Visit the initialiser expression to determine its type
     initialiser_expr->accept(*this);
-    auto initialiser_type = initialiser_expr->type();
+    auto initialiser_type = initialiser_expr->type(); // Get type from the visited expression
 
     // Check if the initialiser expression's type can be safely assigned to the variable's declared type
-    if (initialiser_type && !is_safe_assignment(declared_type, initialiser_type)) {
+    // Use the resolved declared_type from the symbol table
+    if (!initialiser_type || !is_safe_assignment(declared_type, initialiser_type)) {
       REPORT_ERROR(
         "Type mismatch in initialiser for variable '" + (vd.identifier() ? vd.identifier()->name() : "<unknown>") +
         "': cannot assign expression of type '" + get_type_name(initialiser_type) +
@@ -469,17 +484,23 @@ void SemanticAnalyser::visit(stmt::VariableDeclaration& vd) {
         initialiser_expr->location()); // Report error at initialiser location
       error_occurred_ = true;
     }
+  } else {
+      // If there is no initializer, check if the type is default constructible or requires initialization
+      // This is a more advanced semantic check, leaving it out for now to match original scope.
   }
 
   // The symbol for the variable should have been created and added to the table
   // by the SymbolCollector. We don't add it here.
-  // We could retrieve the symbol here and set its type field explicitly,
-  // but the SymbolCollector already sets the type based on vd.type().
-  // Should the language support type inference (no explicit type in declaration),
-  // this is where we would infer the type from the initializer and update the symbol.
 }
 
 void SemanticAnalyser::visit(stmt::Assignment& assign) {
+   if (!assign.target()) {
+       REPORT_ERROR("Assignment statement with null target identifier", assign.location());
+       error_occurred_ = true;
+       // Still visit value to find errors
+       if (assign.value()) assign.value()->accept(*this);
+       return;
+   }
 
   // 1. Lookup the target variable/identifier in the symbol table
   auto target_symbol = symbol_table_->lookup_symbol(assign.target()->name());
@@ -489,37 +510,54 @@ void SemanticAnalyser::visit(stmt::Assignment& assign) {
     REPORT_ERROR("Assignment to undeclared variable '" + assign.target()->name() + "'", assign.location());
     error_occurred_ = true;
     // Still visit the value expression to find errors within it
-    assign.value()->accept(*this);
+    if (assign.value()) assign.value()->accept(*this);
     return;
   }
 
   // Check if the target is assignable (e.g., not a constant, function, module, etc.)
-  // Only VAR and PARAM are assignable in this so far
-  if (target_symbol->get_kind() == sym_table::SymbolKind::CONST) {
-    REPORT_ERROR("Cannot assign to constant variable '" + assign.target()->name() + "'", assign.location());
-    error_occurred_ = true;
-     // Still visit the value expression
-    assign.value()->accept(*this);
-    return;
+  // Only VAR and PARAM are assignable in this so far, CONST is not.
+  switch(target_symbol->get_kind()) {
+      case sym_table::SymbolKind::VAR:
+      case sym_table::SymbolKind::PARAM:
+          // Assignable kinds
+          break;
+      case sym_table::SymbolKind::CONST:
+          REPORT_ERROR("Cannot assign to constant variable '" + assign.target()->name() + "'", assign.location());
+          error_occurred_ = true;
+           // Still visit the value expression
+          if (assign.value()) assign.value()->accept(*this);
+          return; // Exit if not assignable
+      default:
+          REPORT_ERROR("Assignment target '" + assign.target()->name() + "' is not a variable, parameter, or assignable entity", assign.location());
+          error_occurred_ = true;
+           // Still visit the value expression
+          if (assign.value()) assign.value()->accept(*this);
+          return; // Exit if not assignable
   }
-  if (target_symbol->get_kind() != sym_table::SymbolKind::VAR &&
-    target_symbol->get_kind() != sym_table::SymbolKind::PARAM) {
-      REPORT_ERROR("Assignment target '" + assign.target()->name() + "' is not a variable or parameter", assign.location());
-      error_occurred_ = true;
-      // Still visit the value expression
-      assign.value()->accept(*this);
-      return;
-  }
+
 
   // 2. Visit the assigned value expression to determine its type
+  if (!assign.value()) {
+       REPORT_ERROR("Assignment statement with null value expression", assign.location());
+       error_occurred_ = true;
+       return; // Cannot type check without value
+  }
   assign.value()->accept(*this);
-  auto value_type = assign.value()->type();
+  auto value_type = assign.value()->type(); // Get type from the visited expression
 
-  // 3. Get the type of the target variable
+  // 3. Get the type of the target variable from the symbol table
   auto target_type = target_symbol->get_type();
 
+  // Ensure target type was resolved during semantic analysis pass on declaration/parameter nodes
+  if (!target_type) {
+      REPORT_ERROR("Internal Error: Type for symbol '" + target_symbol->get_name() + "' is unresolved.", assign.location());
+      error_occurred_ = true;
+      return; // Cannot type check if target type is unknown
+  }
+
+
   // 4. Check if the value's type can be safely assigned to the target's type
-  if (!value_type || !target_type || !is_safe_assignment(target_type, value_type)) {
+  if (!value_type || !is_safe_assignment(target_type, value_type)) {
     REPORT_ERROR(
       "Type mismatch in assignment to variable '" + assign.target()->name() +
       "': cannot assign value of type '" + get_type_name(value_type) +
@@ -544,16 +582,8 @@ void SemanticAnalyser::visit(expr::Literal& lit) {
   } else {
     // get_literal_type already reports an error, just ensure type is null
     lit.set_type(nullptr);
-    error_occurred_ = true; // Propagate error status
+    // error_occurred_ is set by get_literal_type
   }
-
-  // Soon: Validate string literals for UTF-8 encoding if is_valid_utf8 is implemented
-  // if (auto string_val = std::get_if<std::string>(&lit.value())) {
-  //   if (!is_valid_utf8(*string_val)) {
-  //     REPORT_ERROR("String literal contains invalid UTF-8 encoding", lit.location());
-  //     error_occurred_ = true; // String literal encoding error
-  //   }
-  // }
 }
 
 void SemanticAnalyser::visit(expr::Binary& bin) {
@@ -561,11 +591,11 @@ void SemanticAnalyser::visit(expr::Binary& bin) {
   if (bin.lhs()) bin.lhs()->accept(*this); else { REPORT_ERROR("Null left-hand side in binary expression", bin.location()); error_occurred_ = true; }
   if (bin.rhs()) bin.rhs()->accept(*this); else { REPORT_ERROR("Null right-hand side in binary expression", bin.location()); error_occurred_ = true; }
 
-  // 2. Get the types of the operands
+  // 2. Get the types of the operands (from the visited expression nodes)
   auto lhs_type = bin.lhs() ? bin.lhs()->type() : nullptr;
   auto rhs_type = bin.rhs() ? bin.rhs()->type() : nullptr;
 
-  // If either operand's type is unknown (due to previous errors), we cannot determine the result type
+  // If either operand's type is unknown (due to previous errors or null nodes), we cannot determine the result type
   if (!lhs_type || !rhs_type) {
     bin.set_type(nullptr);
     return;
@@ -624,7 +654,7 @@ void SemanticAnalyser::visit(expr::Unary& un) {
   // 1. Visit the operand first to determine its type
   if (un.operand()) un.operand()->accept(*this); else { REPORT_ERROR("Null operand in unary expression", un.location()); error_occurred_ = true; }
 
-  // 2. Get the type of the operand
+  // 2. Get the type of the operand (from the visited expression node)
   auto operand_type = un.operand() ? un.operand()->type() : nullptr;
 
    // If operand type is unknown, we cannot determine the result type
@@ -660,14 +690,23 @@ void SemanticAnalyser::visit(expr::Unary& un) {
 }
 
 void SemanticAnalyser::visit(expr::Variable& var) {
+   if (!var.identifier()) {
+      REPORT_ERROR("Variable expression with null identifier node", var.location());
+      error_occurred_ = true;
+      var.set_type(nullptr);
+      return;
+   }
   // 1. Lookup the variable symbol in the symbol table
   auto symbol = symbol_table_->lookup_symbol(var.identifier()->name());
 
-  // 2. Check if the symbol exists
-  if (!symbol) {
+  // 2.
+  if (symbol) {
+    symbol->set_used(true);
+  }
+  else {
     REPORT_ERROR("Use of undeclared variable '" + var.identifier()->name() + "'", var.location());
     error_occurred_ = true;
-    var.set_type(nullptr); // Cannot determine type if symbol is undefined
+    var.set_type(nullptr);
     return;
   }
 
@@ -680,22 +719,49 @@ void SemanticAnalyser::visit(expr::Variable& var) {
     case sym_table::SymbolKind::TEMP: // If temporary symbols are used in expressions
         // These kinds are expected to have a type and be usable as an expression
         break;
+    case sym_table::SymbolKind::FUNC:
+         // Using a function name directly as a variable (e.g., `x = myFunc();`) is not yet allowed
+         REPORT_ERROR("Usage of function '" + var.identifier()->name() + "' as a variable is not yet supported", var.location());
+         error_occurred_ = true;
+         var.set_type(nullptr);
+         return;
+    case sym_table::SymbolKind::TYPE:
+         // Using a type name directly as a variable (e.g., `x = i32;`) is not allowed
+         REPORT_ERROR("Usage of type name '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
+         error_occurred_ = true;
+         var.set_type(nullptr);
+         return;
+    case sym_table::SymbolKind::MODULE:
+         // Using a module name directly as a variable is not allowed
+         REPORT_ERROR("Usage of module name '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
+         error_occurred_ = true;
+         var.set_type(nullptr);
+         return;
+    case sym_table::SymbolKind::LABEL:
+         // Usage of label as a variable is not allowed
+          REPORT_ERROR("Usage of label '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
+          error_occurred_ = true;
+          var.set_type(nullptr);
+          return;
     default:
+        // Catch any other unexpected kinds
         REPORT_ERROR("Usage of symbol '" + var.identifier()->name() + "' as a variable is not allowed", var.location());
         error_occurred_ = true;
-        var.set_type(nullptr); // Invalid usage means type is unknown
-        return; // Exit if usage is invalid
+        var.set_type(nullptr);
+        return;
   }
 
 
   // 4. Set the expression's type to the type of the found symbol
+  // The symbol's type should have been resolved and set during the SemanticAnalyser pass on declarations/parameters.
   auto symbol_type = symbol->get_type();
    if (!symbol_type) {
-       // This case should ideally be caught during Symbol Collection if type resolution failed
-       REPORT_ERROR("Variable '" + var.identifier()->name() + "' has an undefined type", var.location());
+       // This case indicates that the type resolution for this symbol failed during the
+       // SemanticAnalyser pass on its declaration (VariableDeclaration or Parameter).
+       REPORT_ERROR("Internal Error: Variable '" + var.identifier()->name() + "' has an unresolved type.", var.location());
        error_occurred_ = true;
    }
   var.set_type(symbol_type);
 
-  // Mark symbol as used - already done by symbol_table_->lookup_symbol
+  // Mark symbol as used - handled by symbol_table_->lookup_symbol
 }

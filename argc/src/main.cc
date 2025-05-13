@@ -9,7 +9,6 @@
 #include "util_logger.hh"
 #include "error_handler.hh"
 #include "codegen.hh"
-#include "symbol_collector.hh"
 #include "semantic_analyser.hh"
 
 namespace fs = std::filesystem;
@@ -90,7 +89,8 @@ auto main(const int argc, char* argv[]) -> int {
       return EXIT_FAILURE;
     }
   }
-                                                    
+    
+  /** 
   ast::SymbolCollector symbol_collector;
   module_definition->accept(symbol_collector);
   if (!symbol_collector.successful()) {
@@ -108,7 +108,7 @@ auto main(const int argc, char* argv[]) -> int {
     std::cout << "Symbols: \n";
     sym_table::SymbolTable::get_instance()->print();
   }
-
+  **/
   
   ast::SemanticAnalyser semantic_analyser;
   module_definition->accept(semantic_analyser);
@@ -128,7 +128,7 @@ auto main(const int argc, char* argv[]) -> int {
     << "\n" << std::endl;
     return EXIT_FAILURE;
   }
-  /** 
+  
   llvm::LLVMContext context;
   ast::CodeGenerator codegen(context);
   module_definition->accept(codegen);
@@ -146,19 +146,6 @@ auto main(const int argc, char* argv[]) -> int {
 
   auto prog_module { codegen.take_module() };
   prog_module->print(llvm::outs(), nullptr);
-
-  //fs::path output_path = fs::absolute(config.input_files.at(0)).replace_extension(".s");
-  //std::ofstream output_file { output_path.string() };
-  //if (!output_file.is_open()) {
-  //  LOG_ERROR("Failed to open file '" + output_path.string() + "'");
-  //  return EXIT_FAILURE;
-  //}
-
-  //output_file << codegen.get_asm_code();
-  //output_file.close();
-
-  return EXIT_SUCCESS;
-  **/
 
   return 0;
 }

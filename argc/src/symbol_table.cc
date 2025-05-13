@@ -1,5 +1,3 @@
-
-
 #include "sym_table.hh"
 
 #include <iostream>
@@ -232,7 +230,7 @@ auto Type::is_pointer_type() const -> bool {
 
 // Factory methods for common types
 auto Type::create_integer_type() -> std::shared_ptr<Type> {
-  return std::make_shared<Type>(TypeKind::PRIMITIVE, "f32");
+  return std::make_shared<Type>(TypeKind::PRIMITIVE, "i32");
 }
 
 auto Type::create_floating_point_type() -> std::shared_ptr<Type> {
