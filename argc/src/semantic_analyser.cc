@@ -503,7 +503,6 @@ void SemanticAnalyser::visit(stmt::Assignment& assign) {
    }
 
   // 1. Lookup the target variable/identifier in the symbol table
-  // SymbolCollector ensures the symbol exists if declared.
   auto target_symbol = symbol_table_->lookup_symbol(assign.target()->name());
 
   // Check if the symbol exists
