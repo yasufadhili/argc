@@ -6,9 +6,19 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+# Force static runtime library on Windows with MSVC to match ANTLR4
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    # Alternative approach: modify compiler flags directly
+    # set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+endif()
+
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 
 # Additional module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -35,7 +45,7 @@ endif()
 
 
 # ANTLR4 runtime configuration
-set(ANTLR4_WITH_STATIC_CRT OFF)
+set(ANTLR4_WITH_STATIC_CRT ON)
 set(ANTLR4_INSTALL OFF)
 set(ANTLR4_BUILD_CPP_TESTS OFF)
 set(ANTLR4_BUILD_EXAMPLES OFF)
