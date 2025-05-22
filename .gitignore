@@ -58,3 +58,6 @@ compile_commands.json
 *.o
 
 .vs/
+
+generated/
+out/
