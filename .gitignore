@@ -64,3 +64,5 @@ out/
 external/antlr4
 
 dist/
+
+CMakeSettings.json
