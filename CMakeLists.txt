@@ -20,8 +20,8 @@ set(GEN_SOURCES)
 foreach(GRAMMAR ${ANTLR_GRAMMARS})
     get_filename_component(GRAMMAR_NAME ${GRAMMAR} NAME_WE)
     add_custom_command(
-        OUTPUT ${GEN_DIR}/${GRAMMAR_NAME}Lexer.cpp ${GEN_DIR}/${GRAMMAR_NAME}Lexer.h
-               ${GEN_DIR}/${GRAMMAR_NAME}Parser.cpp ${GEN_DIR}/${GRAMMAR_NAME}Parser.h
+        OUTPUT ${GEN_DIR}/${GRAMMAR_NAME}Lexer.cc ${GEN_DIR}/${GRAMMAR_NAME}Lexer.hh
+               ${GEN_DIR}/${GRAMMAR_NAME}Parser.cc ${GEN_DIR}/${GRAMMAR_NAME}Parser.hh
         COMMAND ${CMAKE_COMMAND} -E echo "Generating Antlr4 files for ${GRAMMAR_NAME}"
         COMMAND ${CMAKE_COMMAND} -E make_directory ${GEN_DIR}
         COMMAND java -jar ${ANTLR_TOOL} -Dlanguage=Cpp -o ${GEN_DIR} ${GRAMMAR}
@@ -29,10 +29,20 @@ foreach(GRAMMAR ${ANTLR_GRAMMARS})
         COMMENT "Running Antlr4 on ${GRAMMAR}"
     )
     list(APPEND GEN_SOURCES
-        ${GEN_DIR}/${GRAMMAR_NAME}Lexer.cpp
-        ${GEN_DIR}/${GRAMMAR_NAME}Parser.cpp
+        ${GEN_DIR}/${GRAMMAR_NAME}Lexer.cc
+        ${GEN_DIR}/${GRAMMAR_NAME}Parser.cc
     )
 endforeach()
+
+message("Fetching fmtlib")
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.2.1
+)
+FetchContent_MakeAvailable(fmt)
+message("Done fetching fmtlib")
+
 
 # Gather all source files
 file(GLOB SRC_FILES "${SRC_DIR}/*.cc")
@@ -53,6 +63,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE antlr4_shared
+    PRIVATE fmt::fmt
 )
 
 add_custom_target(generate_antlr
