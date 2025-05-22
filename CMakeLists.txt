@@ -39,7 +39,7 @@ file(GLOB SRC_FILES "${SRC_DIR}/*.cc")
 
 add_executable(${PROJECT_NAME}
     ${SRC_FILES}
-    ${GEN_SOURCES}
+    #${GEN_SOURCES}
 )
 
 target_include_directories(${PROJECT_NAME}
