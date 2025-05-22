@@ -56,3 +56,11 @@ compile_commands.json
 
 *.out
 *.o
+
+.vs/
+
+generated/
+out/
+external/antlr4
+
+dist/
