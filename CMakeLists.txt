@@ -118,6 +118,7 @@ add_dependencies(argon_grammar Argon_generate)
 # Main executable
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
+        ${PROJECT_SOURCE_DIR}/include
 )
 
 
