@@ -5,6 +5,8 @@
 #include <string>
 #include <variant>
 
+#include "antlr4-runtime.h"
+
 namespace argc::ast {
 
   class Node {
@@ -22,6 +24,8 @@ namespace argc::ast {
 
   class ModuleDeclaration final : public Node {
     std::vector<stmt_ptr> statements_;
+  public:
+    auto statements () -> std::vector<stmt_ptr>& { return statements_; }
   };
 
   class BinaryExpression final : public Expression {
@@ -42,6 +46,8 @@ namespace argc::ast {
 
   class ReturnStatement final : public Statement {
     expr_ptr expression_;
+  public:
+    auto expression () -> expr_ptr& { return expression_; }
   };
 
 }
