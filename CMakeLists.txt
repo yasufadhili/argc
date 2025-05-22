@@ -46,7 +46,9 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${SRC_DIR}
         ${GEN_DIR}
+        ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/external/antlr4/runtime/Cpp/runtime/src
+        ${CMAKE_SOURCE_DIR}/external/antlr4/runtime/Cpp/runtime/src/antlr4-runtime
 )
 
 target_link_libraries(${PROJECT_NAME}
