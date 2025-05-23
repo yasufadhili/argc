@@ -1,0 +1,4 @@
+module main;
+
+print 23;
+
