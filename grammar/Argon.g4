@@ -1,7 +1,7 @@
 grammar Argon;
 
 moduleDeclaration
-	:	'module' statement* EOF
+	:	'module' IDENTIFIER NEWLINE statement* EOF
 ;
 
 statement
@@ -13,7 +13,10 @@ expression
 ;
 
 
-INTEGER     :   [0-9]+  ;
+IDENTIFIER  : [a-zA-Z]+             ;
 
-NEWLINE     :   [\r\n]+   ;
-WHITESPACE  :   [ \t]+  ->  skip ;
+INTEGER     :   [0-9]+              ;
+
+NEWLINE     :   [\r\n]+             ;
+
+WHITESPACE  :   [ \t]+  ->  skip    ;

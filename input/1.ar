@@ -1,4 +1,4 @@
-module main;
+module main
 
-print 23;
+return 23
 

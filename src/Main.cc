@@ -33,8 +33,5 @@ auto main(const int argc, char *argv[]) -> int {
 
   ArgonParser::ModuleDeclarationContext* tree { parser.moduleDeclaration() };
 
-  argc::ast::AstBuilder ast_builder;
-  ast_builder.visit(tree);
-
   return 0;
 }
