@@ -1,0 +1,36 @@
+#pragma once
+
+// Version information
+#define ARGC_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define ARGC_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define ARGC_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define ARGC_VERSION "@PROJECT_VERSION@"
+
+// Project metadata
+#define ARGC_DESCRIPTION "@PROJECT_DESCRIPTION@"
+#define ARGC_HOMEPAGE_URL "@PROJECT_HOMEPAGE_URL@"
+
+// Build configuration
+#cmakedefine01 ARGC_BUILD_TESTS
+#cmakedefine01 ARGC_BUILD_DOCS
+#cmakedefine01 ARGC_ENABLE_LTO
+
+// Platform detection
+#cmakedefine ARGC_PLATFORM_WINDOWS
+#cmakedefine ARGC_PLATFORM_LINUX
+#cmakedefine ARGC_PLATFORM_MACOS
+
+// Compiler detection
+#cmakedefine ARGC_COMPILER_MSVC
+#cmakedefine ARGC_COMPILER_GCC
+#cmakedefine ARGC_COMPILER_CLANG
+
+// Build type
+#define ARGC_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+
+// Paths
+#define ARGC_SOURCE_DIR "@CMAKE_SOURCE_DIR@"
+#define ARGC_BINARY_DIR "@CMAKE_BINARY_DIR@"
+
+// ANTLR Configuration
+#define ARGC_ANTLR_GENERATED_DIR "@ANTLR_GENERATED_DIR@"
