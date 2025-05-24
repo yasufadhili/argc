@@ -5,7 +5,8 @@ moduleDeclaration
 ;
 
 statement
-    :   expressionStatement NEWLINE
+    :   expressionStatement NEWLINE             # ExpressionStmt
+    |   'ret' expression NEWLINE                # ReturnStmt
 ;
 
 expressionStatement
