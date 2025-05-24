@@ -16,9 +16,9 @@ namespace argc::ast {
   class Expression : public Node {};
   class Statement : public Node {};
 
-  using node_ptr = std::shared_ptr<Node>;
-  using expr_ptr = std::shared_ptr<Expression>;
-  using stmt_ptr = std::shared_ptr<Statement>;
+  using node_ptr = std::unique_ptr<Node>;
+  using expr_ptr = std::unique_ptr<Expression>;
+  using stmt_ptr = std::unique_ptr<Statement>;
 
   class ModuleDeclaration final : public Node {
     std::vector<stmt_ptr> statements_;
