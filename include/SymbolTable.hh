@@ -1,170 +1,213 @@
 #pragma once
 
-#include <memory>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
-#include <optional>
-#include <chrono>
-#include <atomic>
-#include <shared_mutex>
 #include <unordered_map>
-#include <unordered_set>
+#include <vector>
+#include <expected>
+#include <memory>
+#include <chrono>
+#include <span>
+#include "SourceLocation.hh"
 
-namespace argc {
-  /**
-   * @brief Forward declarations
-   */
+namespace argc::sym {
+  class SymbolTable;
+  class TypeSystem;
   class ScopeManager;
   class SymbolCache;
-  class TypeSystem;
-  class ThreadSafetyGuard;
-  class ModuleManager;
-  class SymbolAnalyser;
-  class SymbolTableDebugger;
 
-  /**
-   * @brief Represents different kinds of symbols in the Argon language
-   */
+
   enum class SymbolKind {
-    Module,
     Function,
     Variable,
     Type,
     Parameter,
-    Field,
-    Label,
-    Alias,
-    Generic,
-    Interface
+    Label
   };
 
-  /**
-   * @brief Represents visibility levels for symbols
-   */
+  enum class ScopeKind {
+    Global,
+    Function,
+    Block
+  };
+
   enum class Visibility {
     Public,
-    Protected,
     Private,
     Internal
   };
 
-  /**
-   * @brief Represents different kinds of scopes
-   */
-  enum class ScopeKind {
-    Global,
-    Module,
-    Function,
-    Block,
-    Struct,
-    Interface,
-    Namespace,
-    Generic
-  };
-
-  /**
-   * @brief Error codes for symbol operations
-   */
   enum class SymbolError {
     DuplicateSymbol,
     SymbolNotFound,
     InvalidScope,
-    InvalidKind,
-    VisibilityViolation,
-    CyclicDependency,
-    TemplateError,
-    ImportError
+    InvalidKind
   };
 
-  /**
-   * @brief Location information for symbols in source code
-   */
-  struct SourceLocation {
-    std::string file;
-    size_t line;
-    size_t column;
-    size_t offset;
+  enum class TypeKind {
+    Primitive,
+    Struct,
+    Array,
+    Pointer,
+    Function
   };
 
-  /**
-   * @brief Attributes associated with a symbol
-   */
   struct SymbolAttributes {
     Visibility visibility = Visibility::Internal;
     bool is_mutable = true;
     bool is_static = false;
     bool is_extern = false;
-    bool is_thread_local = false;
     std::optional<std::string> documentation;
-    SourceLocation definition_location;
-    std::vector<std::string> tags; // For custom attributes
+    loc::SourceLocation definition_location;
+    std::vector<std::string> tags;
   };
 
-  /**
-   * @brief Base class for all symbols
-   */
-  class Symbol {
-  public:
-    virtual ~Symbol() = default;
+  struct TypeInfo;
 
-    SymbolKind kind;
+  struct Parameter {
     std::string name;
-    SymbolAttributes attributes;
-
-    template<typename T>
-    T &as() { return static_cast<T &>(*this); }
-
-    template<typename T>
-    const T &as() const { return static_cast<const T &>(*this); }
+    TypeInfo type;
+    bool is_mutable = true;
   };
 
-  /**
-   * @brief Function symbol representation
-   */
-  struct FunctionSymbol : Symbol {
-    std::vector<class Parameter> parameters;
-    class TypeInfo return_type;
+  struct FunctionSymbol {
+    std::vector<Parameter> parameters;
+    TypeInfo return_type;
     bool is_variadic = false;
     bool is_async = false;
-    bool is_generator = false;
-    std::optional<std::string> export_name; // For FFI
   };
 
-  /**
-   * @brief Expected type for error handling
-   */
-  template<typename T, typename E>
-  class Expected {
-  public:
-    Expected(T value) : value_(std::move(value)), has_value_(true) {
-    }
+  struct Symbol {
+    std::string name;
+    SymbolKind kind;
+    TypeInfo type;
+    SymbolAttributes attributes;
+    std::optional<FunctionSymbol> function_data; // Only for Function symbols
+  };
 
-    Expected(E error) : error_(std::move(error)), has_value_(false) {
-    }
+  struct TypeInfo {
+    TypeKind kind;
+    std::string name;
+    std::optional<TypeId> parent_type;
+    std::vector<TypeId> generic_parameters;
+    std::vector<Field> fields; // For structs
+    struct ArrayTypeData {
+      TypeId element_type;
+      std::optional<size_t> size;
+    };
 
-    bool hasValue() const { return has_value_; }
-    const T &value() const { return value_; }
-    const E &error() const { return error_; }
-    operator bool() const { return has_value_; }
+    struct FunctionTypeData {
+      std::vector<TypeId> parameter_types;
+      TypeId return_type;
+      bool is_variadic;
+    };
 
-  private:
-    T value_;
-    E error_;
-    bool has_value_;
+    union {
+      ArrayTypeData array_data;
+      FunctionTypeData function_data;
+    };
   };
 
   using SymbolId = uint64_t;
   using ScopeId = uint64_t;
   using TypeId = uint64_t;
-  using ModuleId = uint64_t;
 
-  /**
-   * @brief Main Symbol Table class for the Argon compiler
-   * 
-   * This class provides the core functionality for symbol management,
-   * including scope management, symbol lookup, and type system integration.
-   */
+  // --- Expected Type for Error Handling ---
+
+  template<typename T, typename E>
+  using Expected = std::expected<T, E>;
+
+  // --- Type System ---
+
+  class TypeSystem {
+  public:
+    auto registerType(TypeInfo type) -> TypeId;
+
+    auto getType(TypeId id) -> const TypeInfo &;
+
+    auto findType(std::string_view name) -> std::optional<TypeId>;
+
+    auto isSubtypeOf(TypeId sub, TypeId super) -> bool;
+
+    auto findCommonSupertype(TypeId a, TypeId b) -> std::optional<TypeId>;
+
+    auto createArrayType(TypeId element_type, std::optional<size_t> size = std::nullopt) -> TypeId;
+
+    auto createPointerType(TypeId pointed_type) -> TypeId;
+
+    auto createFunctionType(std::span<TypeId> params, TypeId return_type, bool is_variadic = false) -> TypeId;
+
+    auto isTypeComplete(TypeId type) -> bool;
+
+    auto getTypeSize(TypeId type) -> std::optional<size_t>;
+
+    auto getTypeAlignment(TypeId type) -> std::optional<size_t>;
+
+  private:
+    std::unordered_map<TypeId, TypeInfo> types_;
+    TypeId next_type_id_ = 1;
+  };
+
+  // --- Scope Manager ---
+
+  class ScopeManager {
+  public:
+    auto createScope(ScopeKind kind, std::optional<std::string> name = std::nullopt) -> ScopeId;
+
+    auto enterScope(ScopeId id) -> void;
+
+    auto exitScope() -> void;
+
+    auto getCurrentScope() -> ScopeId;
+
+    auto getParentScope(ScopeId id) -> std::optional<ScopeId>;
+
+    auto getScopeName(ScopeId id) -> std::optional<std::string>;
+
+    auto getScopeKind(ScopeId id) -> ScopeKind;
+
+    auto getScopeSymbols(ScopeId id) -> std::vector<SymbolId>;
+
+  private:
+    struct ScopeNode {
+      ScopeKind kind;
+      std::optional<std::string> name;
+      ScopeId parent;
+      std::vector<ScopeId> children;
+      std::unordered_map<std::string, SymbolId> symbols;
+    };
+
+    std::unordered_map<ScopeId, ScopeNode> scopes_;
+    std::vector<ScopeId> scope_stack_;
+    ScopeId next_scope_id_ = 1;
+  };
+
+  // --- Symbol Cache ---
+
+  class SymbolCache {
+  public:
+    auto cacheSymbol(SymbolId id, const Symbol &symbol) -> void;
+
+    auto getCachedSymbol(SymbolId id) -> std::optional<Symbol>;
+
+    auto invalidateSymbol(SymbolId id) -> void;
+
+    auto invalidateScope(ScopeId scope) -> void;
+
+  private:
+    struct CacheEntry {
+      Symbol symbol;
+      std::chrono::steady_clock::time_point last_access;
+      uint32_t access_count;
+    };
+
+    std::unordered_map<SymbolId, CacheEntry> cache_;
+  };
+
+  // --- Symbol Table ---
+
   class SymbolTable {
   public:
     SymbolTable();
@@ -179,48 +222,34 @@ namespace argc {
 
     auto getCurrentScope() -> ScopeId;
 
+    auto getScopeName(ScopeId scope_id) -> std::optional<std::string>;
+
+    auto getScopeKind(ScopeId scope_id) -> ScopeKind;
+
+    auto getParentScope(ScopeId scope_id) -> std::optional<ScopeId>;
+
     // Symbol Management
     auto addSymbol(std::string_view name,
                    SymbolKind kind,
-                   class TypeInfo type,
+                   TypeInfo type,
                    SymbolAttributes attrs = {}) -> Expected<SymbolId, SymbolError>;
 
-    auto lookupSymbol(std::string_view name,
-                      uint32_t flags = 0) -> Expected<Symbol, SymbolError>;
+    auto lookupSymbol(std::string_view name) -> Expected<Symbol, SymbolError>;
+
+    auto lookupSymbolInScope(ScopeId scope_id, std::string_view name) -> Expected<Symbol, SymbolError>;
 
     // Type System Integration
-    auto resolveType(class TypeExpression &expr) -> Expected<class TypeInfo, class TypeError>;
+    auto registerType(TypeInfo type) -> TypeId;
 
-    // Module Management
-    auto importModule(std::string_view module_path,
-                      uint32_t flags = 0) -> Expected<ModuleId, SymbolError>;
+    auto getType(TypeId id) -> const TypeInfo &;
 
-    // Template Support
-    auto instantiateTemplate(SymbolId template_id,
-                             std::vector<TypeId> args) -> Expected<SymbolId, SymbolError>;
-
-    // Thread Safety
-    auto acquireSharedLock() -> std::unique_ptr<class SharedLockGuard>;
-
-    auto acquireExclusiveLock() -> std::unique_ptr<class ExclusiveLockGuard>;
-
-    // Debug Support
-    auto dumpSymbolTable() -> std::string;
-
-    auto getSymbolLocation(SymbolId id) -> std::optional<SourceLocation>;
-
-    // Symbol Analysis
-    auto analyzeSymbol(SymbolId id) -> class SymbolAnalysis;
-
-    auto validateSymbols() -> std::vector<SymbolError>;
+    auto findType(std::string_view name) -> std::optional<TypeId>;
 
   private:
     std::unique_ptr<ScopeManager> scope_manager_;
     std::unique_ptr<SymbolCache> symbol_cache_;
     std::unique_ptr<TypeSystem> type_system_;
-    std::unique_ptr<ThreadSafetyGuard> thread_guard_;
-    std::unique_ptr<ModuleManager> module_manager_;
-    std::unique_ptr<SymbolAnalyser> symbol_analyser_;
-    std::unique_ptr<SymbolTableDebugger> debugger_;
+    std::unordered_map<SymbolId, Symbol> symbols_;
+    SymbolId next_symbol_id_ = 1;
   };
 }
