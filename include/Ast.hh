@@ -23,6 +23,9 @@ namespace argc::ast {
   class ModuleDeclaration final : public Node {
   public:
     std::vector<stmt_ptr> statements_;
+    auto add_statement (stmt_ptr s) -> void {
+      statements_.emplace_back(std::move(s));
+    }
   };
 
   class BinaryExpression final : public Expression {
@@ -45,8 +48,9 @@ namespace argc::ast {
   };
 
   class ReturnStatement final : public Statement {
-  public:
     expr_ptr expression_;
+  public:
+    explicit ReturnStatement (expr_ptr e) : expression_(std::move(e)) {}
   };
 
 }
