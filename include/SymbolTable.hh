@@ -107,7 +107,7 @@ namespace argc {
 
     auto name () -> std::string { return name_; }
     auto scope_level () const -> int { return scope_level_; }
-    auto set_scope_level (const int level) -> void { scope_level_ = level; } ;
+    auto set_scope_level (const int level) -> void { scope_level_ = level; }
     auto kind () const -> SymbolKind { return kind_; }
     auto type () const -> std::shared_ptr<Type> { return type_; }
     auto location () const -> loc::SourceLocation { return location_; }
