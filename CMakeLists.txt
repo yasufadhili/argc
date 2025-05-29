@@ -193,6 +193,12 @@ add_executable(
     tests/SymbolTableTests.cc
 )
 
+target_include_directories(
+  test_symbol_table
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 target_link_libraries(test_symbol_table PRIVATE
         GTest::gtest
         GTest::gtest_main
