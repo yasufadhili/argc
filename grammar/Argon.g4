@@ -5,11 +5,19 @@ moduleDeclaration
 ;
 
 statement
-    :   'return' expression NEWLINE
+    :   expression NEWLINE                      # ExpressionStmt
+    |   'ret' expression NEWLINE                # ReturnStmt
 ;
 
 expression
-    :   INTEGER
+    :   expression op=('*' | '/') expression    # MulDivExpr
+    |   expression op=('+' | '-') expression    # AddSubExpr
+    |   atom                                    # AtomExpr
+;
+
+atom
+    :   INTEGER                                 # IntAtom
+    | '(' expression ')'                        # ParenExpr
 ;
 
 
