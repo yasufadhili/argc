@@ -15,11 +15,6 @@ if(MSVC)
 endif()
 
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-
 # Additional module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -27,6 +22,12 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(ANTLR_RUNTIME_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/antlr4/runtime/Cpp)
 set(ANTLR_JAR_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/tools/antlr-4.13.2-complete.jar)
 set(ANTLR_GENERATED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/generated")
+
+
+# Dummy file just to pass initial CMake configuration
+file(MAKE_DIRECTORY ${ANTLR_GENERATED_DIR})
+file(TOUCH ${ANTLR_GENERATED_DIR}/Dummy.cpp)
+
 
 if (NOT EXISTS ${ANTLR_RUNTIME_DIR})
     message(FATAL_ERROR "ANTLR4 C++ runtime not found. Please run: git submodule update --init --recursive")
@@ -37,10 +38,37 @@ if (NOT EXISTS ${ANTLR_JAR_LOCATION})
 endif ()
 
 
-# Ensure Java is available
-find_program(JAVA_EXECUTABLE java)
+# Respect JAVA_HOME if available
+if(DEFINED ENV{JAVA_HOME})
+    set(JAVA_HOME_HINT "$ENV{JAVA_HOME}/bin")
+else()
+    set(JAVA_HOME_HINT "")
+endif()
+
+find_program(JAVA_EXECUTABLE
+    NAMES java
+    HINTS ${JAVA_HOME_HINT}
+    PATHS /usr/bin /usr/local/bin
+    DOC "Java executable used to run ANTLR"
+)
+
 if (NOT JAVA_EXECUTABLE)
-    message(FATAL_ERROR "Java not found. Please install Java or add it to PATH.")
+    message(FATAL_ERROR "Java not found. Please install Java and ensure it's on your PATH or set JAVA_HOME.")
+endif()
+
+# Show Java version
+execute_process(
+    COMMAND ${JAVA_EXECUTABLE} -version
+    OUTPUT_VARIABLE _java_out
+    ERROR_VARIABLE _java_err
+    RESULT_VARIABLE _java_result
+)
+
+if(NOT _java_result EQUAL 0)
+    message(FATAL_ERROR "Java executable found at ${JAVA_EXECUTABLE} but failed to run: ${_java_err}")
+else()
+    message(STATUS "Found Java: ${JAVA_EXECUTABLE}")
+    message(STATUS "Java version info: ${_java_err}")
 endif()
 
 
@@ -61,13 +89,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 message("Done fetching fmtlib")
-
-
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${ANTLR_RUNTIME_DIR}/runtime/src
-        ${ANTLR_GENERATED_DIR}
-)
 
 
 # Grammar generation function
@@ -114,13 +135,13 @@ add_antlr4_grammar(
 )
 
 
-file(GLOB_RECURSE PROJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cc")
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/src/*.cc")
 file(GLOB_RECURSE ANTLR_GENERATED_SRC "${ANTLR_GENERATED_DIR}/*.cpp")
 file(GLOB_RECURSE ANTLR_GENERATED_HDR "${ANTLR_GENERATED_DIR}/*.h")
 
 
 # Grammar as a separate library
-add_library(argon_grammar STATIC ${ANTLR_GENERATED_SRC})
+add_library(argon_grammar STATIC ${ANTLR_GENERATED_SRC}  )
 target_include_directories(argon_grammar PUBLIC ${ANTLR_GENERATED_DIR})
 add_dependencies(argon_grammar Argon_generate)
 
@@ -133,6 +154,18 @@ add_executable(${PROJECT_NAME}
 
 
 add_dependencies(${PROJECT_NAME} Argon_generate)
+
+
+target_include_directories(argon_grammar PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${ANTLR_RUNTIME_DIR}/runtime/src
+    ${ANTLR_GENERATED_DIR}
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${ANTLR_GENERATED_DIR}
+)
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -165,5 +198,14 @@ target_link_libraries(test_symbol_table PRIVATE
         GTest::gtest_main
 )
 
+
+
 add_test(NAME SymbolTableTests COMMAND test_symbol_table)
+
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
 
