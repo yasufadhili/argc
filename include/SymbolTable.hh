@@ -11,7 +11,7 @@ namespace argc {
 
   enum class SymbolKind {MODULE, FUNCTION, VARIABLE, TYPE, PARAMETER};
 
-  enum class TypeKind { PRIMITIVE, STRUCT, ARRAY, FUNCTION };
+  enum class TypeKind { MODULE, PRIMITIVE, STRUCT, ARRAY, FUNCTION };
 
   class Type {
   protected:
@@ -21,6 +21,14 @@ namespace argc {
     virtual ~Type() = default;
     auto name () const -> const std::string& { return name_; }
     [[nodiscard]] auto kind () const -> TypeKind { return kind_; }
+  };
+
+  class ModuleType final : public Type {
+  public:
+      explicit ModuleType(std::string name){
+          name_ = std::move(name);
+          kind_ = TypeKind::MODULE;
+      }
   };
 
   class PrimitiveType final : public Type {

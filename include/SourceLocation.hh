@@ -8,8 +8,6 @@ namespace argc::loc {
     int line;
     int column;
 
-  public:
-    SourceLocation(int line, int column, const std::string& file = "")
-      : file(file), line(line), column(column) {}
+    SourceLocation(int line, int column, std::string file) {}
   };
 }
