@@ -1,10 +1,8 @@
-#include <ArgonParser.h>
+#include "ArgonParser.h"
 #include "ArgonLexer.h"
 #include <string>
 #include <fstream>
 #include <fmt/core.h>
-
-#include "AstBuilder.hh"
 #include "fmt/color.h"
 
 auto main(const int argc, char *argv[]) -> int {
