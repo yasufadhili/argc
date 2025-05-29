@@ -140,3 +140,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         antlr4_static
         fmt::fmt
 )
+
+add_executable(
+    test_symbol_table
+    tests/SymbolTableTests.cc
+)
+
+target_link_libraries(test_symbol_table PRIVATE
+        GTest::gtest
+        GTest::gtest_main
+)
+
+add_test(NAME SymbolTableTests COMMAND test_symbol_table)
+
