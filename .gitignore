@@ -61,7 +61,6 @@ compile_commands.json
 
 generated/
 out/
-external/antlr4
 
 dist/
 
