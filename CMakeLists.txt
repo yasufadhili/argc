@@ -141,6 +141,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
 )
 
+
+message("Fetching GoogleTest")
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG v1.14.0
+)
+FetchContent_MakeAvailable(googletest)
+message("Done fetching GoogleTest")
+
+
+enable_testing()
+
+
 add_executable(
     test_symbol_table
     tests/SymbolTableTests.cc
