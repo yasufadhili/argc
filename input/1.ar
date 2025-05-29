@@ -1,4 +1,4 @@
 module main
 
-return 23
+ret 23
 
