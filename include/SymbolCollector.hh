@@ -7,9 +7,13 @@
 namespace argc {
 class SymbolCollector : public ArgonBaseVisitor {
   SymbolTable symbol_table_;
-  err::ErrorReporter error_reporter_;
+  err::ErrorReporter& error_reporter_;
 
 public:
+
+  explicit SymbolCollector(err::ErrorReporter& reporter)
+    : error_reporter_(reporter) {}
+
   std::any visitModuleDeclaration(ArgonParser::ModuleDeclarationContext *ctx) override;
 
   std::any visitExpressionStmt(ArgonParser::ExpressionStmtContext *ctx) override;
