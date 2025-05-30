@@ -41,8 +41,7 @@ public:
 
   auto parseArgs (const int argc, char* argv[]) -> bool {
     for (int i =1; i < argc; ++i) {
-      std::string arg {argv[i]};
-      if (arg == "-o" && i + i < argc) {
+      if (std::string arg {argv[i]}; arg == "-o" && i + 1 < argc) {
         output_file_ = argv[++i];
         if (!validateOutputFile(output_file_)) {
           reporter_.reportQuick(
@@ -53,7 +52,7 @@ public:
             );
           return false;
         }
-      } else if (arg == "-arch" && i + i < argc) {
+      } else if (arg == "-arch" && i + 1 < argc) {
         std::string arch = argv[++i];
         target_arch_ = parseTargetArch(arch);
         if (target_arch_ == TargetArch::UNKNOWN ) {
