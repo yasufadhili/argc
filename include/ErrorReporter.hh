@@ -205,7 +205,7 @@ namespace argc::err {
                      fmt::format_string<Args...> fmt,
                      Args &&... args,
                      std::source_location src_loc = std::source_location::current()) {
-      report_error(code, stage, severity, SourceLocation{}, fmt,
+      reportError(code, stage, severity, SourceLocation{}, fmt,
                    std::forward<Args>(args)..., src_loc);
     }
 
