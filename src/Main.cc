@@ -30,7 +30,7 @@ auto main(const int argc, char *argv[]) -> int {
         argc::err::ErrorCode::InvalidToken,
         argc::err::CompileStage::Lexing,
         argc::err::ErrorSeverity::Fatal,
-        "Could not open input file: " + input_file_path
+        "Could not open input file provided"
       );
       return 1;
     }

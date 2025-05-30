@@ -41,14 +41,14 @@ public:
 
   auto parseArgs (const int argc, char* argv[]) -> bool {
     for (int i =1; i < argc; ++i) {
-      if (std::string arg {argv[i]}; arg == "-o" && i + 1 < argc) {
+      if (const std::string arg {argv[i]}; arg == "-o" && i + 1 < argc) {
         output_file_ = argv[++i];
         if (!validateOutputFile(output_file_)) {
           reporter_.reportQuick(
             err::ErrorCode::InvalidToken,
             err::CompileStage::Lexing,
             err::ErrorSeverity::Fatal,
-            "Invalid output file path: " + output_file_
+            "Invalid output file path"
             );
           return false;
         }
@@ -60,7 +60,7 @@ public:
           err::ErrorCode::InvalidToken,
           err::CompileStage::Lexing,
           err::ErrorSeverity::Fatal,
-          "Unsupported target architecture: " + arch
+          "Unsupported target architecture provided"
           );
           return false;
         }
@@ -82,7 +82,7 @@ public:
           err::ErrorCode::InvalidToken,
           err::CompileStage::Lexing,
           err::ErrorSeverity::Fatal,
-          "Input file does not exist: " + arg
+          "Input file provided does not exist "
           );
           return false;
         }
@@ -93,7 +93,7 @@ public:
         err::ErrorCode::InvalidToken,
         err::CompileStage::Lexing,
         err::ErrorSeverity::Fatal,
-        "Unknown option: " + arg
+        "Unknown option provided"
         );
         return false;
       }
