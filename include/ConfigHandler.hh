@@ -30,7 +30,7 @@ class ConfigHandler {
   err::ErrorReporter& reporter_;
 
 public:
-  explicit ConfigHandler (err::ErrorReporter reporter) :
+  explicit ConfigHandler (err::ErrorReporter& reporter) :
   output_file_("a.out"),
   target_arch_(TargetArch::X86_64),
   optimisation_level_(OptimisationLevel::ONE),
@@ -41,19 +41,18 @@ public:
 
   auto parseArgs (const int argc, char* argv[]) -> bool {
     for (int i =1; i < argc; ++i) {
-      std::string arg {argv[i]};
-      if (arg == "-o" && i + i < argc) {
+      if (const std::string arg {argv[i]}; arg == "-o" && i + 1 < argc) {
         output_file_ = argv[++i];
         if (!validateOutputFile(output_file_)) {
           reporter_.reportQuick(
             err::ErrorCode::InvalidToken,
             err::CompileStage::Lexing,
             err::ErrorSeverity::Fatal,
-            "Invalid output file path: " + output_file_
+            "Invalid output file path"
             );
           return false;
         }
-      } else if (arg == "-arch" && i + i < argc) {
+      } else if (arg == "-arch" && i + 1 < argc) {
         std::string arch = argv[++i];
         target_arch_ = parseTargetArch(arch);
         if (target_arch_ == TargetArch::UNKNOWN ) {
@@ -61,7 +60,7 @@ public:
           err::ErrorCode::InvalidToken,
           err::CompileStage::Lexing,
           err::ErrorSeverity::Fatal,
-          "Unsupported target architecture: " + arch
+          "Unsupported target architecture provided"
           );
           return false;
         }
@@ -83,7 +82,7 @@ public:
           err::ErrorCode::InvalidToken,
           err::CompileStage::Lexing,
           err::ErrorSeverity::Fatal,
-          "Input file does not exist: " + arg
+          "Input file provided does not exist "
           );
           return false;
         }
@@ -94,7 +93,7 @@ public:
         err::ErrorCode::InvalidToken,
         err::CompileStage::Lexing,
         err::ErrorSeverity::Fatal,
-        "Unknown option: " + arg
+        "Unknown option provided"
         );
         return false;
       }
@@ -121,7 +120,7 @@ public:
   [[nodiscard]] int8_t getVerbosity () const { return verbosity_level_; }
 
   // Convert TargetArch to string for logging or display
-  static auto getTargetArchString () -> std::string {
+  [[nodiscard]] auto getTargetArchString () const -> std::string {
     switch ( target_arch_ ) {
       case TargetArch::X86_64: return "x86_64";
       case TargetArch::ARM: return "arm";
