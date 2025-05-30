@@ -30,7 +30,7 @@ class ConfigHandler {
   err::ErrorReporter& reporter_;
 
 public:
-  explicit ConfigHandler (err::ErrorReporter reporter) :
+  explicit ConfigHandler (err::ErrorReporter& reporter) :
   output_file_("a.out"),
   target_arch_(TargetArch::X86_64),
   optimisation_level_(OptimisationLevel::ONE),
@@ -121,7 +121,7 @@ public:
   [[nodiscard]] int8_t getVerbosity () const { return verbosity_level_; }
 
   // Convert TargetArch to string for logging or display
-  static auto getTargetArchString () -> std::string {
+  [[nodiscard]] auto getTargetArchString () const -> std::string {
     switch ( target_arch_ ) {
       case TargetArch::X86_64: return "x86_64";
       case TargetArch::ARM: return "arm";
